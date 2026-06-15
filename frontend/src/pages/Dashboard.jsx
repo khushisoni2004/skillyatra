@@ -22,6 +22,40 @@ import "./skillyatra.css";
 import { BACKEND_BASE } from "../lib/config";
 const API_BASE = BACKEND_BASE;
 
+const DASHBOARD_CACHE_KEY = "skillyatra_dashboard_summary_cache_v2";
+const DASHBOARD_CACHE_TIME = 1000 * 60 * 20;
+
+function readDashboardCache() {
+  try {
+    const raw = sessionStorage.getItem(DASHBOARD_CACHE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed?.time || !parsed?.summary) return null;
+
+    if (Date.now() - parsed.time > DASHBOARD_CACHE_TIME) {
+      sessionStorage.removeItem(DASHBOARD_CACHE_KEY);
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeDashboardCache(summary) {
+  try {
+    sessionStorage.setItem(
+      DASHBOARD_CACHE_KEY,
+      JSON.stringify({
+        time: Date.now(),
+        summary
+      })
+    );
+  } catch {}
+}
+
 function readUser() {
   try {
     return JSON.parse(localStorage.getItem("skillyatra_user") || "{}");
@@ -95,7 +129,7 @@ export default function Dashboard() {
       getJSON("/api/dashboard/stats"),
       getJSON("/api/progress/summary"),
       getJSON("/api/readiness"),
-      getJSON("/api/companies")
+      getJSON("/api/companies?limit=1")
     ]);
 
     const dashboard = dashboardRes.status === "fulfilled" ? dashboardRes.value : null;
@@ -766,7 +800,7 @@ export default function Dashboard() {
 
                 <button type="button" onClick={loadDashboard} className="finaldash-ghost">
                   <RefreshCw size={16} />
-                  {loading ? "Refreshing..." : "Refresh Live Data"}
+                  {loading && !lastSync ? "Refreshing..." : "Refresh Live Data"}
                 </button>
               </div>
             </div>
@@ -788,7 +822,7 @@ export default function Dashboard() {
               </div>
 
               <p className="finaldash-sync">
-                {loading ? "Loading live progress..." : `Live synced${lastSync ? ` at ${lastSync}` : ""}.`}
+                {loading && !lastSync ? "Loading live progress..." : `Live synced${lastSync && lastSync !== "cached" ? ` at ${lastSync}` : ""}.`}
               </p>
             </div>
           </div>
