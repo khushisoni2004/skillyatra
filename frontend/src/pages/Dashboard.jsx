@@ -91,39 +91,42 @@ function countList(data, key) {
   return 0;
 }
 
+const DEFAULT_DASHBOARD_SUMMARY = {
+  readiness: 0,
+  completedTasks: 0,
+  pendingTasks: 0,
+  dsaDone: 0,
+  practiceDone: 0,
+  interviewsDone: 0,
+  resumeScore: 0,
+  targetCompanies: 0,
+  streakDays: 0,
+  activeRoadmap: "Not selected"
+};
+
+function getInitialDashboardSummary() {
+  const cached = readDashboardCache();
+  if (cached?.summary) return cached.summary;
+  return DEFAULT_DASHBOARD_SUMMARY;
+}
+
 export default function Dashboard() {
   const [user, setUser] = useState(readUser());
-  const [loading, setLoading] = useState(true);
-  const [lastSync, setLastSync] = useState("");
-  const [summary, setSummary] = useState({
-    readiness: 0,
-    completedTasks: 0,
-    pendingTasks: 0,
-    dsaDone: 0,
-    practiceDone: 0,
-    interviewsDone: 0,
-    resumeScore: 0,
-    targetCompanies: 0,
-    streakDays: 0,
-    activeRoadmap: "Not selected"
-  });
+  const [loading, setLoading] = useState(false);
+  const [lastSync, setLastSync] = useState(() => (readDashboardCache()?.summary ? "cached" : ""));
+  const [summary, setSummary] = useState(getInitialDashboardSummary);
 
   const loadDashboard = async () => {
-    setLoading(true);
+    setLoading(false);
     setUser(readUser());
 
-    const next = {
-      readiness: 0,
-      completedTasks: 0,
-      pendingTasks: 0,
-      dsaDone: 0,
-      practiceDone: 0,
-      interviewsDone: 0,
-      resumeScore: 0,
-      targetCompanies: 0,
-      streakDays: 0,
-      activeRoadmap: "Not selected"
-    };
+    const cachedDashboard = readDashboardCache();
+    if (cachedDashboard?.summary) {
+      setSummary(cachedDashboard.summary);
+      setLastSync("cached");
+    }
+
+    const next = { ...DEFAULT_DASHBOARD_SUMMARY };
 
     const [dashboardRes, progressRes, readinessRes, companiesRes] = await Promise.allSettled([
       getJSON("/api/dashboard/stats"),
@@ -203,6 +206,7 @@ export default function Dashboard() {
     );
 
     next.targetCompanies =
+      pickNumber(companies?.totalCompanies, companies?.totalAllCompanies) ||
       countList(companies, "companies") ||
       pickNumber(
         dashboard?.targetCompanies,
@@ -243,6 +247,7 @@ export default function Dashboard() {
     } catch {}
 
     setSummary(next);
+    writeDashboardCache(next);
     setLastSync(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
     setLoading(false);
   };
@@ -800,7 +805,7 @@ export default function Dashboard() {
 
                 <button type="button" onClick={loadDashboard} className="finaldash-ghost">
                   <RefreshCw size={16} />
-                  {loading && !lastSync ? "Refreshing..." : "Refresh Live Data"}
+                  Refresh Live Data
                 </button>
               </div>
             </div>
@@ -822,7 +827,7 @@ export default function Dashboard() {
               </div>
 
               <p className="finaldash-sync">
-                {loading && !lastSync ? "Loading live progress..." : `Live synced${lastSync && lastSync !== "cached" ? ` at ${lastSync}` : ""}.`}
+                {`Live synced${lastSync && lastSync !== "cached" ? ` at ${lastSync}` : ""}.`}
               </p>
             </div>
           </div>
