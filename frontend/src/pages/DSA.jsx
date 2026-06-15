@@ -76,7 +76,7 @@ export default function DSA() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
 
   const latestRequestRef = useRef(0);
@@ -154,10 +154,10 @@ export default function DSA() {
       if (cached) {
         applyData(cached, targetPage);
         setLoading(false);
-        setUpdating(true);
+        setUpdating(false);
       } else if (!silent) {
-        setLoading(questions.length === 0);
-        setUpdating(questions.length > 0);
+        setLoading(false);
+        setUpdating(false);
       }
 
       try {
@@ -175,8 +175,10 @@ export default function DSA() {
           const freshTotalPages = res.data.totalPages || totalPages || 1;
           const currentPage = res.data.page || targetPage;
 
-          if (currentPage < freshTotalPages) {
-            setTimeout(() => prefetchPage(currentPage + 1), 150);
+          for (let i = 1; i <= 5; i += 1) {
+            if (currentPage + i <= freshTotalPages) {
+              setTimeout(() => prefetchPage(currentPage + i), 120 * i);
+            }
           }
 
           if (currentPage > 1) {
@@ -217,14 +219,51 @@ export default function DSA() {
 
   useEffect(() => {
     if (questions.length > 0) {
-      prefetchPage(page + 1);
+      for (let i = 1; i <= 5; i += 1) {
+        prefetchPage(page + i);
+      }
       prefetchPage(page - 1);
     }
   }, [page, questions.length, prefetchPage]);
 
+  useEffect(() => {
+    const realTopics = topics.filter((item) => item && item !== "All").slice(0, 60);
+    if (!realTopics.length) return;
+
+    realTopics.forEach((topicName, index) => {
+      setTimeout(async () => {
+        const cacheKey = makeCacheKey({
+          page: 1,
+          topic: topicName,
+          platform,
+          difficulty,
+          search: ""
+        });
+
+        if (readCache(cacheKey)) return;
+
+        try {
+          const params = new URLSearchParams({
+            page: "1",
+            limit: String(PAGE_SIZE),
+            topic: topicName,
+            platform,
+            difficulty,
+            search: ""
+          });
+
+          const res = await api.get(`/dsa/questions?${params.toString()}`);
+          if (res.data?.ok) {
+            writeCache(cacheKey, res.data);
+          }
+        } catch {}
+      }, index * 70);
+    });
+  }, [topics, platform, difficulty]);
+
   function searchNow() {
     setPage(1);
-    loadQuestions(1, { force: true });
+    loadQuestions(1, { force: false });
   }
 
   function refreshAll() {
@@ -332,7 +371,24 @@ export default function DSA() {
             <select
               value={topic}
               onChange={(e) => {
-                setTopic(e.target.value);
+                const nextTopic = e.target.value;
+                const cached = readCache(
+                  makeCacheKey({
+                    page: 1,
+                    topic: nextTopic,
+                    platform,
+                    difficulty,
+                    search
+                  })
+                );
+
+                if (cached) {
+                  applyData(cached, 1);
+                  setLoading(false);
+                  setUpdating(false);
+                }
+
+                setTopic(nextTopic);
                 setPage(1);
               }}
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
@@ -347,7 +403,24 @@ export default function DSA() {
             <select
               value={difficulty}
               onChange={(e) => {
-                setDifficulty(e.target.value);
+                const nextDifficulty = e.target.value;
+                const cached = readCache(
+                  makeCacheKey({
+                    page: 1,
+                    topic,
+                    platform,
+                    difficulty: nextDifficulty,
+                    search
+                  })
+                );
+
+                if (cached) {
+                  applyData(cached, 1);
+                  setLoading(false);
+                  setUpdating(false);
+                }
+
+                setDifficulty(nextDifficulty);
                 setPage(1);
               }}
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
@@ -361,7 +434,24 @@ export default function DSA() {
             <select
               value={platform}
               onChange={(e) => {
-                setPlatform(e.target.value);
+                const nextPlatform = e.target.value;
+                const cached = readCache(
+                  makeCacheKey({
+                    page: 1,
+                    topic,
+                    platform: nextPlatform,
+                    difficulty,
+                    search
+                  })
+                );
+
+                if (cached) {
+                  applyData(cached, 1);
+                  setLoading(false);
+                  setUpdating(false);
+                }
+
+                setPlatform(nextPlatform);
                 setPage(1);
               }}
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
@@ -399,6 +489,22 @@ export default function DSA() {
                 key={item}
                 type="button"
                 onClick={() => {
+                  const cached = readCache(
+                    makeCacheKey({
+                      page: 1,
+                      topic: item,
+                      platform,
+                      difficulty,
+                      search
+                    })
+                  );
+
+                  if (cached) {
+                    applyData(cached, 1);
+                    setLoading(false);
+                    setUpdating(false);
+                  }
+
                   setTopic(item);
                   setPage(1);
                 }}
@@ -415,11 +521,7 @@ export default function DSA() {
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white px-5 py-4 shadow-sm ring-1 ring-slate-200">
           <p className="text-sm font-black text-slate-600">
-            {loading
-              ? "Loading coding questions..."
-              : updating
-              ? "Updating questions in background..."
-              : `Showing ${questions.length} of ${total} questions`}
+            {`Showing ${questions.length} of ${total} questions`}
           </p>
 
           <div className="flex items-center gap-2">
