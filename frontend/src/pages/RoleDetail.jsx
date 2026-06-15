@@ -1,35 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Companies.css";
-
 import { BACKEND_BASE } from "../lib/config";
+
 const API_BASE = BACKEND_BASE;
-
-function readRolesFromCache(companyName) {
-  try {
-    const keys = [
-      "skillyatra_companies_cache_v2",
-      "skillyatra_interview_companies_cache_v3",
-      "skillyatra_interview_companies_cache_v2"
-    ];
-
-    for (const key of keys) {
-      const raw = sessionStorage.getItem(key);
-      if (!raw) continue;
-
-      const parsed = JSON.parse(raw);
-      const list = parsed?.data?.companies || parsed?.companies || [];
-
-      const found = Array.isArray(list)
-        ? list.find((item) => String(item.companyName || "").toLowerCase() === String(companyName || "").toLowerCase())
-        : null;
-
-      if (found && Array.isArray(found.roles)) return found.roles;
-    }
-  } catch {}
-
-  return [];
-}
 
 function cleanList(value) {
   return Array.isArray(value) ? value.filter(Boolean) : [];
@@ -39,65 +13,67 @@ function makeYoutubeSearch(query) {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
 }
 
-export default function RoleDetail() {
-  const navigate = useNavigate();
-  const { companyName, roleId } = useParams();
+function readSelectedRole(companyName, roleNumber) {
+  try {
+    const raw = sessionStorage.getItem(`skillyatra_selected_role:${companyName}:${roleNumber}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.role || null;
+  } catch {
+    return null;
+  }
+}
 
-  const decodedCompanyName = decodeURIComponent(companyName || "");
-  const roleIndex = Math.max(Number(roleId || 1) - 1, 0);
+export default function CompanyRoleDetail() {
+  const navigate = useNavigate();
+  const params = useParams();
+
+  const decodedCompanyName = decodeURIComponent(params.companyName || "");
+  const roleNumber = Number(params.roleIndex || params.roleId || params.id || 1);
+  const selectedIndex = Math.max(roleNumber - 1, 0);
 
   const [roles, setRoles] = useState([]);
-  const [role, setRole] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState(() => readSelectedRole(decodedCompanyName, roleNumber));
   const [error, setError] = useState("");
 
-  const loadRole = async () => {
-    try {
-      setLoading(false);
-      setError("");
-
-      const res = await fetch(
-        `${API_BASE}/api/companies/${encodeURIComponent(decodedCompanyName)}/roles`
-      );
-
-      const data = await res.json();
-      const list = Array.isArray(data.roles) ? data.roles : [];
-
-      setRoles(list);
-      setRole(list[roleIndex] || null);
-
-      if (!list.length) {
-        setError("No role data returned from backend for this company.");
-      }
-    } catch (err) {
-      setRoles([]);
-      setRole(null);
-      setError("Unable to load role data. Check backend API.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadRole();
-  }, [decodedCompanyName, roleIndex]);
+    fetch(`${API_BASE}/api/companies/${encodeURIComponent(decodedCompanyName)}/roles`, {
+      method: "GET",
+      cache: "no-store",
+      mode: "cors"
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const list = Array.isArray(data?.roles) ? data.roles : [];
+        setRoles(list);
+
+        const selected = list[selectedIndex] || list[0] || null;
+        if (selected) {
+          setRole(selected);
+          try {
+            sessionStorage.setItem(
+              `skillyatra_selected_role:${decodedCompanyName}:${roleNumber}`,
+              JSON.stringify({ companyName: decodedCompanyName, role: selected })
+            );
+          } catch {}
+        } else if (!role) {
+          setError("Role data not available for this company.");
+        }
+      })
+      .catch(() => {
+        if (!role) setError("Role data not available right now.");
+      });
+  }, [decodedCompanyName, selectedIndex, roleNumber]);
 
   const skills = useMemo(() => cleanList(role?.skills), [role]);
   const locations = useMemo(() => cleanList(role?.locations), [role]);
 
-  const topSkills = useMemo(() => {
-    const first = skills.slice(0, 6);
-    if (first.length) return first;
-
-    return ["Role basics", "Project work", "Interview preparation", "Resume points"];
-  }, [skills]);
-
   const roadmap = useMemo(() => {
     const roleName = role?.roleName || "this role";
-    const firstSkill = skills[0] || "core fundamentals";
-    const secondSkill = skills[1] || "practical implementation";
-    const thirdSkill = skills[2] || "project building";
-    const fourthSkill = skills[3] || "interview preparation";
+    const first = skills[0] || "role fundamentals";
+    const second = skills[1] || "practical skills";
+    const third = skills[2] || "project work";
+    const fourth = skills[3] || "interview preparation";
 
     return [
       {
@@ -105,16 +81,16 @@ export default function RoleDetail() {
         text: `Read the ${roleName} job description and understand daily responsibilities for ${decodedCompanyName}.`
       },
       {
-        title: `Build base in ${firstSkill}`,
-        text: `Start with fundamentals of ${firstSkill}. Make short notes and revise important definitions.`
+        title: `Build base in ${first}`,
+        text: `Start with fundamentals of ${first}. Make short notes and revise important definitions.`
       },
       {
-        title: `Practice ${secondSkill}`,
-        text: `Solve small examples and practical questions related to ${secondSkill}.`
+        title: `Practice ${second}`,
+        text: `Solve small examples and practical questions related to ${second}.`
       },
       {
-        title: `Create one mini project`,
-        text: `Use ${thirdSkill} and make one role-based mini project for resume discussion.`
+        title: "Create one mini project",
+        text: `Use ${third} and make one role-based mini project for resume discussion.`
       },
       {
         title: "Prepare interview answers",
@@ -122,20 +98,15 @@ export default function RoleDetail() {
       },
       {
         title: "Final revision",
-        text: `Revise ${fourthSkill}, common interview questions and explain your project clearly.`
+        text: `Revise ${fourth}, common interview questions and explain your project clearly.`
       }
     ];
   }, [role, skills, decodedCompanyName]);
 
   const youtubeLinks = useMemo(() => {
     const roleName = role?.roleName || "job role";
-    const skillLinks = skills.slice(0, 4).map((skill) => ({
-      title: `${skill} preparation`,
-      subtitle: "Skill-based YouTube preparation",
-      url: makeYoutubeSearch(`${skill} preparation for ${roleName}`)
-    }));
 
-    return [
+    const base = [
       {
         title: `${roleName} full preparation`,
         subtitle: "Complete role preparation videos",
@@ -155,213 +126,165 @@ export default function RoleDetail() {
         title: `${roleName} project ideas`,
         subtitle: "Project ideas for resume",
         url: makeYoutubeSearch(`${roleName} project ideas for resume`)
-      },
-      ...skillLinks
-    ].slice(0, 8);
-  }, [role, skills]);
+      }
+    ];
 
-  
+    const skillLinks = skills.slice(0, 4).map((skill) => ({
+      title: `${skill} preparation`,
+      subtitle: "Skill-based YouTube preparation",
+      url: makeYoutubeSearch(`${skill} preparation for ${roleName}`)
+    }));
+
+    return [...base, ...skillLinks].slice(0, 8);
+  }, [role, skills]);
 
   if (!role) {
     return (
-      <div className="company-role-theme-page">
-        <button
-          onClick={() => navigate("/companies")}
-          className="company-theme-btn mb-6"
-        >
-          ← Back to Companies
-        </button>
+      <div className="company-role-page">
+        <div className="company-role-shell">
+          <button type="button" onClick={() => navigate("/companies")} className="company-theme-btn">
+            ← Back to Companies
+          </button>
 
-        <section className="company-role-panel p-8">
-          <h2>Role data not available</h2>
-          <p>{error || "This role was not found in the company dataset."}</p>
-
-          <div className="mt-5 flex flex-wrap gap-3">
-            <button
-              onClick={() => navigate("/companies")}
-              className="company-theme-btn"
-            >
-              Open company detail →
-            </button>
-
-            <button onClick={loadRole} className="company-theme-btn">
-              Retry loading →
-            </button>
-          </div>
-        </section>
+          <section className="role-detail-hero">
+            <p>DATASET BASED ROLE PREPARATION</p>
+            <h1>{decodedCompanyName}</h1>
+            <span>{error || "Role data is syncing from dataset."}</span>
+          </section>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="company-role-theme-page">
-      <button
-        onClick={() => navigate("/companies")}
-        className="company-theme-btn mb-6"
-      >
-        ← Back to Companies
-      </button>
+    <div className="company-role-page">
+      <div className="company-role-shell">
+        <button
+          type="button"
+          onClick={() => navigate(`/companies/${encodeURIComponent(decodedCompanyName)}`)}
+          className="company-theme-btn"
+        >
+          ← Back to Company
+        </button>
 
-      <section className="company-role-hero">
-        <p className="company-role-kicker">DATASET BASED ROLE PREPARATION</p>
-        <h1>{role.roleName}</h1>
+        <section className="role-detail-hero">
+          <p>DATASET BASED ROLE PREPARATION</p>
+          <h1>{role.roleName}</h1>
+          <span>{decodedCompanyName}</span>
+        </section>
 
-        <div className="company-role-summary-grid">
-          <div className="company-role-summary-card">
-            <p>Company</p>
-            <h3>{decodedCompanyName}</h3>
+        <section className="role-detail-stats">
+          <div>
+            <span>Company</span>
+            <strong>{decodedCompanyName}</strong>
           </div>
-
-          <div className="company-role-summary-card">
-            <p>Package</p>
-            <h3>{role.expectedPackage || "Package not specified"}</h3>
+          <div>
+            <span>Package</span>
+            <strong>{role.expectedPackage || "Package not specified"}</strong>
           </div>
-
-          <div className="company-role-summary-card">
-            <p>Experience</p>
-            <h3>{role.expectedExperience || "Experience not specified"}</h3>
+          <div>
+            <span>Experience</span>
+            <strong>{role.expectedExperience || "Experience not specified"}</strong>
           </div>
-
-          <div className="company-role-summary-card">
-            <p>Skills</p>
-            <h3>{skills.length}</h3>
+          <div>
+            <span>Skills</span>
+            <strong>{skills.length}</strong>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <div className="company-role-main-grid">
-        <section className="company-role-panel p-6">
-          <div className="company-role-section-head">
-            <span>ROADMAP</span>
-            <h2>Step-wise Preparation Plan</h2>
-            <p>
-              This plan is generated from this role name and required skills in the dataset.
-            </p>
-          </div>
+        <section className="role-detail-card">
+          <p className="role-detail-kicker">ROADMAP</p>
+          <h2>Step-wise Preparation Plan</h2>
+          <p className="role-detail-subtitle">
+            This plan is generated from this role name and required skills in the dataset.
+          </p>
 
-          <div className="company-role-stack mt-5">
+          <div className="role-roadmap-grid">
             {roadmap.map((step, index) => (
-              <div key={`${step.title}-${index}`} className="company-step-card">
-                <div className="company-step-number">{index + 1}</div>
-                <div>
-                  <h3>{step.title}</h3>
-                  <p>{step.text}</p>
-                </div>
-              </div>
+              <article key={step.title} className="role-roadmap-item">
+                <b>{index + 1}</b>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </article>
             ))}
           </div>
         </section>
 
-        <div className="company-role-stack">
-          <section className="company-role-panel p-6">
-            <div className="company-role-section-head">
-              <span>STUDY FIRST</span>
-              <h2>What to Study</h2>
-            </div>
+        <section className="role-detail-grid">
+          <div className="role-detail-card">
+            <p className="role-detail-kicker">STUDY FIRST</p>
+            <h2>What to Study</h2>
 
-            <div className="company-role-stack mt-4">
-              {topSkills.slice(0, 4).map((skill, index) => (
-                <div key={`${skill}-${index}`} className="company-study-row">
-                  <div className="company-step-number">{index + 1}</div>
-                  <h3>{skill}</h3>
-                </div>
+            <div className="role-chip-list">
+              {(skills.length ? skills.slice(0, 8) : ["Role basics", "Project work", "Interview preparation", "Resume points"]).map((skill, index) => (
+                <span key={`${skill}-${index}`}>{index + 1}. {skill}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="role-detail-card">
+            <p className="role-detail-kicker">LOCATIONS</p>
+            <h2>Job Locations</h2>
+
+            <div className="role-chip-list">
+              {locations.length ? (
+                locations.slice(0, 10).map((location, index) => (
+                  <span key={`${location}-${index}`}>{location}</span>
+                ))
+              ) : (
+                <span>Location data not available in dataset.</span>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="role-detail-card">
+          <p className="role-detail-kicker">SKILLS</p>
+          <h2>Required Skills</h2>
+
+          <div className="role-chip-list">
+            {skills.length ? (
+              skills.map((skill, index) => <span key={`${skill}-${index}`}>{skill}</span>)
+            ) : (
+              <span>Skill data not available in dataset.</span>
+            )}
+          </div>
+        </section>
+
+        <section className="role-detail-card">
+          <p className="role-detail-kicker">YOUTUBE</p>
+          <h2>YouTube Preparation Links</h2>
+
+          <div className="role-video-grid">
+            {youtubeLinks.map((item, index) => (
+              <a key={`${item.title}-${index}`} href={item.url} target="_blank" rel="noreferrer">
+                <b>▶ {item.title}</b>
+                <span>{item.subtitle}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        {roles.length > 1 && (
+          <section className="role-detail-card">
+            <p className="role-detail-kicker">MORE ROLES</p>
+            <h2>Other Roles in {decodedCompanyName}</h2>
+
+            <div className="role-chip-list">
+              {roles.map((item, index) => (
+                <button
+                  key={`${item.roleName}-${index}`}
+                  type="button"
+                  onClick={() => navigate(`/companies/${encodeURIComponent(decodedCompanyName)}/roles/${index + 1}`)}
+                  className="company-theme-btn"
+                >
+                  {item.roleName}
+                </button>
               ))}
             </div>
           </section>
-
-          <section className="company-role-panel p-6">
-            <div className="company-role-section-head">
-              <span>SKILLS</span>
-              <h2>Required Skills</h2>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-3">
-              {skills.length ? (
-                skills.map((skill, index) => (
-                  <span key={`${skill}-${index}`} className="company-role-chip">
-                    {skill}
-                  </span>
-                ))
-              ) : (
-                <p>Skill data not available in dataset.</p>
-              )}
-            </div>
-          </section>
-
-          <section className="company-role-panel p-6">
-            <div className="company-role-section-head">
-              <span>LOCATIONS</span>
-              <h2>Job Locations</h2>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-3">
-              {locations.length ? (
-                locations.map((location, index) => (
-                  <span
-                    key={`${location}-${index}`}
-                    className="company-location-chip"
-                  >
-                    {location}
-                  </span>
-                ))
-              ) : (
-                <p>Location data not available in dataset.</p>
-              )}
-            </div>
-          </section>
-        </div>
+        )}
       </div>
-
-      <section className="company-role-panel mt-8 p-6">
-        <div className="company-role-section-head">
-          <span>YOUTUBE</span>
-          <h2>YouTube Preparation Links</h2>
-        </div>
-
-        <div className="company-link-grid mt-5">
-          {youtubeLinks.map((item, index) => (
-            <a
-              key={`${item.title}-${index}`}
-              href={item.url}
-              target="_blank"
-              rel="noreferrer"
-              className="company-link-card"
-            >
-              <div className="company-link-icon">▶</div>
-
-              <div>
-                <h4>{item.title}</h4>
-                <p>{item.subtitle}</p>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {false && roles.length > 1 && (
-        <section className="company-role-panel mt-8 p-6">
-          <div className="company-role-section-head">
-            <span>MORE ROLES</span>
-            <h2>Other Roles in {decodedCompanyName}</h2>
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-3">
-            {roles.map((item, index) => (
-              <button
-                key={`${item.roleName}-${index}`}
-                onClick={() =>
-                  navigate(
-                    `/companies/${encodeURIComponent(decodedCompanyName)}/roles/${index + 1}`
-                  )
-                }
-                className="company-theme-btn"
-              >
-                {item.roleName}
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }

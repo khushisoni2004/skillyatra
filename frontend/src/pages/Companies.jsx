@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "./Companies.css";
 import { API_BASE } from "../lib/config";
 
-const COMPANIES_CACHE_KEY = "skillyatra_companies_cache_v2";
-const ROLES_CACHE_PREFIX = "skillyatra_company_roles_cache_v2";
+const COMPANIES_CACHE_KEY = "skillyatra_companies_cache_v5";
+const ROLES_CACHE_PREFIX = "skillyatra_company_roles_cache_v5";
 const CACHE_TIME = 1000 * 60 * 30;
 
 const INSTANT_COMPANIES = [
@@ -19,6 +19,20 @@ const INSTANT_COMPANIES = [
   { companyName: "Cognizant", totalJobCount: 100 },
   { companyName: "IBM", totalJobCount: 90 }
 ];
+
+function mergeCompanies(oldList, newList) {
+  const map = new Map();
+
+  [...(oldList || []), ...(newList || [])].forEach((item) => {
+    const name = item?.companyName;
+    if (!name) return;
+    map.set(String(name).toLowerCase(), item);
+  });
+
+  return Array.from(map.values()).sort((a, b) =>
+    String(a.companyName || "").localeCompare(String(b.companyName || ""))
+  );
+}
 
 function readCache(key) {
   try {
@@ -80,8 +94,8 @@ export default function Companies() {
   const applyCompaniesData = (data) => {
     const list = Array.isArray(data?.companies) ? data.companies : [];
 
-    setCompanies(list);
-    setTotalCompanies(data?.totalCompanies || list.length || 0);
+    setCompanies((prev) => mergeCompanies(prev, list));
+    setTotalCompanies(data?.totalCompanies || data?.totalAllCompanies || list.length || 0);
     setTotalJobRows(data?.totalJobRows || 0);
   };
 
@@ -103,7 +117,7 @@ export default function Companies() {
     try {
       setError("");
 
-      const res = await fetch(`${API_BASE}/companies?limit=20000`, {
+      const res = await fetch(`${API_BASE}/companies?limit=50000`, {
         method: "GET",
         cache: "no-store",
         mode: "cors"
@@ -179,7 +193,7 @@ export default function Companies() {
       .filter((company) =>
         String(company.companyName || "").toLowerCase().includes(q)
       )
-      .slice(0, 80);
+      .slice(0, 300);
   }, [companies, search]);
 
   const dropdownCompanies = useMemo(() => {
@@ -198,16 +212,60 @@ export default function Companies() {
       .filter((company) =>
         String(company.companyName || "").toLowerCase().includes(q)
       )
-      .slice(0, 8);
+      .slice(0, 20);
   }, [companies, search]);
 
-  const handleSearch = () => {
+  const searchCompaniesFromBackend = async (query) => {
+    const q = String(query || "").trim();
+    if (!q) return [];
+
+    const urls = [
+      `${API_BASE}/companies?search=${encodeURIComponent(q)}&limit=50000`,
+      `${API_BASE}/companies?q=${encodeURIComponent(q)}&limit=50000`,
+      `${API_BASE}/api/companies?search=${encodeURIComponent(q)}&limit=50000`,
+      `${API_BASE}/api/companies?q=${encodeURIComponent(q)}&limit=50000`
+    ];
+
+    for (const url of urls) {
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          mode: "cors"
+        });
+
+        const data = await res.json();
+        const list = Array.isArray(data?.companies) ? data.companies : [];
+
+        if (list.length) {
+          const merged = mergeCompanies(companies, list);
+          setCompanies(merged);
+          writeCache(COMPANIES_CACHE_KEY, {
+            companies: merged,
+            totalCompanies: data?.totalCompanies || data?.totalAllCompanies || merged.length,
+            totalJobRows: data?.totalJobRows || totalJobRows
+          });
+          return list;
+        }
+      } catch {}
+    }
+
+    return [];
+  };
+
+  const handleSearch = async () => {
+    const q = search.trim();
+
     setSearchedOnce(true);
     setSelectedCompany("");
     setRoles([]);
     setRolesViewed(false);
     setDropdownCompany("");
     setCompanyMenuOpen(false);
+
+    if (q.length >= 2) {
+      await searchCompaniesFromBackend(q);
+    }
   };
 
   const handleDropdownChange = (companyName) => {
@@ -232,6 +290,17 @@ export default function Companies() {
 
   const openRole = (companyName, roleIndex) => {
     if (!companyName) return;
+
+    try {
+      const role = roles[roleIndex] || null;
+      if (role) {
+        sessionStorage.setItem(
+          `skillyatra_selected_role:${companyName}:${roleIndex + 1}`,
+          JSON.stringify({ companyName, role })
+        );
+      }
+    } catch {}
+
     navigate(`/companies/${encodeURIComponent(companyName)}/roles/${roleIndex + 1}`);
   };
 
@@ -279,12 +348,17 @@ export default function Companies() {
               <input
                 value={search}
                 onChange={(e) => {
-                  setSearch(e.target.value);
+                  const value = e.target.value;
+                  setSearch(value);
                   setSearchedOnce(false);
                   setSelectedCompany("");
                   setRoles([]);
                   setRolesViewed(false);
                   setDropdownCompany("");
+
+                  if (value.trim().length >= 3) {
+                    searchCompaniesFromBackend(value);
+                  }
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSearch();
@@ -322,6 +396,7 @@ export default function Companies() {
                 onClick={() => {
                   setCompanyMenuOpen((value) => !value);
                   loadCompanies({ force: true });
+                  searchCompaniesFromBackend(search || "a");
                 }}
               >
                 <span>{dropdownCompany || "Select company directly"}</span>
