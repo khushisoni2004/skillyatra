@@ -3,7 +3,8 @@ import api from "../lib/api";
 import "./DSA.css";
 
 const STORAGE_KEY = "skillyatra_real_dsa_done_v1";
-const CACHE_PREFIX = "skillyatra_dsa_page_cache_v2";
+const CACHE_PREFIX = "skillyatra_dsa_server_page_cache_v4";
+const FULL_CACHE_PREFIX = "skillyatra_dsa_filtered_full_cache_v4";
 const PAGE_SIZE = 25;
 
 function readDone() {
@@ -20,10 +21,6 @@ function saveDone(data) {
   } catch {}
 }
 
-function makeCacheKey({ page, topic, platform, difficulty, search }) {
-  return `${CACHE_PREFIX}:${page}:${topic}:${platform}:${difficulty}:${search || ""}`;
-}
-
 function readCache(key) {
   try {
     const raw = sessionStorage.getItem(key);
@@ -32,10 +29,8 @@ function readCache(key) {
     const parsed = JSON.parse(raw);
     if (!parsed?.time || !parsed?.data) return null;
 
-    const age = Date.now() - parsed.time;
-    const maxAge = 1000 * 60 * 20;
-
-    if (age > maxAge) {
+    const maxAge = 1000 * 60 * 30;
+    if (Date.now() - parsed.time > maxAge) {
       sessionStorage.removeItem(key);
       return null;
     }
@@ -58,6 +53,47 @@ function writeCache(key, data) {
   } catch {}
 }
 
+function normalizeText(value) {
+  return String(value || "").trim();
+}
+
+function makePageCacheKey({ page, topic, platform, difficulty, search }) {
+  return `${CACHE_PREFIX}:${page}:${topic || "All"}:${platform || "All"}:${difficulty || "All"}:${search || ""}`;
+}
+
+function makeFullCacheKey({ topic, platform, difficulty, search }) {
+  return `${FULL_CACHE_PREFIX}:${topic || "All"}:${platform || "All"}:${difficulty || "All"}:${search || ""}`;
+}
+
+function buildQuestionsUrl({
+  page = 1,
+  limit = PAGE_SIZE,
+  topic = "All",
+  platform = "All",
+  difficulty = "All",
+  search = ""
+}) {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+    topic,
+    platform,
+    difficulty,
+    search
+  });
+
+  return `/dsa/questions?${params.toString()}`;
+}
+
+function hasActiveFilter({ topic, platform, difficulty, search }) {
+  return (
+    normalizeText(topic) !== "All" ||
+    normalizeText(platform) !== "All" ||
+    normalizeText(difficulty) !== "All" ||
+    normalizeText(search) !== ""
+  );
+}
+
 export default function DSA() {
   const [done, setDone] = useState(readDone);
   const [questions, setQuestions] = useState([]);
@@ -77,193 +113,281 @@ export default function DSA() {
   const [totalPages, setTotalPages] = useState(1);
 
   const [loading, setLoading] = useState(false);
-  const [updating, setUpdating] = useState(false);
+  const requestRef = useRef(0);
 
-  const latestRequestRef = useRef(0);
-
-  const applyData = useCallback((data, fallbackPage) => {
+  const applyServerData = useCallback((data, fallbackPage = 1) => {
     if (!data?.ok) return;
 
-    setQuestions(data.questions || []);
-    setTopics(data.topics || ["All"]);
-    setPlatforms(data.platforms || ["All"]);
+    setQuestions(Array.isArray(data.questions) ? data.questions : []);
+    setTopics(Array.isArray(data.topics) && data.topics.length ? data.topics : ["All"]);
+    setPlatforms(Array.isArray(data.platforms) && data.platforms.length ? data.platforms : ["All"]);
     setTopicCounts(data.topicCounts || {});
-    setTotalAll(data.totalAll || 0);
-    setTotal(data.total || 0);
-    setTotalPages(data.totalPages || 1);
-    setPage(data.page || fallbackPage);
+    setTotalAll(Number(data.totalAll || 0));
+    setTotal(Number(data.total || 0));
+    setTotalPages(Number(data.totalPages || 1));
+    setPage(Number(data.page || fallbackPage || 1));
   }, []);
 
-  const buildUrl = useCallback(
-    (targetPage) => {
-      const params = new URLSearchParams({
-        page: String(targetPage),
-        limit: String(PAGE_SIZE),
-        topic,
-        platform,
-        difficulty,
-        search
-      });
+  const applyFullFilteredData = useCallback((data, targetPage = 1) => {
+    if (!data?.ok) return;
 
-      return `/dsa/questions?${params.toString()}`;
+    const allQuestions = Array.isArray(data.questions) ? data.questions : [];
+    const safePage = Math.max(1, Number(targetPage || 1));
+    const start = (safePage - 1) * PAGE_SIZE;
+    const slicedQuestions = allQuestions.slice(start, start + PAGE_SIZE);
+
+    setQuestions(slicedQuestions);
+    setTopics(Array.isArray(data.topics) && data.topics.length ? data.topics : ["All"]);
+    setPlatforms(Array.isArray(data.platforms) && data.platforms.length ? data.platforms : ["All"]);
+    setTopicCounts(data.topicCounts || {});
+    setTotalAll(Number(data.totalAll || 0));
+
+    const realTotal = Number(data.total || allQuestions.length || 0);
+    setTotal(realTotal);
+    setTotalPages(Math.max(1, Math.ceil(realTotal / PAGE_SIZE)));
+    setPage(safePage);
+  }, []);
+
+  async function prefetchServerPage({
+    targetPage = 1,
+    nextTopic = "All",
+    nextPlatform = "All",
+    nextDifficulty = "All",
+    nextSearch = ""
+  }) {
+    const filters = {
+      page: targetPage,
+      topic: nextTopic,
+      platform: nextPlatform,
+      difficulty: nextDifficulty,
+      search: nextSearch
+    };
+
+    const key = makePageCacheKey(filters);
+    if (readCache(key)) return;
+
+    try {
+      const res = await api.get(buildQuestionsUrl(filters));
+      if (res.data?.ok) writeCache(key, res.data);
+    } catch {}
+  }
+
+  async function loadServerPage({
+    targetPage = 1,
+    nextTopic = "All",
+    nextPlatform = "All",
+    nextDifficulty = "All",
+    nextSearch = "",
+    force = false
+  }) {
+    const filters = {
+      page: targetPage,
+      topic: nextTopic,
+      platform: nextPlatform,
+      difficulty: nextDifficulty,
+      search: nextSearch
+    };
+
+    const cacheKey = makePageCacheKey(filters);
+    const cached = !force ? readCache(cacheKey) : null;
+
+    const reqId = Date.now() + Math.random();
+    requestRef.current = reqId;
+
+    if (cached) {
+      applyServerData(cached, targetPage);
+      setLoading(false);
+    } else {
+      setLoading(false);
+    }
+
+    try {
+      const res = await api.get(buildQuestionsUrl(filters));
+      if (requestRef.current !== reqId) return;
+
+      if (res.data?.ok) {
+        writeCache(cacheKey, res.data);
+        applyServerData(res.data, targetPage);
+
+        const freshPage = Number(res.data.page || targetPage);
+        const freshTotalPages = Number(res.data.totalPages || 1);
+
+        for (let i = 1; i <= 4; i += 1) {
+          if (freshPage + i <= freshTotalPages) {
+            setTimeout(() => {
+              prefetchServerPage({
+                targetPage: freshPage + i,
+                nextTopic,
+                nextPlatform,
+                nextDifficulty,
+                nextSearch
+              });
+            }, i * 120);
+          }
+        }
+      }
+    } catch {
+      if (!cached) {
+        setQuestions([]);
+        setTotal(0);
+        setTotalPages(1);
+      }
+    } finally {
+      if (requestRef.current === reqId) setLoading(false);
+    }
+  }
+
+  async function loadFilteredFull({
+    targetPage = 1,
+    nextTopic = topic,
+    nextPlatform = platform,
+    nextDifficulty = difficulty,
+    nextSearch = search,
+    force = false
+  }) {
+    const filters = {
+      topic: nextTopic || "All",
+      platform: nextPlatform || "All",
+      difficulty: nextDifficulty || "All",
+      search: nextSearch || ""
+    };
+
+    const fullKey = makeFullCacheKey(filters);
+    const cachedFull = !force ? readCache(fullKey) : null;
+
+    const reqId = Date.now() + Math.random();
+    requestRef.current = reqId;
+
+    if (cachedFull) {
+      applyFullFilteredData(cachedFull, targetPage);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(false);
+
+    try {
+      const res = await api.get(
+        buildQuestionsUrl({
+          page: 1,
+          limit: 20000,
+          topic: filters.topic,
+          platform: filters.platform,
+          difficulty: filters.difficulty,
+          search: filters.search
+        })
+      );
+
+      if (requestRef.current !== reqId) return;
+
+      if (res.data?.ok) {
+        writeCache(fullKey, res.data);
+        applyFullFilteredData(res.data, targetPage);
+      }
+    } catch {
+      setQuestions([]);
+      setTotal(0);
+      setTotalPages(1);
+      setPage(targetPage);
+    } finally {
+      if (requestRef.current === reqId) setLoading(false);
+    }
+  }
+
+  const loadQuestions = useCallback(
+    ({
+      targetPage = 1,
+      nextTopic = topic,
+      nextPlatform = platform,
+      nextDifficulty = difficulty,
+      nextSearch = search,
+      force = false
+    } = {}) => {
+      const filters = {
+        topic: nextTopic || "All",
+        platform: nextPlatform || "All",
+        difficulty: nextDifficulty || "All",
+        search: nextSearch || ""
+      };
+
+      if (hasActiveFilter(filters)) {
+        loadFilteredFull({
+          targetPage,
+          nextTopic: filters.topic,
+          nextPlatform: filters.platform,
+          nextDifficulty: filters.difficulty,
+          nextSearch: filters.search,
+          force
+        });
+      } else {
+        loadServerPage({
+          targetPage,
+          nextTopic: filters.topic,
+          nextPlatform: filters.platform,
+          nextDifficulty: filters.difficulty,
+          nextSearch: filters.search,
+          force
+        });
+      }
     },
     [topic, platform, difficulty, search]
   );
 
-  const prefetchPage = useCallback(
-    async (targetPage) => {
-      if (targetPage < 1 || targetPage > totalPages) return;
-
-      const cacheKey = makeCacheKey({
-        page: targetPage,
-        topic,
-        platform,
-        difficulty,
-        search
-      });
-
-      if (readCache(cacheKey)) return;
-
-      try {
-        const res = await api.get(buildUrl(targetPage));
-        if (res.data?.ok) {
-          writeCache(cacheKey, res.data);
-        }
-      } catch {}
-    },
-    [buildUrl, difficulty, platform, search, topic, totalPages]
-  );
-
-  const loadQuestions = useCallback(
-    async (targetPage = page, options = {}) => {
-      const { force = false, silent = false } = options;
-
-      const requestId = Date.now();
-      latestRequestRef.current = requestId;
-
-      const cacheKey = makeCacheKey({
-        page: targetPage,
-        topic,
-        platform,
-        difficulty,
-        search
-      });
-
-      const cached = !force ? readCache(cacheKey) : null;
-
-      if (cached) {
-        applyData(cached, targetPage);
-        setLoading(false);
-        setUpdating(false);
-      } else if (!silent) {
-        setLoading(false);
-        setUpdating(false);
-      }
-
-      try {
-        const res = await api.get(buildUrl(targetPage));
-
-        if (latestRequestRef.current !== requestId && !silent) return;
-
-        if (res.data?.ok) {
-          writeCache(cacheKey, res.data);
-
-          if (!silent || !cached) {
-            applyData(res.data, targetPage);
-          }
-
-          const freshTotalPages = res.data.totalPages || totalPages || 1;
-          const currentPage = res.data.page || targetPage;
-
-          for (let i = 1; i <= 5; i += 1) {
-            if (currentPage + i <= freshTotalPages) {
-              setTimeout(() => prefetchPage(currentPage + i), 120 * i);
-            }
-          }
-
-          if (currentPage > 1) {
-            setTimeout(() => prefetchPage(currentPage - 1), 220);
-          }
-        } else if (!cached && !silent) {
-          setQuestions([]);
-        }
-      } catch {
-        if (!cached && !silent) {
-          setQuestions([]);
-        }
-      } finally {
-        if (!silent) {
-          setLoading(false);
-          setUpdating(false);
-        }
-      }
-    },
-    [
-      applyData,
-      buildUrl,
-      difficulty,
-      page,
-      platform,
-      prefetchPage,
-      questions.length,
-      search,
-      topic,
-      totalPages
-    ]
-  );
+  useEffect(() => {
+    loadQuestions({
+      targetPage: 1,
+      nextTopic: "All",
+      nextPlatform: "All",
+      nextDifficulty: "All",
+      nextSearch: "",
+      force: false
+    });
+  }, []);
 
   useEffect(() => {
-    setPage(1);
-    loadQuestions(1, { force: false });
-  }, [topic, platform, difficulty]);
-
-  useEffect(() => {
-    if (questions.length > 0) {
-      for (let i = 1; i <= 5; i += 1) {
-        prefetchPage(page + i);
-      }
-      prefetchPage(page - 1);
-    }
-  }, [page, questions.length, prefetchPage]);
-
-  useEffect(() => {
-    const realTopics = topics.filter((item) => item && item !== "All").slice(0, 60);
-    if (!realTopics.length) return;
-
-    realTopics.forEach((topicName, index) => {
-      setTimeout(async () => {
-        const cacheKey = makeCacheKey({
-          page: 1,
-          topic: topicName,
-          platform,
-          difficulty,
-          search: ""
-        });
-
-        if (readCache(cacheKey)) return;
-
-        try {
-          const params = new URLSearchParams({
-            page: "1",
-            limit: String(PAGE_SIZE),
+    topics
+      .filter((item) => item && item !== "All")
+      .slice(0, 30)
+      .forEach((topicName, index) => {
+        setTimeout(() => {
+          const fullKey = makeFullCacheKey({
             topic: topicName,
             platform,
             difficulty,
             search: ""
           });
 
-          const res = await api.get(`/dsa/questions?${params.toString()}`);
-          if (res.data?.ok) {
-            writeCache(cacheKey, res.data);
-          }
-        } catch {}
-      }, index * 70);
-    });
+          if (readCache(fullKey)) return;
+
+          api
+            .get(
+              buildQuestionsUrl({
+                page: 1,
+                limit: 20000,
+                topic: topicName,
+                platform,
+                difficulty,
+                search: ""
+              })
+            )
+            .then((res) => {
+              if (res.data?.ok) writeCache(fullKey, res.data);
+            })
+            .catch(() => {});
+        }, index * 90);
+      });
   }, [topics, platform, difficulty]);
 
   function searchNow() {
     setPage(1);
-    loadQuestions(1, { force: false });
+    loadQuestions({
+      targetPage: 1,
+      nextTopic: topic,
+      nextPlatform: platform,
+      nextDifficulty: difficulty,
+      nextSearch: search,
+      force: false
+    });
   }
 
   function refreshAll() {
@@ -273,15 +397,71 @@ export default function DSA() {
     setSearch("");
     setPage(1);
 
-    setTimeout(() => {
-      loadQuestions(1, { force: true });
-    }, 0);
+    loadQuestions({
+      targetPage: 1,
+      nextTopic: "All",
+      nextPlatform: "All",
+      nextDifficulty: "All",
+      nextSearch: "",
+      force: true
+    });
+  }
+
+  function selectTopic(nextTopic) {
+    setTopic(nextTopic);
+    setPage(1);
+
+    loadQuestions({
+      targetPage: 1,
+      nextTopic,
+      nextPlatform: platform,
+      nextDifficulty: difficulty,
+      nextSearch: search,
+      force: false
+    });
+  }
+
+  function selectDifficulty(nextDifficulty) {
+    setDifficulty(nextDifficulty);
+    setPage(1);
+
+    loadQuestions({
+      targetPage: 1,
+      nextTopic: topic,
+      nextPlatform: platform,
+      nextDifficulty,
+      nextSearch: search,
+      force: false
+    });
+  }
+
+  function selectPlatform(nextPlatform) {
+    setPlatform(nextPlatform);
+    setPage(1);
+
+    loadQuestions({
+      targetPage: 1,
+      nextTopic: topic,
+      nextPlatform,
+      nextDifficulty: difficulty,
+      nextSearch: search,
+      force: false
+    });
   }
 
   function changePage(targetPage) {
-    const safePage = Math.max(1, Math.min(totalPages, targetPage));
+    const safePage = Math.max(1, Math.min(totalPages || 1, targetPage));
     setPage(safePage);
-    loadQuestions(safePage, { force: false });
+
+    loadQuestions({
+      targetPage: safePage,
+      nextTopic: topic,
+      nextPlatform: platform,
+      nextDifficulty: difficulty,
+      nextSearch: search,
+      force: false
+    });
+
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -370,27 +550,7 @@ export default function DSA() {
 
             <select
               value={topic}
-              onChange={(e) => {
-                const nextTopic = e.target.value;
-                const cached = readCache(
-                  makeCacheKey({
-                    page: 1,
-                    topic: nextTopic,
-                    platform,
-                    difficulty,
-                    search
-                  })
-                );
-
-                if (cached) {
-                  applyData(cached, 1);
-                  setLoading(false);
-                  setUpdating(false);
-                }
-
-                setTopic(nextTopic);
-                setPage(1);
-              }}
+              onChange={(e) => selectTopic(e.target.value)}
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             >
               {topics.map((item) => (
@@ -402,27 +562,7 @@ export default function DSA() {
 
             <select
               value={difficulty}
-              onChange={(e) => {
-                const nextDifficulty = e.target.value;
-                const cached = readCache(
-                  makeCacheKey({
-                    page: 1,
-                    topic,
-                    platform,
-                    difficulty: nextDifficulty,
-                    search
-                  })
-                );
-
-                if (cached) {
-                  applyData(cached, 1);
-                  setLoading(false);
-                  setUpdating(false);
-                }
-
-                setDifficulty(nextDifficulty);
-                setPage(1);
-              }}
+              onChange={(e) => selectDifficulty(e.target.value)}
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             >
               <option value="All">All Difficulty</option>
@@ -433,27 +573,7 @@ export default function DSA() {
 
             <select
               value={platform}
-              onChange={(e) => {
-                const nextPlatform = e.target.value;
-                const cached = readCache(
-                  makeCacheKey({
-                    page: 1,
-                    topic,
-                    platform: nextPlatform,
-                    difficulty,
-                    search
-                  })
-                );
-
-                if (cached) {
-                  applyData(cached, 1);
-                  setLoading(false);
-                  setUpdating(false);
-                }
-
-                setPlatform(nextPlatform);
-                setPage(1);
-              }}
+              onChange={(e) => selectPlatform(e.target.value)}
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             >
               {platforms.map((item) => (
@@ -488,26 +608,7 @@ export default function DSA() {
               <button
                 key={item}
                 type="button"
-                onClick={() => {
-                  const cached = readCache(
-                    makeCacheKey({
-                      page: 1,
-                      topic: item,
-                      platform,
-                      difficulty,
-                      search
-                    })
-                  );
-
-                  if (cached) {
-                    applyData(cached, 1);
-                    setLoading(false);
-                    setUpdating(false);
-                  }
-
-                  setTopic(item);
-                  setPage(1);
-                }}
+                onClick={() => selectTopic(item)}
                 className={`rounded-xl px-4 py-2 text-sm font-black ring-1 ${
                   topic === item
                     ? "bg-indigo-600 text-white ring-indigo-600"
@@ -563,7 +664,7 @@ export default function DSA() {
         <div className="dsa-question-grid grid gap-4 lg:grid-cols-2">
           {questions.map((q, index) => (
             <div
-              key={q.id || `${q.title}-${index}`}
+              key={`${q.id || q.url || q.title}-${page}-${index}`}
               className="dsa-question-card rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="flex flex-wrap items-center gap-2">
@@ -598,7 +699,7 @@ export default function DSA() {
                     href={q.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="dsa-main-btn rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-black text-white shadow hover:bg-indigo-700"
+                    className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-black text-white shadow hover:bg-indigo-700"
                   >
                     Open Question ↗
                   </a>
