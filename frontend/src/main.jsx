@@ -1,3 +1,5 @@
+import { warmBackend } from "./lib/warmBackend";
+warmBackend();
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
