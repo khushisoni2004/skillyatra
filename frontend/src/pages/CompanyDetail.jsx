@@ -1,23 +1,60 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Companies.css";
-
 import { BACKEND_BASE } from "../lib/config";
+
 const API_BASE = BACKEND_BASE;
 
-function readCompanyFromCache(companyName) {
+function makeInstantRoles(companyName) {
+  const name = String(companyName || "Company").trim();
+
+  return [
+    {
+      roleName: "Software Engineer",
+      expectedPackage: "Dataset syncing",
+      expectedExperience: "Freshers / Entry Level",
+      locations: ["India", "Remote / Hybrid"],
+      skills: ["DSA", "Java", "Python", "SQL", "React"]
+    },
+    {
+      roleName: "Associate Software Engineer",
+      expectedPackage: "Dataset syncing",
+      expectedExperience: "0-2 years",
+      locations: ["India"],
+      skills: ["Programming", "Problem Solving", "OOPs", "Database"]
+    },
+    {
+      roleName: "Data Analyst",
+      expectedPackage: "Dataset syncing",
+      expectedExperience: "Freshers / Entry Level",
+      locations: ["India"],
+      skills: ["Excel", "SQL", "Python", "Data Analysis"]
+    },
+    {
+      roleName: `${name} Interview Preparation`,
+      expectedPackage: "Dataset syncing",
+      expectedExperience: "Role based",
+      locations: ["Company specific"],
+      skills: ["Aptitude", "Communication", "Resume Projects", "HR Questions"]
+    }
+  ];
+}
+
+function readCompanySnapshot(companyName) {
   try {
-    const keys = [
-      "skillyatra_companies_cache_v2",
-      "skillyatra_interview_companies_cache_v3",
-      "skillyatra_interview_companies_cache_v2"
+    const raw = sessionStorage.getItem(`skillyatra_company_snapshot:${companyName}`);
+    if (raw) return JSON.parse(raw);
+
+    const cacheKeys = [
+      "skillyatra_companies_cache_v5",
+      "skillyatra_companies_cache_v2"
     ];
 
-    for (const key of keys) {
-      const raw = sessionStorage.getItem(key);
-      if (!raw) continue;
+    for (const key of cacheKeys) {
+      const cached = sessionStorage.getItem(key);
+      if (!cached) continue;
 
-      const parsed = JSON.parse(raw);
+      const parsed = JSON.parse(cached);
       const list = parsed?.data?.companies || parsed?.companies || [];
 
       const found = Array.isArray(list)
@@ -31,199 +68,176 @@ function readCompanyFromCache(companyName) {
   return null;
 }
 
+function saveCompanySnapshot(companyName, company) {
+  try {
+    sessionStorage.setItem(
+      `skillyatra_company_snapshot:${companyName}`,
+      JSON.stringify(company)
+    );
+  } catch {}
+}
+
 export default function CompanyDetail() {
   const navigate = useNavigate();
-  const { companyName } = useParams();
+  const params = useParams();
 
-  const decodedCompanyName = decodeURIComponent(companyName || "");
+  const companyName = decodeURIComponent(params.companyName || params.name || "");
+  const instantCompany =
+    readCompanySnapshot(companyName) || {
+      companyName,
+      totalJobCount: 0,
+      roles: makeInstantRoles(companyName)
+    };
 
-  const [company, setCompany] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const loadCompany = async () => {
-    try {
-      setLoading(false);
-      const res = await fetch(
-        `${API_BASE}/api/companies/${encodeURIComponent(decodedCompanyName)}`
-      );
-      const data = await res.json();
-      setCompany(data.company || null);
-    } catch (err) {
-      setCompany(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [company, setCompany] = useState(instantCompany);
+  const [roles, setRoles] = useState(
+    Array.isArray(instantCompany?.roles) && instantCompany.roles.length
+      ? instantCompany.roles
+      : makeInstantRoles(companyName)
+  );
 
   useEffect(() => {
-    loadCompany();
-  }, [decodedCompanyName]);
+    saveCompanySnapshot(companyName, {
+      ...company,
+      companyName,
+      roles
+    });
 
-  
+    const urls = [
+      `${API_BASE}/api/companies/${encodeURIComponent(companyName)}/roles`,
+      `${API_BASE}/companies/${encodeURIComponent(companyName)}/roles`
+    ];
 
-  if (!company) {
-    return (
-      <div className="min-h-screen bg-slate-50 p-8">
-        <div className="rounded-3xl bg-red-50 p-8 font-black text-red-700 ring-1 ring-red-100">
-          Company not found in dataset.
-        </div>
-      </div>
-    );
-  }
+    urls.forEach((url) => {
+      fetch(url, {
+        method: "GET",
+        cache: "no-store",
+        mode: "cors"
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const nextRoles = Array.isArray(data?.roles) ? data.roles : [];
 
-  const info = company.companyInfo || {};
-  const topLocations = info.topLocations || [];
-  const topSkills = company.topSkills || [];
-  const roles = company.roles || [];
+          if (nextRoles.length) {
+            const nextCompany = {
+              ...(data.company || company || {}),
+              companyName,
+              totalJobCount: nextRoles.length,
+              roles: nextRoles
+            };
+
+            setCompany(nextCompany);
+            setRoles(nextRoles);
+            saveCompanySnapshot(companyName, nextCompany);
+          }
+        })
+        .catch(() => {});
+    });
+  }, [companyName]);
+
+  const topSkills = useMemo(() => {
+    const all = roles.flatMap((role) => Array.isArray(role.skills) ? role.skills : []);
+    return [...new Set(all)].slice(0, 18);
+  }, [roles]);
+
+  const openRole = (index) => {
+    try {
+      sessionStorage.setItem(
+        `skillyatra_selected_role:${companyName}:${index + 1}`,
+        JSON.stringify({ companyName, role: roles[index] })
+      );
+    } catch {}
+
+    navigate(`/companies/${encodeURIComponent(companyName)}/roles/${index + 1}`);
+  };
 
   return (
-    <div className="company-detail-theme-page min-h-screen">
-      <button
-        onClick={() => navigate("/companies")}
-        className="mb-6 rounded-2xl bg-white px-5 py-3 font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-indigo-50 hover:text-indigo-700"
-      >
-        ← Back to Companies
-      </button>
+    <div className="company-role-page">
+      <div className="company-role-shell">
+        <button type="button" onClick={() => navigate("/companies")} className="company-theme-btn">
+          ← Back to Companies
+        </button>
 
-      <section className="companies-theme-hero">
-        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-indigo-400/20 blur-3xl" />
-        <div className="absolute -bottom-28 left-20 h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
+        <section className="role-detail-hero">
+          <p>COMPANY WISE PREPARATION</p>
+          <h1>{companyName}</h1>
+          <span>{roles.length} roles ready</span>
+        </section>
 
-        <div className="relative z-10">
-          <p className="companies-theme-kicker">
-            Company Detail
+        <section className="role-detail-stats">
+          <div>
+            <span>Company</span>
+            <strong>{companyName}</strong>
+          </div>
+          <div>
+            <span>Roles</span>
+            <strong>{roles.length}</strong>
+          </div>
+          <div>
+            <span>Dataset Jobs</span>
+            <strong>{company?.totalJobCount || roles.length}</strong>
+          </div>
+          <div>
+            <span>Status</span>
+            <strong>Ready</strong>
+          </div>
+        </section>
+
+        <section className="role-detail-card">
+          <p className="role-detail-kicker">JOB ROLES</p>
+          <h2>{companyName} Roles</h2>
+          <p className="role-detail-subtitle">
+            Select a role to open the role-wise preparation roadmap, required skills, and YouTube preparation links.
           </p>
 
-          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">
-            {company.companyName}
-          </h1>
+          <div className="roles-grid">
+            {roles.map((role, index) => {
+              const skills = Array.isArray(role.skills) ? role.skills : [];
+              const locations = Array.isArray(role.locations) ? role.locations : [];
 
-          <p className="mt-4 max-w-4xl text-sm font-semibold leading-6 text-indigo-100">
-            Company information, roles, package, experience and skills are generated only from your uploaded job market dataset.
-          </p>
+              return (
+                <article key={`${role.roleName}-${index}`} className="role-item">
+                  <h3>{role.roleName || `Role ${index + 1}`}</h3>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-4">
-            <div className="rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl">
-              <p className="text-sm font-bold text-indigo-100">Job Rows</p>
-              <h2 className="mt-2 text-4xl font-black">{company.totalJobCount}</h2>
-            </div>
-
-            <div className="rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl">
-              <p className="text-sm font-bold text-indigo-100">Roles</p>
-              <h2 className="mt-2 text-4xl font-black">{roles.length}</h2>
-            </div>
-
-            <div className="rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl">
-              <p className="text-sm font-bold text-indigo-100">Rating</p>
-              <h2 className="mt-2 text-4xl font-black">{info.rating || "NA"}</h2>
-            </div>
-
-            <div className="rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl">
-              <p className="text-sm font-bold text-indigo-100">Reviews</p>
-              <h2 className="mt-2 text-4xl font-black">{info.reviewsCount || "NA"}</h2>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-2xl font-black text-slate-900">Top Locations</h2>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {topLocations.length ? (
-              topLocations.map((item, index) => (
-                <span
-                  key={index}
-                  className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-black text-indigo-700"
-                >
-                  {item.name} ({item.count})
-                </span>
-              ))
-            ) : (
-              <p className="font-semibold text-slate-500">
-                No location data available.
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-2xl font-black text-slate-900">Top Skills</h2>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {topSkills.length ? (
-              topSkills.map((skill, index) => (
-                <span
-                  key={index}
-                  className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-black text-emerald-700"
-                >
-                  {skill}
-                </span>
-              ))
-            ) : (
-              <p className="font-semibold text-slate-500">
-                No skill data available.
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-8 rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <h2 className="text-2xl font-black text-slate-900">
-          Roles in {company.companyName}
-        </h2>
-
-        <div className="mt-6 grid gap-5 md:grid-cols-2">
-          {roles.map((role, index) => (
-            <div
-              key={index}
-              className="rounded-[28px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-100"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-xl font-black text-slate-900">
-                    {role.roleName}
-                  </h3>
-                  <p className="mt-2 text-sm font-bold text-slate-500">
-                    {(role.locations || []).slice(0, 3).join(", ") ||
-                      "Location not specified"}
+                  <p className="role-location">
+                    {locations.slice(0, 4).join(", ") || "Location not specified"}
                   </p>
-                </div>
 
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">
-                  {role.expectedPackage}
-                </span>
-              </div>
+                  <div className="role-meta">
+                    <span>{role.expectedPackage || "Package not specified"}</span>
+                    <span>{role.expectedExperience || "Experience not specified"}</span>
+                  </div>
 
-              <p className="mt-3 text-sm font-bold text-slate-500">
-                Experience: {role.expectedExperience}
-              </p>
+                  <h4>Required Skills</h4>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                {(role.skills || []).slice(0, 8).map((skill, i) => (
-                  <span
-                    key={i}
-                    className="rounded-full bg-white px-3 py-1 text-xs font-black text-indigo-700 ring-1 ring-indigo-100"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
+                  <div className="skill-wrap">
+                    {skills.length ? (
+                      skills.slice(0, 8).map((skill, i) => <span key={`${skill}-${i}`}>{skill}</span>)
+                    ) : (
+                      <span>Skill data not available</span>
+                    )}
+                  </div>
 
-              <button
-                onClick={() =>
-                  navigate(
-                    `/companies/${encodeURIComponent(company.companyName)}/roles/${index + 1}`
-                  )
-                }
-                className="mt-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-100 transition hover:scale-[1.02]"
-              >
-                Open full role page →
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
+                  <button type="button" onClick={() => openRole(index)}>
+                    Open role detail →
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="role-detail-card">
+          <p className="role-detail-kicker">TOP SKILLS</p>
+          <h2>Common Skills to Prepare</h2>
+
+          <div className="role-chip-list">
+            {(topSkills.length ? topSkills : ["DSA", "Aptitude", "Projects", "Communication"]).map((skill, index) => (
+              <span key={`${skill}-${index}`}>{skill}</span>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

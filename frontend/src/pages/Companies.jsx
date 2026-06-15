@@ -69,6 +69,51 @@ function roleCacheKey(companyName) {
   return `${ROLES_CACHE_PREFIX}:${companyName}`;
 }
 
+function makeInstantRoles(companyName) {
+  const name = String(companyName || "Company").trim();
+
+  return [
+    {
+      roleName: "Software Engineer",
+      expectedPackage: "Dataset syncing",
+      expectedExperience: "Freshers / Entry Level",
+      locations: ["India", "Remote / Hybrid"],
+      skills: ["DSA", "Java", "Python", "SQL", "React"]
+    },
+    {
+      roleName: "Associate Software Engineer",
+      expectedPackage: "Dataset syncing",
+      expectedExperience: "0-2 years",
+      locations: ["India"],
+      skills: ["Programming", "Problem Solving", "OOPs", "Database"]
+    },
+    {
+      roleName: "Data Analyst",
+      expectedPackage: "Dataset syncing",
+      expectedExperience: "Freshers / Entry Level",
+      locations: ["India"],
+      skills: ["Excel", "SQL", "Python", "Data Analysis"]
+    },
+    {
+      roleName: `${name} Interview Preparation`,
+      expectedPackage: "Dataset syncing",
+      expectedExperience: "Role based",
+      locations: ["Company specific"],
+      skills: ["Aptitude", "Communication", "Resume Projects", "HR Questions"]
+    }
+  ];
+}
+
+function saveCompanySnapshot(company) {
+  try {
+    if (!company?.companyName) return;
+    sessionStorage.setItem(
+      `skillyatra_company_snapshot:${company.companyName}`,
+      JSON.stringify(company)
+    );
+  } catch {}
+}
+
 export default function Companies() {
   const navigate = useNavigate();
 
@@ -94,6 +139,7 @@ export default function Companies() {
   const applyCompaniesData = (data) => {
     const list = Array.isArray(data?.companies) ? data.companies : [];
 
+    list.forEach(saveCompanySnapshot);
     setCompanies((prev) => mergeCompanies(prev, list));
     setTotalCompanies(data?.totalCompanies || data?.totalAllCompanies || list.length || 0);
     setTotalJobRows(data?.totalJobRows || 0);
@@ -154,16 +200,28 @@ export default function Companies() {
         String(companyName || "").toLowerCase()
     );
 
-    if (cached) {
-      setRoles(Array.isArray(cached.roles) ? cached.roles : []);
+    if (companyFromList) {
+      saveCompanySnapshot(companyFromList);
+    } else {
+      saveCompanySnapshot({
+        companyName,
+        totalJobCount: 0,
+        roles: makeInstantRoles(companyName)
+      });
+    }
+
+    if (cached && Array.isArray(cached.roles) && cached.roles.length) {
+      setRoles(cached.roles);
     } else if (Array.isArray(companyFromList?.roles) && companyFromList.roles.length) {
       setRoles(companyFromList.roles);
       writeCache(key, { roles: companyFromList.roles });
     } else {
-      setRoles([]);
+      const instantRoles = makeInstantRoles(companyName);
+      setRoles(instantRoles);
+      writeCache(key, { roles: instantRoles });
     }
 
-    // Backend roles load in background. UI never blocks.
+    // Backend real roles sync in background. UI never blocks.
     fetch(`${API_BASE}/companies/${encodeURIComponent(companyName)}/roles`, {
       method: "GET",
       cache: "no-store",
@@ -172,8 +230,14 @@ export default function Companies() {
       .then((res) => res.json())
       .then((data) => {
         const nextRoles = Array.isArray(data?.roles) ? data.roles : [];
-        writeCache(key, { roles: nextRoles });
-        setRoles(nextRoles);
+        if (nextRoles.length) {
+          writeCache(key, { roles: nextRoles });
+          setRoles(nextRoles);
+          saveCompanySnapshot({
+            ...(companyFromList || { companyName }),
+            roles: nextRoles
+          });
+        }
       })
       .catch(() => {})
       .finally(() => {
@@ -285,6 +349,21 @@ export default function Companies() {
 
   const openCompany = (companyName) => {
     if (!companyName) return;
+
+    const companyFromList = companies.find(
+      (item) =>
+        String(item.companyName || "").toLowerCase() ===
+        String(companyName || "").toLowerCase()
+    );
+
+    saveCompanySnapshot(
+      companyFromList || {
+        companyName,
+        totalJobCount: roles.length,
+        roles: roles.length ? roles : makeInstantRoles(companyName)
+      }
+    );
+
     navigate(`/companies/${encodeURIComponent(companyName)}`);
   };
 
@@ -292,7 +371,7 @@ export default function Companies() {
     if (!companyName) return;
 
     try {
-      const role = roles[roleIndex] || null;
+      const role = roles[roleIndex] || makeInstantRoles(companyName)[roleIndex] || makeInstantRoles(companyName)[0];
       if (role) {
         sessionStorage.setItem(
           `skillyatra_selected_role:${companyName}:${roleIndex + 1}`,
@@ -521,7 +600,7 @@ export default function Companies() {
 
           {rolesViewed && !rolesLoading && roles.length === 0 && (
             <div className="empty-roles">
-              <h3>Roles are syncing from dataset. Select another company or wait a moment.</h3>
+              <h3>Role preparation cards are ready. Select a company again if you want to refresh dataset roles.</h3>
             </div>
           )}
 
