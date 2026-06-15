@@ -681,17 +681,35 @@ export default function Home() {
           align-items: center;
         }
 
-        .image-clean-wrap img {
-          width: 100%;
-          max-width: 260px;
-          display: block;
-          object-fit: contain;
+        .image-orb {
+          width: 235px;
+          height: 235px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
           position: relative;
           z-index: 5;
-          filter:
-            drop-shadow(0 34px 44px rgba(14,165,233,0.22))
-            drop-shadow(0 24px 42px rgba(34,197,94,0.16));
+          background:
+            radial-gradient(circle at 30% 25%, rgba(255,255,255,0.98), rgba(224,242,254,0.92) 55%, rgba(186,230,253,0.88) 100%);
+          border: 1.5px solid rgba(186,230,253,0.95);
+          box-shadow:
+            0 24px 55px rgba(14,165,233,0.18),
+            0 18px 36px rgba(34,197,94,0.10),
+            inset 0 0 24px rgba(255,255,255,0.75);
           animation: imageFloatClean 6.2s ease-in-out infinite;
+        }
+
+        .image-orb img {
+          width: 82%;
+          height: 82%;
+          object-fit: contain;
+          display: block;
+          border-radius: 50%;
+          filter:
+            drop-shadow(0 18px 28px rgba(14,165,233,0.14))
+            drop-shadow(0 10px 20px rgba(34,197,94,0.10));
         }
 
         .image-caption-box {
@@ -928,8 +946,14 @@ export default function Home() {
             display: none;
           }
 
-          .image-clean-wrap img {
-            max-width: 210px;
+          .image-orb {
+            width: 190px;
+            height: 190px;
+          }
+
+          .image-orb img {
+            width: 80%;
+            height: 80%;
           }
 
           .image-caption-box {
@@ -1066,10 +1090,12 @@ export default function Home() {
             <span className="premium-particle particle-5" />
 
             <div className="image-clean-wrap">
-              <img
-                src="/student-3d.png"
-                alt="3D student preparing for placement on laptop"
-              />
+              <div className="image-orb">
+                <img
+                  src="/student-3d.png"
+                  alt="3D student preparing for placement on laptop"
+                />
+              </div>
 
               <div className="image-caption-box">
                 <p>Smart Placement Preparation</p>
