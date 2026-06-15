@@ -4,6 +4,87 @@ import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 import { BACKEND_BASE } from "../lib/config";
 const API_BASE = BACKEND_BASE;
 
+const INTERVIEW_COMPANIES_CACHE_KEY = "skillyatra_interview_companies_cache_v3";
+
+const INTERVIEW_INSTANT_COMPANIES = [
+  {
+    companyName: "Google",
+    totalJobCount: 75,
+    roles: [
+      { roleName: "Software Engineer III, Front End", jobCount: 1, skills: ["React.js", "Data Structures", "Programming"] },
+      { roleName: "Cloud Engineer AI", jobCount: 3, skills: ["Python", "Machine Learning", "Cloud Computing"] },
+      { roleName: "Analyst, Trust and Safety", jobCount: 2, skills: ["Python", "Data Analysis", "SQL"] }
+    ]
+  },
+  {
+    companyName: "Amazon",
+    totalJobCount: 248,
+    roles: [
+      { roleName: "Software Development Engineer", jobCount: 5, skills: ["C++", "Coding", "Computer Science"] },
+      { roleName: "Software Dev Engineer", jobCount: 3, skills: ["Python", "C++", "Distributed Computing"] },
+      { roleName: "Financial Analyst", jobCount: 3, skills: ["Excel", "Data Analysis", "Business Analysis"] }
+    ]
+  },
+  {
+    companyName: "Microsoft",
+    totalJobCount: 80,
+    roles: [
+      { roleName: "Software Engineer", jobCount: 3, skills: ["C#", ".NET", "Azure"] },
+      { roleName: "Cloud Engineer", jobCount: 2, skills: ["Azure", "Networking", "Cloud"] }
+    ]
+  },
+  {
+    companyName: "Infosys",
+    totalJobCount: 120,
+    roles: [
+      { roleName: "System Engineer", jobCount: 8, skills: ["Java", "SQL", "Web Development"] },
+      { roleName: "Specialist Programmer", jobCount: 4, skills: ["DSA", "Java", "Problem Solving"] }
+    ]
+  },
+  {
+    companyName: "TCS",
+    totalJobCount: 150,
+    roles: [
+      { roleName: "Assistant System Engineer", jobCount: 10, skills: ["Java", "SQL", "Aptitude"] },
+      { roleName: "Digital Role", jobCount: 5, skills: ["DSA", "React", "Node.js"] }
+    ]
+  },
+  {
+    companyName: "Wipro",
+    totalJobCount: 110,
+    roles: [
+      { roleName: "Project Engineer", jobCount: 6, skills: ["Java", "Python", "SQL"] }
+    ]
+  },
+  {
+    companyName: "Accenture",
+    totalJobCount: 130,
+    roles: [
+      { roleName: "Associate Software Engineer", jobCount: 7, skills: ["Java", "Cloud", "Communication"] }
+    ]
+  }
+];
+
+function readInterviewCompaniesCache() {
+  try {
+    const raw = sessionStorage.getItem(INTERVIEW_COMPANIES_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed?.companies) ? parsed.companies : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeInterviewCompaniesCache(companies) {
+  try {
+    sessionStorage.setItem(
+      INTERVIEW_COMPANIES_CACHE_KEY,
+      JSON.stringify({ time: Date.now(), companies: Array.isArray(companies) ? companies : [] })
+    );
+  } catch {}
+}
+
 function Badge({ children, type = "default" }) {
   const styles = {
     default: "bg-slate-100 text-slate-700 ring-slate-200",
@@ -230,7 +311,7 @@ export default function InterviewCoach() {
   const faceLandmarkerRef = useRef(null);
   const lastPostureVoiceRef = useRef(0);
 
-  const [companies, setCompanies] = useState([]);
+  const [companies, setCompanies] = useState(() => readInterviewCompaniesCache() || INTERVIEW_INSTANT_COMPANIES);
   const [companySearch, setCompanySearch] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedRole, setSelectedRole] = useState("");

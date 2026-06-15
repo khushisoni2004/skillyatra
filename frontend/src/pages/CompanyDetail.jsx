@@ -5,6 +5,32 @@ import "./Companies.css";
 import { BACKEND_BASE } from "../lib/config";
 const API_BASE = BACKEND_BASE;
 
+function readCompanyFromCache(companyName) {
+  try {
+    const keys = [
+      "skillyatra_companies_cache_v2",
+      "skillyatra_interview_companies_cache_v3",
+      "skillyatra_interview_companies_cache_v2"
+    ];
+
+    for (const key of keys) {
+      const raw = sessionStorage.getItem(key);
+      if (!raw) continue;
+
+      const parsed = JSON.parse(raw);
+      const list = parsed?.data?.companies || parsed?.companies || [];
+
+      const found = Array.isArray(list)
+        ? list.find((item) => String(item.companyName || "").toLowerCase() === String(companyName || "").toLowerCase())
+        : null;
+
+      if (found) return found;
+    }
+  } catch {}
+
+  return null;
+}
+
 export default function CompanyDetail() {
   const navigate = useNavigate();
   const { companyName } = useParams();
