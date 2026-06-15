@@ -1,0 +1,500 @@
+/* ==================================================
+   SkillYatra Uniform Theme
+   Same font, same colors, same headers on all pages
+   Only frontend CSS. No data change.
+================================================== */
+
+:root {
+  --sy-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --sy-page-bg: #f4f7fb;
+  --sy-dark: #060b1f;
+  --sy-dark-2: #151747;
+  --sy-blue: #2563eb;
+  --sy-indigo: #4f46e5;
+  --sy-purple: #7c3aed;
+
+  --sy-white: #ffffff;
+  --sy-text: #0f172a;
+  --sy-muted: #64748b;
+  --sy-border: #e2e8f0;
+  --sy-soft: #f8fafc;
+
+  --sy-radius-lg: 26px;
+  --sy-radius-md: 18px;
+  --sy-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  --sy-shadow-hover: 0 24px 58px rgba(15, 23, 42, 0.13);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  font-family: var(--sy-font) !important;
+  background: var(--sy-page-bg) !important;
+  color: var(--sy-text) !important;
+}
+
+/* Main page background */
+main,
+.page,
+.dashboard-page,
+.today-page,
+.roadmaps-page,
+.dsa-page,
+.practice-page,
+.resources-page,
+.companies-page,
+.resume-page,
+.interview-page,
+.progress-page,
+.admin-page,
+.profile-page,
+.role-practice-page,
+.company-detail-page,
+.role-detail-page {
+  min-height: 100vh;
+  background: var(--sy-page-bg) !important;
+  color: var(--sy-text) !important;
+  font-family: var(--sy-font) !important;
+}
+
+/* =========================
+   SAME HEADER FOR ALL PAGES
+========================= */
+
+.dashboard-hero,
+.hero,
+.page-hero,
+.page-header,
+.section-header,
+.dsa-header,
+.practice-header,
+.resources-header,
+.companies-header,
+.roadmaps-header,
+.today-header,
+.resume-header,
+.interview-header,
+.progress-header,
+.admin-header,
+.profile-header,
+.role-header,
+.company-header {
+  width: 100% !important;
+  min-height: 230px !important;
+  border-radius: 26px !important;
+  padding: 42px 46px !important;
+  margin: 0 0 28px 0 !important;
+  background: linear-gradient(135deg, #070b20 0%, #1e1b4b 45%, #2563eb 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 28px !important;
+  overflow: hidden !important;
+}
+
+/* Header text always white */
+.dashboard-hero *,
+.hero *,
+.page-hero *,
+.page-header *,
+.section-header *,
+.dsa-header *,
+.practice-header *,
+.resources-header *,
+.companies-header *,
+.roadmaps-header *,
+.today-header *,
+.resume-header *,
+.interview-header *,
+.progress-header *,
+.admin-header *,
+.profile-header *,
+.role-header *,
+.company-header * {
+  color: #ffffff !important;
+}
+
+/* Only main heading visible strongly */
+.dashboard-hero h1,
+.hero h1,
+.page-hero h1,
+.page-header h1,
+.section-header h1,
+.dsa-header h1,
+.practice-header h1,
+.resources-header h1,
+.companies-header h1,
+.roadmaps-header h1,
+.today-header h1,
+.resume-header h1,
+.interview-header h1,
+.progress-header h1,
+.admin-header h1,
+.profile-header h1,
+.role-header h1,
+.company-header h1,
+.page-title,
+.dsa-title {
+  font-family: var(--sy-font) !important;
+  color: #ffffff !important;
+  font-size: clamp(34px, 4vw, 54px) !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.04em !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+}
+
+/* Remove dummy/subtitle lines in headers */
+.dashboard-hero p,
+.hero p,
+.page-hero p,
+.page-header p,
+.section-header p,
+.dsa-header p,
+.practice-header p,
+.resources-header p,
+.companies-header p,
+.roadmaps-header p,
+.today-header p,
+.resume-header p,
+.interview-header p,
+.progress-header p,
+.admin-header p,
+.profile-header p,
+.role-header p,
+.company-header p,
+.page-subtitle,
+.section-subtitle,
+.dsa-subtitle,
+.dsa-kicker {
+  display: none !important;
+}
+
+/* Keep header buttons clean */
+.dashboard-hero button,
+.hero button,
+.page-hero button,
+.page-header button,
+.section-header button,
+.dsa-header button,
+.dashboard-hero a,
+.hero a,
+.page-hero a,
+.page-header a,
+.section-header a,
+.dsa-header a {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #3730a3 !important;
+  border: 1px solid rgba(255, 255, 255, 0.36) !important;
+  border-radius: 16px !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+}
+
+/* =========================
+   CARDS SAME STYLE
+========================= */
+
+.card,
+.stat-card,
+.feature-card,
+.roadmap-card,
+.company-card,
+.resource-card,
+.question-card,
+.practice-card,
+.progress-card,
+.resume-card,
+.interview-card,
+.admin-card,
+.dsa-stat-card,
+.dsa-filter-card,
+.dsa-question-card,
+[class*="card"] {
+  background: #ffffff !important;
+  color: var(--sy-text) !important;
+  border: 1px solid var(--sy-border) !important;
+  border-radius: 22px !important;
+  box-shadow: var(--sy-shadow) !important;
+  font-family: var(--sy-font) !important;
+}
+
+.card:hover,
+.stat-card:hover,
+.feature-card:hover,
+.roadmap-card:hover,
+.company-card:hover,
+.resource-card:hover,
+.question-card:hover,
+.practice-card:hover,
+.progress-card:hover,
+.resume-card:hover,
+.interview-card:hover,
+.admin-card:hover,
+.dsa-question-card:hover,
+[class*="card"]:hover {
+  box-shadow: var(--sy-shadow-hover) !important;
+}
+
+/* Card text */
+.card *,
+.stat-card *,
+.feature-card *,
+.roadmap-card *,
+.company-card *,
+.resource-card *,
+.question-card *,
+.practice-card *,
+.progress-card *,
+.resume-card *,
+.interview-card *,
+.admin-card *,
+.dsa-stat-card *,
+.dsa-filter-card *,
+.dsa-question-card * {
+  font-family: var(--sy-font) !important;
+}
+
+.card h1,
+.card h2,
+.card h3,
+.stat-card h1,
+.stat-card h2,
+.stat-card h3,
+.feature-card h1,
+.feature-card h2,
+.feature-card h3,
+.roadmap-card h1,
+.roadmap-card h2,
+.roadmap-card h3,
+.company-card h1,
+.company-card h2,
+.company-card h3,
+.resource-card h1,
+.resource-card h2,
+.resource-card h3,
+.question-card h1,
+.question-card h2,
+.question-card h3,
+.practice-card h1,
+.practice-card h2,
+.practice-card h3,
+.progress-card h1,
+.progress-card h2,
+.progress-card h3,
+.resume-card h1,
+.resume-card h2,
+.resume-card h3,
+.interview-card h1,
+.interview-card h2,
+.interview-card h3,
+.admin-card h1,
+.admin-card h2,
+.admin-card h3,
+.dsa-question-title {
+  color: var(--sy-text) !important;
+  font-weight: 950 !important;
+}
+
+.card p,
+.stat-card p,
+.feature-card p,
+.roadmap-card p,
+.company-card p,
+.resource-card p,
+.question-card p,
+.practice-card p,
+.progress-card p,
+.resume-card p,
+.interview-card p,
+.admin-card p {
+  color: var(--sy-muted) !important;
+  font-weight: 650 !important;
+}
+
+/* =========================
+   BUTTONS SAME STYLE
+========================= */
+
+button,
+.btn,
+.primary-btn,
+.secondary-btn,
+.action-btn,
+.refresh-btn,
+.dsa-refresh-btn,
+.dsa-open-btn,
+.dsa-done-btn,
+.dsa-page-btn,
+a[class*="btn"] {
+  font-family: var(--sy-font) !important;
+  border-radius: 14px !important;
+  font-weight: 900 !important;
+  transition: 0.2s ease !important;
+}
+
+button:hover:not(:disabled),
+.btn:hover,
+.primary-btn:hover,
+.secondary-btn:hover,
+.action-btn:hover,
+.refresh-btn:hover,
+.dsa-refresh-btn:hover,
+.dsa-open-btn:hover,
+.dsa-done-btn:hover,
+.dsa-page-btn:hover {
+  transform: translateY(-2px) !important;
+}
+
+/* Main buttons */
+.primary-btn,
+.btn-primary,
+.refresh-btn,
+.dsa-refresh-btn {
+  background: linear-gradient(135deg, var(--sy-indigo), var(--sy-purple)) !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 12px 25px rgba(79, 70, 229, 0.26) !important;
+}
+
+/* DSA open button */
+.dsa-open-btn {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border: 1px solid #111827 !important;
+}
+
+/* =========================
+   INPUTS SAME STYLE
+========================= */
+
+input,
+select,
+textarea,
+.search-input,
+.filter-select,
+.dsa-search,
+.dsa-select {
+  font-family: var(--sy-font) !important;
+  background: #ffffff !important;
+  color: var(--sy-text) !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 14px !important;
+  outline: none !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.search-input:focus,
+.filter-select:focus,
+.dsa-search:focus,
+.dsa-select:focus {
+  border-color: var(--sy-indigo) !important;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.14) !important;
+}
+
+/* =========================
+   CHIPS / BADGES
+========================= */
+
+.badge,
+.tag,
+.chip,
+.status-badge,
+.dsa-badge,
+.dsa-topic-chip {
+  font-family: var(--sy-font) !important;
+  border-radius: 999px !important;
+  font-weight: 900 !important;
+}
+
+.dsa-topic-chip.active,
+.chip.active,
+.badge.active {
+  background: linear-gradient(135deg, var(--sy-indigo), var(--sy-purple)) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+/* =========================
+   DSA SAME CLEAN FIX
+========================= */
+
+.dsa-page {
+  background: var(--sy-page-bg) !important;
+  padding: 28px !important;
+}
+
+.dsa-filter-card,
+.dsa-stat-card,
+.dsa-question-card {
+  background: #ffffff !important;
+}
+
+.dsa-question-card::before {
+  background: linear-gradient(180deg, var(--sy-indigo), #22c55e) !important;
+}
+
+.dsa-question-title {
+  color: var(--sy-text) !important;
+}
+
+.dsa-question-topic {
+  background: #eef2ff !important;
+  color: #4338ca !important;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .dashboard-hero,
+  .hero,
+  .page-hero,
+  .page-header,
+  .section-header,
+  .dsa-header,
+  .practice-header,
+  .resources-header,
+  .companies-header,
+  .roadmaps-header,
+  .today-header,
+  .resume-header,
+  .interview-header,
+  .progress-header,
+  .admin-header,
+  .profile-header,
+  .role-header,
+  .company-header {
+    min-height: 180px !important;
+    padding: 30px 24px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-hero h1,
+  .hero h1,
+  .page-hero h1,
+  .page-header h1,
+  .section-header h1,
+  .dsa-header h1,
+  .page-title,
+  .dsa-title {
+    font-size: 31px !important;
+  }
+}

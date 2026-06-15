@@ -1,0 +1,339 @@
+/* ===============================
+   SkillYatra Global Page Styling
+   Same clean style for all pages
+================================ */
+
+:root {
+  --sy-bg-1: #f8fafc;
+  --sy-bg-2: #eef2ff;
+  --sy-bg-3: #f0fdf4;
+  --sy-text: #0f172a;
+  --sy-muted: #64748b;
+  --sy-border: #e2e8f0;
+  --sy-card: rgba(255, 255, 255, 0.92);
+  --sy-primary: #4f46e5;
+  --sy-primary-2: #7c3aed;
+  --sy-green: #16a34a;
+  --sy-orange: #f97316;
+  --sy-red: #dc2626;
+  --sy-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+  --sy-shadow-hover: 0 24px 56px rgba(15, 23, 42, 0.13);
+  --sy-radius: 22px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--sy-text);
+  background:
+    radial-gradient(circle at top left, rgba(99, 102, 241, 0.16), transparent 32%),
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 28%),
+    linear-gradient(135deg, var(--sy-bg-1) 0%, var(--sy-bg-2) 48%, var(--sy-bg-3) 100%);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Page wrapper common styling */
+main,
+.page,
+.dashboard-page,
+.today-page,
+.roadmaps-page,
+.dsa-page,
+.practice-page,
+.resources-page,
+.companies-page,
+.resume-page,
+.interview-page,
+.progress-page,
+.admin-page,
+.profile-page {
+  min-height: 100vh;
+  color: var(--sy-text);
+}
+
+/* Headings */
+h1,
+.page-title,
+.section-title {
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.1;
+  font-weight: 900;
+  color: var(--sy-text);
+  margin: 0 0 10px;
+}
+
+h2 {
+  font-size: clamp(21px, 2.4vw, 28px);
+  font-weight: 900;
+  color: var(--sy-text);
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--sy-text);
+}
+
+p,
+.page-subtitle,
+.section-subtitle {
+  color: var(--sy-muted);
+  line-height: 1.65;
+}
+
+/* Cards */
+.card,
+.stat-card,
+.feature-card,
+.roadmap-card,
+.company-card,
+.resource-card,
+.question-card,
+.practice-card,
+.progress-card,
+.resume-card,
+.interview-card,
+.admin-card,
+.dsa-stat-card,
+.dsa-filter-card,
+.dsa-question-card {
+  background: var(--sy-card);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: var(--sy-radius);
+  box-shadow: var(--sy-shadow);
+  backdrop-filter: blur(12px);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.card:hover,
+.feature-card:hover,
+.roadmap-card:hover,
+.company-card:hover,
+.resource-card:hover,
+.question-card:hover,
+.practice-card:hover,
+.progress-card:hover,
+.resume-card:hover,
+.interview-card:hover,
+.admin-card:hover,
+.dsa-question-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sy-shadow-hover);
+  border-color: rgba(99, 102, 241, 0.28);
+}
+
+/* Common grid */
+.grid,
+.cards-grid,
+.stats-grid,
+.features-grid {
+  display: grid;
+  gap: 16px;
+}
+
+/* Buttons */
+button,
+.btn,
+.primary-btn,
+.secondary-btn,
+.action-btn,
+.refresh-btn,
+.dsa-refresh-btn,
+.dsa-open-btn,
+.dsa-done-btn,
+.dsa-page-btn {
+  border-radius: 14px;
+  font-weight: 900;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+button:not(:disabled),
+.btn:not(:disabled),
+.primary-btn:not(:disabled),
+.secondary-btn:not(:disabled),
+.action-btn:not(:disabled),
+.refresh-btn:not(:disabled) {
+  cursor: pointer;
+}
+
+button:hover:not(:disabled),
+.btn:hover:not(:disabled),
+.primary-btn:hover:not(:disabled),
+.secondary-btn:hover:not(:disabled),
+.action-btn:hover:not(:disabled),
+.refresh-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.primary-btn,
+.btn-primary,
+.refresh-btn,
+.dsa-refresh-btn {
+  border: 0;
+  color: white;
+  background: linear-gradient(135deg, var(--sy-primary), var(--sy-primary-2));
+  box-shadow: 0 12px 26px rgba(79, 70, 229, 0.26);
+}
+
+.secondary-btn,
+.btn-secondary {
+  border: 1px solid var(--sy-border);
+  color: var(--sy-text);
+  background: #ffffff;
+}
+
+/* Inputs */
+input,
+select,
+textarea,
+.search-input,
+.filter-select,
+.dsa-search,
+.dsa-select {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: var(--sy-text);
+  border-radius: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.search-input:focus,
+.filter-select:focus,
+.dsa-search:focus,
+.dsa-select:focus {
+  border-color: var(--sy-primary);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+/* Badges */
+.badge,
+.tag,
+.chip,
+.status-badge,
+.dsa-badge,
+.dsa-topic-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.badge,
+.tag,
+.chip {
+  padding: 7px 11px;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+/* Progress bars */
+.progress-bar,
+.dsa-progress-wrap {
+  width: 100%;
+  height: 11px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.progress-fill,
+.dsa-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22c55e, var(--sy-primary));
+  transition: width 0.35s ease;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--sy-card);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--sy-shadow);
+}
+
+th {
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: left;
+  padding: 14px;
+}
+
+td {
+  padding: 14px;
+  border-top: 1px solid var(--sy-border);
+  color: var(--sy-text);
+}
+
+/* Empty states */
+.empty-state,
+.no-data,
+.dsa-empty {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px dashed #cbd5e1;
+  color: var(--sy-muted);
+  border-radius: 22px;
+  padding: 34px 20px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* Links */
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: var(--sy-primary);
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .stats-grid,
+  .dsa-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  main,
+  .page,
+  .dashboard-page,
+  .today-page,
+  .roadmaps-page,
+  .dsa-page,
+  .practice-page,
+  .resources-page,
+  .companies-page,
+  .resume-page,
+  .interview-page,
+  .progress-page {
+    padding: 18px !important;
+  }
+
+  .stats-grid,
+  .dsa-stats-grid,
+  .cards-grid,
+  .features-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  h1,
+  .page-title {
+    font-size: 27px;
+  }
+}

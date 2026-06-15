@@ -1,0 +1,526 @@
+/* =========================================================
+   SkillYatra Final Professional Theme
+   CSS only. No data/backend change.
+   Applies same font, spacing, cards, headings, responsive UI.
+========================================================= */
+
+:root {
+  --sy-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --sy-bg: #f6f8fc;
+  --sy-surface: #ffffff;
+  --sy-surface-soft: #f8fafc;
+  --sy-border: #dde6f3;
+
+  --sy-text: #0f172a;
+  --sy-muted: #64748b;
+  --sy-soft-text: #94a3b8;
+
+  --sy-primary: #4f46e5;
+  --sy-primary-2: #7c3aed;
+  --sy-blue: #2563eb;
+  --sy-green: #16a34a;
+  --sy-orange: #f97316;
+  --sy-red: #dc2626;
+
+  --sy-radius-xl: 34px;
+  --sy-radius-lg: 26px;
+  --sy-radius-md: 18px;
+
+  --sy-shadow: 0 18px 45px rgba(15, 23, 42, 0.07);
+  --sy-shadow-hover: 0 26px 64px rgba(15, 23, 42, 0.13);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden !important;
+  background: var(--sy-bg) !important;
+  color: var(--sy-text) !important;
+  font-family: var(--sy-font) !important;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+/* App content safe width */
+main,
+.layout-main,
+.main-content,
+.page-content,
+.content,
+[class*="content"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Every page same base */
+.page,
+.sy-page,
+.home-page,
+.dashboard-page,
+.today-page,
+.roadmaps-page,
+.dsa-page,
+.practice-page,
+.resources-page,
+.companies-page,
+.resume-page,
+.interview-page,
+.progress-page,
+.admin-page,
+.profile-page,
+.role-practice-page,
+.company-detail-page,
+.role-detail-page {
+  width: 100% !important;
+  min-height: 100vh !important;
+  padding: clamp(14px, 2vw, 28px) !important;
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.08), transparent 34%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 28%),
+    var(--sy-bg) !important;
+  color: var(--sy-text) !important;
+  font-family: var(--sy-font) !important;
+  overflow-x: hidden !important;
+}
+
+/* Final same heading box for all pages */
+.dashboard-hero,
+.home-hero,
+.hero,
+.page-hero,
+.page-header,
+.section-header,
+.dsa-header,
+.practice-header,
+.resources-header,
+.resources-hero,
+.companies-header,
+.roadmaps-header,
+.today-header,
+.resume-header,
+.interview-header,
+.progress-header,
+.admin-header,
+.profile-header,
+.role-header,
+.company-header {
+  position: relative !important;
+  width: 100% !important;
+  min-height: clamp(170px, 20vw, 235px) !important;
+  border-radius: clamp(22px, 3vw, 34px) !important;
+  padding: clamp(28px, 4vw, 48px) !important;
+  margin: 0 0 clamp(20px, 2vw, 30px) 0 !important;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.18), transparent 25%),
+    linear-gradient(125deg, #4f46e5 0%, #6d28d9 42%, #172554 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 22px 58px rgba(15, 23, 42, 0.16) !important;
+  overflow: hidden !important;
+}
+
+.dashboard-hero::after,
+.home-hero::after,
+.hero::after,
+.page-hero::after,
+.page-header::after,
+.section-header::after,
+.dsa-header::after,
+.practice-header::after,
+.resources-header::after,
+.resources-hero::after,
+.companies-header::after,
+.roadmaps-header::after,
+.today-header::after,
+.resume-header::after,
+.interview-header::after,
+.progress-header::after,
+.admin-header::after,
+.profile-header::after,
+.role-header::after,
+.company-header::after {
+  content: "";
+  position: absolute;
+  right: -75px;
+  bottom: -85px;
+  width: clamp(180px, 22vw, 300px);
+  height: clamp(180px, 22vw, 300px);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  animation: syHeroFloat 6s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes syHeroFloat {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-16px) scale(1.08);
+  }
+}
+
+/* Header text white */
+.dashboard-hero *,
+.home-hero *,
+.hero *,
+.page-hero *,
+.page-header *,
+.section-header *,
+.dsa-header *,
+.practice-header *,
+.resources-header *,
+.resources-hero *,
+.companies-header *,
+.roadmaps-header *,
+.today-header *,
+.resume-header *,
+.interview-header *,
+.progress-header *,
+.admin-header *,
+.profile-header *,
+.role-header *,
+.company-header * {
+  color: #ffffff !important;
+  font-family: var(--sy-font) !important;
+}
+
+/* Heading font same */
+.dashboard-hero h1,
+.home-hero h1,
+.hero h1,
+.page-hero h1,
+.page-header h1,
+.section-header h1,
+.dsa-header h1,
+.practice-header h1,
+.resources-header h1,
+.resources-hero h1,
+.companies-header h1,
+.roadmaps-header h1,
+.today-header h1,
+.resume-header h1,
+.interview-header h1,
+.progress-header h1,
+.admin-header h1,
+.profile-header h1,
+.role-header h1,
+.company-header h1,
+.page-title,
+.dsa-title {
+  position: relative !important;
+  z-index: 2 !important;
+  margin: 0 !important;
+  color: #ffffff !important;
+  font-size: clamp(32px, 4.7vw, 62px) !important;
+  line-height: 1.04 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.05em !important;
+}
+
+/* Header subtitles soft white but not noisy */
+.dashboard-hero p,
+.home-hero p,
+.hero p,
+.page-hero p,
+.page-header p,
+.section-header p,
+.dsa-header p,
+.practice-header p,
+.resources-header p,
+.resources-hero p,
+.companies-header p,
+.roadmaps-header p,
+.today-header p,
+.resume-header p,
+.interview-header p,
+.progress-header p,
+.admin-header p,
+.profile-header p,
+.role-header p,
+.company-header p,
+.page-subtitle,
+.section-subtitle,
+.dsa-subtitle {
+  position: relative !important;
+  z-index: 2 !important;
+  max-width: 850px !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-size: clamp(14px, 1.2vw, 16px) !important;
+  line-height: 1.65 !important;
+  font-weight: 700 !important;
+}
+
+/* Small kicker */
+.dsa-kicker,
+.resources-kicker,
+.kicker,
+.page-kicker {
+  position: relative !important;
+  z-index: 2 !important;
+  display: block !important;
+  color: rgba(255, 255, 255, 0.74) !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.28em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 14px !important;
+}
+
+/* Same cards whole website */
+.card,
+.stat-card,
+.feature-card,
+.roadmap-card,
+.company-card,
+.resource-card,
+.question-card,
+.practice-card,
+.progress-card,
+.resume-card,
+.interview-card,
+.admin-card,
+.dsa-stat-card,
+.dsa-filter-card,
+.dsa-question-card,
+[class*="card"] {
+  max-width: 100% !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: var(--sy-text) !important;
+  border: 1px solid var(--sy-border) !important;
+  border-radius: var(--sy-radius-lg) !important;
+  box-shadow: var(--sy-shadow) !important;
+  font-family: var(--sy-font) !important;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease !important;
+}
+
+.card:hover,
+.feature-card:hover,
+.roadmap-card:hover,
+.company-card:hover,
+.resource-card:hover,
+.question-card:hover,
+.practice-card:hover,
+.progress-card:hover,
+.resume-card:hover,
+.interview-card:hover,
+.admin-card:hover,
+.dsa-question-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: var(--sy-shadow-hover) !important;
+  border-color: rgba(79, 70, 229, 0.24) !important;
+}
+
+.card *,
+.stat-card *,
+.feature-card *,
+.roadmap-card *,
+.company-card *,
+.resource-card *,
+.question-card *,
+.practice-card *,
+.progress-card *,
+.resume-card *,
+.interview-card *,
+.admin-card *,
+.dsa-stat-card *,
+.dsa-filter-card *,
+.dsa-question-card * {
+  font-family: var(--sy-font) !important;
+}
+
+.card h1,
+.card h2,
+.card h3,
+.stat-card h1,
+.stat-card h2,
+.stat-card h3,
+.feature-card h1,
+.feature-card h2,
+.feature-card h3,
+.roadmap-card h1,
+.roadmap-card h2,
+.roadmap-card h3,
+.company-card h1,
+.company-card h2,
+.company-card h3,
+.resource-card h1,
+.resource-card h2,
+.resource-card h3,
+.question-card h1,
+.question-card h2,
+.question-card h3,
+.practice-card h1,
+.practice-card h2,
+.practice-card h3,
+.progress-card h1,
+.progress-card h2,
+.progress-card h3,
+.resume-card h1,
+.resume-card h2,
+.resume-card h3,
+.interview-card h1,
+.interview-card h2,
+.interview-card h3,
+.admin-card h1,
+.admin-card h2,
+.admin-card h3,
+.dsa-question-title {
+  color: var(--sy-text) !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.card p,
+.stat-card p,
+.feature-card p,
+.roadmap-card p,
+.company-card p,
+.resource-card p,
+.question-card p,
+.practice-card p,
+.progress-card p,
+.resume-card p,
+.interview-card p,
+.admin-card p {
+  color: var(--sy-muted) !important;
+  font-weight: 680 !important;
+}
+
+/* Buttons unified */
+button,
+.btn,
+.primary-btn,
+.secondary-btn,
+.action-btn,
+.refresh-btn,
+.dsa-refresh-btn,
+.dsa-open-btn,
+.dsa-done-btn,
+.dsa-page-btn,
+a[class*="btn"] {
+  max-width: 100% !important;
+  font-family: var(--sy-font) !important;
+  border-radius: var(--sy-radius-md) !important;
+  font-weight: 900 !important;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease !important;
+}
+
+button:hover:not(:disabled),
+.btn:hover,
+.primary-btn:hover,
+.secondary-btn:hover,
+.action-btn:hover,
+.refresh-btn:hover,
+.dsa-refresh-btn:hover,
+.dsa-open-btn:hover,
+.dsa-done-btn:hover,
+.dsa-page-btn:hover {
+  transform: translateY(-2px) !important;
+}
+
+/* Inputs unified */
+input,
+select,
+textarea {
+  max-width: 100% !important;
+  font-family: var(--sy-font) !important;
+  background: #ffffff !important;
+  color: var(--sy-text) !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: var(--sy-radius-md) !important;
+  outline: none !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--sy-primary) !important;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12) !important;
+}
+
+/* Media safety */
+img,
+video,
+canvas,
+svg {
+  max-width: 100% !important;
+}
+
+/* Tables / grids safe */
+table {
+  max-width: 100% !important;
+}
+
+.grid,
+.cards-grid,
+.stats-grid,
+.features-grid {
+  max-width: 100% !important;
+}
+
+/* Responsive hard fix */
+@media (max-width: 980px) {
+  .stats-grid,
+  .dsa-stats-grid,
+  .cards-grid,
+  .features-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .page,
+  .sy-page,
+  .home-page,
+  .dashboard-page,
+  .today-page,
+  .roadmaps-page,
+  .dsa-page,
+  .practice-page,
+  .resources-page,
+  .companies-page,
+  .resume-page,
+  .interview-page,
+  .progress-page {
+    padding: 14px !important;
+  }
+
+  .stats-grid,
+  .dsa-stats-grid,
+  .cards-grid,
+  .features-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-hero,
+  .home-hero,
+  .hero,
+  .page-hero,
+  .page-header,
+  .section-header,
+  .dsa-header,
+  .practice-header,
+  .resources-header,
+  .resources-hero,
+  .companies-header,
+  .roadmaps-header,
+  .today-header,
+  .resume-header,
+  .interview-header,
+  .progress-header {
+    padding: 28px 22px !important;
+  }
+}

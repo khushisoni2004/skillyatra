@@ -1,0 +1,23 @@
+cd skillyatra/backend
+npm install
+cp .env.example .env
+npm run seed
+npm run import:all
+npm run dev
+
+New terminal:
+
+cd skillyatra/frontend
+npm install
+npm run dev
+
+Open:
+http://localhost:5173
+
+Login:
+student@skillyatra.in
+password123
+
+Admin:
+admin@skillyatra.in
+admin123

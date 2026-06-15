@@ -1,0 +1,675 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+/* =====================================================
+   SkillYatra Final Professional UI
+   CSS only. No data/API/backend/MongoDB change.
+===================================================== */
+
+:root {
+  --sy-bg: #f4f8ff;
+  --sy-bg-2: #eef7ff;
+  --sy-white: #ffffff;
+  --sy-sky: #0ea5e9;
+  --sy-sky-2: #38bdf8;
+  --sy-sky-3: #7dd3fc;
+  --sy-sky-soft: #e0f2fe;
+  --sy-sky-soft-2: #f0f9ff;
+  --sy-text: #0f172a;
+  --sy-muted: #64748b;
+  --sy-border: #dbeafe;
+  --sy-border-2: #bae6fd;
+  --sy-green: #10b981;
+  --sy-orange: #f97316;
+  --sy-red: #ef4444;
+  --sy-radius-sm: 12px;
+  --sy-radius-md: 18px;
+  --sy-radius-lg: 26px;
+  --sy-radius-xl: 34px;
+  --sy-shadow: 0 18px 45px rgba(2, 132, 199, 0.08);
+  --sy-shadow-hover: 0 26px 64px rgba(2, 132, 199, 0.14);
+  --sy-font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box !important;
+}
+
+html,
+body,
+#root {
+  width: 100% !important;
+  min-height: 100% !important;
+  margin: 0 !important;
+  overflow-x: hidden !important;
+  background: var(--sy-bg) !important;
+  color: var(--sy-text) !important;
+  font-family: var(--sy-font) !important;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 30%),
+    radial-gradient(circle at top right, rgba(125, 211, 252, 0.24), transparent 30%),
+    linear-gradient(180deg, #f8fcff 0%, #eef7ff 55%, #ffffff 100%) !important;
+}
+
+/* ---------- App layout cut fix ---------- */
+
+.min-h-screen.flex,
+.app-shell,
+.layout,
+.dashboard-layout,
+[class*="layout"] {
+  width: 100% !important;
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  background: transparent !important;
+}
+
+aside,
+.app-sidebar,
+.sidebar,
+[class*="sidebar"] {
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 240px !important;
+  height: 100vh !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-right: 1px solid var(--sy-border) !important;
+  box-shadow: 10px 0 35px rgba(2, 132, 199, 0.06) !important;
+  backdrop-filter: blur(18px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+main,
+.app-main,
+main.flex-1,
+.flex-1.min-w-0 {
+  min-width: 0 !important;
+  width: calc(100vw - 240px) !important;
+  max-width: calc(100vw - 240px) !important;
+  overflow-x: hidden !important;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(14, 165, 233, 0.14), transparent 28%),
+    radial-gradient(circle at 92% 6%, rgba(125, 211, 252, 0.20), transparent 30%),
+    linear-gradient(180deg, #f8fcff 0%, #eef7ff 58%, #ffffff 100%) !important;
+}
+
+main > div,
+.app-content,
+.max-w-\[1600px\],
+.max-w-\[1440px\] {
+  width: 100% !important;
+  max-width: 1360px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* ---------- Sidebar professional ---------- */
+
+aside *,
+.sidebar *,
+.app-sidebar * {
+  font-family: var(--sy-font) !important;
+}
+
+aside a,
+aside button,
+.sidebar-link,
+nav a {
+  border-radius: 14px !important;
+  transition: all 0.22s ease !important;
+  font-weight: 800 !important;
+}
+
+aside a:hover,
+aside button:hover,
+.sidebar-link:hover {
+  background: var(--sy-sky-soft) !important;
+  color: #0369a1 !important;
+  transform: translateX(2px) !important;
+}
+
+aside a.active,
+.sidebar-link.active,
+nav a.active,
+[aria-current="page"] {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(125, 211, 252, 0.20)) !important;
+  color: #0284c7 !important;
+  border-left: 4px solid var(--sy-sky) !important;
+  box-shadow: 0 12px 28px rgba(2, 132, 199, 0.12) !important;
+}
+
+/* ---------- Page base ---------- */
+
+.home-page,
+.landing-page,
+.auth-page,
+.login-page,
+.signup-page,
+.dashboard-page,
+.today-page,
+.roadmaps-page,
+.dsa-page,
+.practice-page,
+.resources-page,
+.companies-page,
+.resume-page,
+.interview-page,
+.progress-page,
+.profile-page,
+.admin-page,
+.role-practice-page,
+.company-detail-page,
+.role-detail-page,
+[class*="-page"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100vh !important;
+  background: transparent !important;
+  color: var(--sy-text) !important;
+  font-family: var(--sy-font) !important;
+  overflow-x: hidden !important;
+}
+
+/* ---------- Universal page banner ---------- */
+
+.gradient-hero,
+.hero,
+.home-hero,
+.auth-hero,
+.dashboard-hero,
+.page-hero,
+.page-header,
+.section-header,
+.today-header,
+.roadmaps-header,
+.dsa-header,
+.practice-header,
+.resources-hero,
+.resources-header,
+.companies-header,
+.resume-header,
+.interview-header,
+.progress-header,
+.profile-header,
+.admin-header,
+.role-header,
+.company-header {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 180px !important;
+  border-radius: var(--sy-radius-xl) !important;
+  padding: clamp(28px, 3.4vw, 44px) !important;
+  margin: 0 0 26px 0 !important;
+  background:
+    radial-gradient(circle at 88% 15%, rgba(255, 255, 255, 0.42), transparent 28%),
+    linear-gradient(135deg, #0284c7 0%, #0ea5e9 48%, #7dd3fc 100%) !important;
+  background-size: 200% 200% !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.34) !important;
+  box-shadow: 0 24px 64px rgba(2, 132, 199, 0.18) !important;
+  overflow: hidden !important;
+  animation: syGradient 9s ease infinite !important;
+}
+
+.gradient-hero::before,
+.hero::before,
+.home-hero::before,
+.auth-hero::before,
+.dashboard-hero::before,
+.page-hero::before,
+.page-header::before,
+.section-header::before,
+.today-header::before,
+.roadmaps-header::before,
+.dsa-header::before,
+.practice-header::before,
+.resources-hero::before,
+.resources-header::before,
+.companies-header::before,
+.resume-header::before,
+.interview-header::before,
+.progress-header::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.16) 35%, transparent 70%) !important;
+  transform: translateX(-100%) !important;
+  animation: syShimmer 5s ease-in-out infinite !important;
+  pointer-events: none !important;
+}
+
+.gradient-hero *,
+.hero *,
+.home-hero *,
+.auth-hero *,
+.dashboard-hero *,
+.page-hero *,
+.page-header *,
+.section-header *,
+.today-header *,
+.roadmaps-header *,
+.dsa-header *,
+.practice-header *,
+.resources-hero *,
+.resources-header *,
+.companies-header *,
+.resume-header *,
+.interview-header *,
+.progress-header *,
+.profile-header *,
+.admin-header *,
+.role-header *,
+.company-header * {
+  color: white !important;
+  position: relative !important;
+  z-index: 2 !important;
+  font-family: var(--sy-font) !important;
+}
+
+.gradient-hero h1,
+.hero h1,
+.home-hero h1,
+.auth-hero h1,
+.dashboard-hero h1,
+.page-hero h1,
+.page-header h1,
+.section-header h1,
+.today-header h1,
+.roadmaps-header h1,
+.dsa-header h1,
+.practice-header h1,
+.resources-hero h1,
+.resources-header h1,
+.companies-header h1,
+.resume-header h1,
+.interview-header h1,
+.progress-header h1,
+.page-title {
+  color: white !important;
+  font-size: clamp(32px, 4vw, 56px) !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.05em !important;
+}
+
+.gradient-hero p,
+.hero p,
+.home-hero p,
+.auth-hero p,
+.dashboard-hero p,
+.page-hero p,
+.page-header p,
+.section-header p,
+.today-header p,
+.roadmaps-header p,
+.dsa-header p,
+.practice-header p,
+.resources-hero p,
+.resources-header p,
+.companies-header p,
+.resume-header p,
+.interview-header p,
+.progress-header p {
+  color: rgba(255,255,255,0.86) !important;
+  font-weight: 650 !important;
+  line-height: 1.65 !important;
+}
+
+/* ---------- Cards ---------- */
+
+.card,
+.card-soft,
+.stat-card,
+.feature-card,
+.roadmap-card,
+.company-card,
+.resource-card,
+.question-card,
+.practice-card,
+.progress-card,
+.resume-card,
+.interview-card,
+.admin-card,
+.dsa-stat-card,
+.dsa-filter-card,
+.dsa-question-card,
+.custom-card,
+[class*="card"] {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: var(--sy-text) !important;
+  border: 1px solid var(--sy-border) !important;
+  border-radius: var(--sy-radius-lg) !important;
+  box-shadow: var(--sy-shadow) !important;
+  backdrop-filter: blur(16px) !important;
+  font-family: var(--sy-font) !important;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease !important;
+  overflow: hidden !important;
+}
+
+.card:hover,
+.card-soft:hover,
+.feature-card:hover,
+.roadmap-card:hover,
+.company-card:hover,
+.resource-card:hover,
+.question-card:hover,
+.practice-card:hover,
+.progress-card:hover,
+.resume-card:hover,
+.interview-card:hover,
+.admin-card:hover,
+.dsa-question-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: var(--sy-shadow-hover) !important;
+  border-color: rgba(14, 165, 233, 0.34) !important;
+}
+
+.card h1,
+.card h2,
+.card h3,
+.card-soft h1,
+.card-soft h2,
+.card-soft h3,
+.stat-card h1,
+.stat-card h2,
+.stat-card h3,
+.feature-card h1,
+.feature-card h2,
+.feature-card h3,
+.roadmap-card h1,
+.roadmap-card h2,
+.roadmap-card h3,
+.company-card h1,
+.company-card h2,
+.company-card h3,
+.question-card h1,
+.question-card h2,
+.question-card h3,
+[class*="card"] h1,
+[class*="card"] h2,
+[class*="card"] h3 {
+  color: var(--sy-text) !important;
+  font-weight: 900 !important;
+}
+
+.card p,
+.card-soft p,
+.stat-card p,
+.feature-card p,
+.roadmap-card p,
+.company-card p,
+.question-card p,
+[class*="card"] p {
+  color: var(--sy-muted) !important;
+  font-weight: 600 !important;
+}
+
+/* ---------- Inputs / buttons ---------- */
+
+input,
+select,
+textarea {
+  background: white !important;
+  color: var(--sy-text) !important;
+  border: 1px solid var(--sy-border) !important;
+  border-radius: var(--sy-radius-sm) !important;
+  outline: none !important;
+  font-family: var(--sy-font) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--sy-sky) !important;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14) !important;
+}
+
+button,
+.btn,
+a[class*="btn"] {
+  border-radius: var(--sy-radius-sm) !important;
+  font-weight: 850 !important;
+  font-family: var(--sy-font) !important;
+  transition: all 0.22s ease !important;
+}
+
+button:hover:not(:disabled),
+.btn:hover,
+a[class*="btn"]:hover {
+  transform: translateY(-2px) !important;
+}
+
+/* ---------- Stats / progress ---------- */
+
+.progress-track,
+[class*="progress-track"] {
+  background: #dbeafe !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+}
+
+.progress-fill,
+[class*="progress-fill"] {
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8, #10b981) !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  transition: width 1s ease !important;
+}
+
+.stat-card,
+.dsa-stat-card {
+  position: relative !important;
+}
+
+.stat-card::before,
+.dsa-stat-card::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background: #0ea5e9 !important;
+}
+
+.stat-card:nth-child(4n+2)::before,
+.dsa-stat-card:nth-child(4n+2)::before {
+  background: #38bdf8 !important;
+}
+
+.stat-card:nth-child(4n+3)::before,
+.dsa-stat-card:nth-child(4n+3)::before {
+  background: #10b981 !important;
+}
+
+.stat-card:nth-child(4n+4)::before,
+.dsa-stat-card:nth-child(4n+4)::before {
+  background: #f97316 !important;
+}
+
+/* ---------- Resource page ---------- */
+
+.resource-card-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 22px !important;
+}
+
+.resource-section,
+.custom-resource-panel {
+  background: rgba(255,255,255,0.94) !important;
+  border: 1px solid var(--sy-border) !important;
+  border-radius: var(--sy-radius-xl) !important;
+  box-shadow: var(--sy-shadow) !important;
+}
+
+.pro-resource-card {
+  background:
+    radial-gradient(circle at top right, rgba(14,165,233,0.12), transparent 35%),
+    white !important;
+  border: 1px solid var(--sy-border) !important;
+  border-radius: var(--sy-radius-lg) !important;
+  padding: 24px !important;
+  min-height: 260px !important;
+  transition: all 0.24s ease !important;
+}
+
+.pro-resource-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: var(--sy-shadow-hover) !important;
+  border-color: rgba(14,165,233,0.38) !important;
+}
+
+.logo-wrap {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 18px !important;
+  background: var(--sy-sky-soft) !important;
+  border: 1px solid var(--sy-border-2) !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.logo-wrap img {
+  width: 42px !important;
+  height: 42px !important;
+  object-fit: contain !important;
+}
+
+/* ---------- Login/signup ---------- */
+
+.login-page,
+.signup-page,
+.auth-page {
+  background:
+    radial-gradient(circle at top left, rgba(14,165,233,0.18), transparent 32%),
+    linear-gradient(180deg, #f8fcff, #eef7ff) !important;
+}
+
+/* ---------- Animations ---------- */
+
+@keyframes syGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes syShimmer {
+  0% { transform: translateX(-100%); }
+  55% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ---------- Responsive ---------- */
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100% !important;
+}
+
+.grid,
+.stats-grid,
+.cards-grid,
+.features-grid,
+.dsa-stats-grid {
+  max-width: 100% !important;
+}
+
+@media (max-width: 1024px) {
+  aside,
+  .app-sidebar,
+  .sidebar,
+  [class*="sidebar"] {
+    position: fixed !important;
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 86vw !important;
+    z-index: 50 !important;
+  }
+
+  main,
+  .app-main,
+  main.flex-1,
+  .flex-1.min-w-0 {
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  .stats-grid,
+  .dsa-stats-grid,
+  .cards-grid,
+  .features-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  main > div,
+  .app-content {
+    padding: 14px !important;
+  }
+
+  .gradient-hero,
+  .hero,
+  .home-hero,
+  .auth-hero,
+  .dashboard-hero,
+  .page-hero,
+  .page-header,
+  .section-header,
+  .today-header,
+  .roadmaps-header,
+  .dsa-header,
+  .practice-header,
+  .resources-hero,
+  .resources-header,
+  .companies-header,
+  .resume-header,
+  .interview-header,
+  .progress-header {
+    min-height: 150px !important;
+    padding: 24px 20px !important;
+    border-radius: 24px !important;
+  }
+
+  .gradient-hero h1,
+  .hero h1,
+  .home-hero h1,
+  .auth-hero h1,
+  .dashboard-hero h1,
+  .page-hero h1,
+  .page-header h1,
+  .section-header h1,
+  .today-header h1,
+  .roadmaps-header h1,
+  .dsa-header h1,
+  .practice-header h1,
+  .resources-hero h1,
+  .resources-header h1,
+  .companies-header h1,
+  .resume-header h1,
+  .interview-header h1,
+  .progress-header h1 {
+    font-size: 30px !important;
+  }
+
+  .resource-card-grid,
+  .stats-grid,
+  .dsa-stats-grid,
+  .cards-grid,
+  .features-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

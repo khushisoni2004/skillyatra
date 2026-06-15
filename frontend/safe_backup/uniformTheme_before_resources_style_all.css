@@ -1,0 +1,487 @@
+/* ==================================================
+   SkillYatra Uniform Theme
+   Same font, same colors, same header on all pages
+   Frontend only. No data/backend change.
+================================================== */
+
+:root {
+  --sy-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --sy-page-bg: #f4f7fb;
+  --sy-text: #0f172a;
+  --sy-muted: #64748b;
+  --sy-border: #e2e8f0;
+  --sy-white: #ffffff;
+  --sy-indigo: #4f46e5;
+  --sy-purple: #7c3aed;
+  --sy-blue: #2563eb;
+  --sy-dark: #050816;
+  --sy-card-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  --sy-card-shadow-hover: 0 24px 58px rgba(15, 23, 42, 0.13);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  background: var(--sy-page-bg) !important;
+  color: var(--sy-text) !important;
+  font-family: var(--sy-font) !important;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* ===============================
+   SAME PAGE BACKGROUND
+================================ */
+
+main,
+.sy-page,
+.page,
+.dashboard-page,
+.today-page,
+.roadmaps-page,
+.dsa-page,
+.practice-page,
+.resources-page,
+.companies-page,
+.resume-page,
+.interview-page,
+.progress-page,
+.admin-page,
+.profile-page,
+.role-practice-page,
+.company-detail-page,
+.role-detail-page {
+  min-height: 100vh;
+  background: var(--sy-page-bg) !important;
+  color: var(--sy-text) !important;
+  font-family: var(--sy-font) !important;
+}
+
+/* ===============================
+   SAME HEADER FOR ALL PAGES
+================================ */
+
+.sy-page-hero,
+.dashboard-hero,
+.hero,
+.page-hero,
+.page-header,
+.section-header,
+.dsa-header,
+.practice-header,
+.resources-header,
+.resources-hero,
+.companies-header,
+.roadmaps-header,
+.today-header,
+.resume-header,
+.interview-header,
+.progress-header,
+.admin-header,
+.profile-header,
+.role-header,
+.company-header {
+  width: 100% !important;
+  min-height: 220px !important;
+  border-radius: 26px !important;
+  padding: 42px 46px !important;
+  margin: 0 0 28px 0 !important;
+  background: linear-gradient(135deg, #050816 0%, #25135f 48%, #2563eb 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 28px !important;
+  overflow: hidden !important;
+}
+
+/* Force all header text white */
+.sy-page-hero *,
+.dashboard-hero *,
+.hero *,
+.page-hero *,
+.page-header *,
+.section-header *,
+.dsa-header *,
+.practice-header *,
+.resources-header *,
+.resources-hero *,
+.companies-header *,
+.roadmaps-header *,
+.today-header *,
+.resume-header *,
+.interview-header *,
+.progress-header *,
+.admin-header *,
+.profile-header *,
+.role-header *,
+.company-header * {
+  color: #ffffff !important;
+}
+
+/* Main page heading only */
+.sy-page-hero h1,
+.dashboard-hero h1,
+.hero h1,
+.page-hero h1,
+.page-header h1,
+.section-header h1,
+.dsa-header h1,
+.practice-header h1,
+.resources-header h1,
+.resources-hero h1,
+.companies-header h1,
+.roadmaps-header h1,
+.today-header h1,
+.resume-header h1,
+.interview-header h1,
+.progress-header h1,
+.admin-header h1,
+.profile-header h1,
+.role-header h1,
+.company-header h1,
+.page-title,
+.dsa-title {
+  display: block !important;
+  margin: 0 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  font-family: var(--sy-font) !important;
+  font-size: clamp(34px, 4vw, 54px) !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.045em !important;
+}
+
+/* Hide dummy subtitles/kickers inside headers */
+.sy-page-hero p,
+.dashboard-hero p,
+.hero p,
+.page-hero p,
+.page-header p,
+.section-header p,
+.dsa-header p,
+.practice-header p,
+.resources-header p,
+.resources-hero p,
+.companies-header p,
+.roadmaps-header p,
+.today-header p,
+.resume-header p,
+.interview-header p,
+.progress-header p,
+.admin-header p,
+.profile-header p,
+.role-header p,
+.company-header p,
+.page-subtitle,
+.section-subtitle,
+.dsa-subtitle,
+.dsa-kicker,
+.resources-kicker {
+  display: none !important;
+}
+
+/* Header buttons */
+.sy-page-hero button,
+.dashboard-hero button,
+.hero button,
+.page-hero button,
+.page-header button,
+.section-header button,
+.dsa-header button,
+.sy-page-hero a,
+.dashboard-hero a,
+.hero a,
+.page-hero a,
+.page-header a,
+.section-header a,
+.dsa-header a {
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: #3730a3 !important;
+  border: 1px solid rgba(255, 255, 255, 0.38) !important;
+  border-radius: 16px !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+}
+
+/* ===============================
+   SAME CARDS
+================================ */
+
+.sy-card,
+.card,
+.stat-card,
+.feature-card,
+.roadmap-card,
+.company-card,
+.resource-card,
+.question-card,
+.practice-card,
+.progress-card,
+.resume-card,
+.interview-card,
+.admin-card,
+.dsa-stat-card,
+.dsa-filter-card,
+.dsa-question-card,
+[class*="card"] {
+  background: #ffffff !important;
+  color: var(--sy-text) !important;
+  border: 1px solid var(--sy-border) !important;
+  border-radius: 22px !important;
+  box-shadow: var(--sy-card-shadow) !important;
+  font-family: var(--sy-font) !important;
+}
+
+.sy-card:hover,
+.card:hover,
+.feature-card:hover,
+.roadmap-card:hover,
+.company-card:hover,
+.resource-card:hover,
+.question-card:hover,
+.practice-card:hover,
+.progress-card:hover,
+.resume-card:hover,
+.interview-card:hover,
+.admin-card:hover,
+.dsa-question-card:hover {
+  box-shadow: var(--sy-card-shadow-hover) !important;
+}
+
+.sy-card *,
+.card *,
+.stat-card *,
+.feature-card *,
+.roadmap-card *,
+.company-card *,
+.resource-card *,
+.question-card *,
+.practice-card *,
+.progress-card *,
+.resume-card *,
+.interview-card *,
+.admin-card *,
+.dsa-stat-card *,
+.dsa-filter-card *,
+.dsa-question-card * {
+  font-family: var(--sy-font) !important;
+}
+
+.sy-card h1,
+.sy-card h2,
+.sy-card h3,
+.card h1,
+.card h2,
+.card h3,
+.stat-card h1,
+.stat-card h2,
+.stat-card h3,
+.feature-card h1,
+.feature-card h2,
+.feature-card h3,
+.roadmap-card h1,
+.roadmap-card h2,
+.roadmap-card h3,
+.company-card h1,
+.company-card h2,
+.company-card h3,
+.resource-card h1,
+.resource-card h2,
+.resource-card h3,
+.question-card h1,
+.question-card h2,
+.question-card h3,
+.practice-card h1,
+.practice-card h2,
+.practice-card h3,
+.progress-card h1,
+.progress-card h2,
+.progress-card h3,
+.resume-card h1,
+.resume-card h2,
+.resume-card h3,
+.interview-card h1,
+.interview-card h2,
+.interview-card h3,
+.admin-card h1,
+.admin-card h2,
+.admin-card h3,
+.dsa-question-title {
+  color: var(--sy-text) !important;
+  font-weight: 950 !important;
+}
+
+.sy-card p,
+.card p,
+.stat-card p,
+.feature-card p,
+.roadmap-card p,
+.company-card p,
+.resource-card p,
+.question-card p,
+.practice-card p,
+.progress-card p,
+.resume-card p,
+.interview-card p,
+.admin-card p {
+  color: var(--sy-muted) !important;
+  font-weight: 700 !important;
+}
+
+/* ===============================
+   BUTTONS / INPUTS SAME
+================================ */
+
+button,
+.btn,
+.primary-btn,
+.secondary-btn,
+.action-btn,
+.refresh-btn,
+.dsa-refresh-btn,
+.dsa-open-btn,
+.dsa-done-btn,
+.dsa-page-btn,
+a[class*="btn"] {
+  font-family: var(--sy-font) !important;
+  border-radius: 14px !important;
+  font-weight: 900 !important;
+  transition: 0.2s ease !important;
+}
+
+button:hover:not(:disabled),
+.btn:hover,
+.primary-btn:hover,
+.secondary-btn:hover,
+.action-btn:hover,
+.refresh-btn:hover,
+.dsa-refresh-btn:hover,
+.dsa-open-btn:hover,
+.dsa-done-btn:hover,
+.dsa-page-btn:hover {
+  transform: translateY(-2px) !important;
+}
+
+.primary-btn,
+.btn-primary,
+.refresh-btn,
+.dsa-refresh-btn {
+  background: linear-gradient(135deg, var(--sy-indigo), var(--sy-purple)) !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 12px 25px rgba(79, 70, 229, 0.26) !important;
+}
+
+.dsa-open-btn {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border: 1px solid #111827 !important;
+}
+
+input,
+select,
+textarea,
+.search-input,
+.filter-select,
+.dsa-search,
+.dsa-select {
+  font-family: var(--sy-font) !important;
+  background: #ffffff !important;
+  color: var(--sy-text) !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 14px !important;
+  outline: none !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.search-input:focus,
+.filter-select:focus,
+.dsa-search:focus,
+.dsa-select:focus {
+  border-color: var(--sy-indigo) !important;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.14) !important;
+}
+
+/* ===============================
+   BADGES / CHIPS
+================================ */
+
+.badge,
+.tag,
+.chip,
+.status-badge,
+.dsa-badge,
+.dsa-topic-chip {
+  font-family: var(--sy-font) !important;
+  border-radius: 999px !important;
+  font-weight: 900 !important;
+}
+
+.dsa-topic-chip.active,
+.chip.active,
+.badge.active {
+  background: linear-gradient(135deg, var(--sy-indigo), var(--sy-purple)) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 900px) {
+  .sy-page-hero,
+  .dashboard-hero,
+  .hero,
+  .page-hero,
+  .page-header,
+  .section-header,
+  .dsa-header,
+  .practice-header,
+  .resources-header,
+  .resources-hero,
+  .companies-header,
+  .roadmaps-header,
+  .today-header,
+  .resume-header,
+  .interview-header,
+  .progress-header,
+  .admin-header,
+  .profile-header,
+  .role-header,
+  .company-header {
+    min-height: 180px !important;
+    padding: 30px 24px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .sy-page-hero h1,
+  .dashboard-hero h1,
+  .hero h1,
+  .page-hero h1,
+  .page-header h1,
+  .section-header h1,
+  .dsa-header h1,
+  .resources-hero h1,
+  .page-title,
+  .dsa-title {
+    font-size: 31px !important;
+  }
+}

@@ -1,0 +1,1 @@
+const mongoose=require('mongoose'); const ProgressSchema=new mongoose.Schema({userId:{type:mongoose.Schema.Types.ObjectId,ref:'User',index:true},itemId:String,itemType:String,status:String,solved:Boolean,completed:Boolean,submittedAt:Date,topic:String,difficulty:String,meta:Object},{timestamps:true}); module.exports=mongoose.model('Progress',ProgressSchema);

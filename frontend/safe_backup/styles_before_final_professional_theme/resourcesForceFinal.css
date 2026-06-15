@@ -1,0 +1,354 @@
+/* FORCE FINAL — applies even if old CSS exists */
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden !important;
+  background: #f4f7fb !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+main,
+.layout-main,
+.main-content,
+.content,
+.page-content,
+[class*="content"],
+[class*="page"] {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* all page headers same color/font */
+.dashboard-hero,
+.resources-hero,
+.dsa-header,
+.practice-header,
+.page-header,
+.hero,
+.section-header,
+.companies-header,
+.roadmaps-header,
+.today-header,
+.resume-header,
+.interview-header,
+.progress-header {
+  width: 100% !important;
+  min-height: 230px !important;
+  border-radius: 34px !important;
+  padding: 46px 48px !important;
+  margin-bottom: 30px !important;
+  background: linear-gradient(125deg, #4f3be6 0%, #6d28d9 38%, #050816 100%) !important;
+  color: #ffffff !important;
+  overflow: hidden !important;
+}
+
+.dashboard-hero *,
+.resources-hero *,
+.dsa-header *,
+.practice-header *,
+.page-header *,
+.hero *,
+.section-header *,
+.companies-header *,
+.roadmaps-header *,
+.today-header *,
+.resume-header *,
+.interview-header *,
+.progress-header * {
+  color: #ffffff !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+.dashboard-hero h1,
+.resources-hero h1,
+.dsa-header h1,
+.practice-header h1,
+.page-header h1,
+.hero h1,
+.section-header h1,
+.companies-header h1,
+.roadmaps-header h1,
+.today-header h1,
+.resume-header h1,
+.interview-header h1,
+.progress-header h1 {
+  color: #ffffff !important;
+  font-size: clamp(36px, 5vw, 68px) !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.05em !important;
+}
+
+/* Resources final layout */
+.resources-page {
+  width: 100% !important;
+  min-height: 100vh !important;
+  padding: clamp(14px, 2vw, 28px) !important;
+  background:
+    radial-gradient(circle at top left, rgba(109, 40, 217, 0.13), transparent 34%),
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.1), transparent 30%),
+    #f4f7fb !important;
+  overflow-x: hidden !important;
+}
+
+.resources-kicker {
+  display: block !important;
+  color: rgba(255,255,255,0.75) !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.35em !important;
+  margin-bottom: 16px !important;
+}
+
+.resources-hero p {
+  color: rgba(255,255,255,0.82) !important;
+  font-weight: 750 !important;
+  max-width: 760px !important;
+}
+
+/* tabs */
+.resources-tabs {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  padding: 14px 0 22px !important;
+  background: rgba(244,247,251,0.9) !important;
+  backdrop-filter: blur(14px) !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 20 !important;
+}
+
+.resources-tabs button {
+  border: 1px solid #ddd6fe !important;
+  background: #ffffff !important;
+  color: #5b21b6 !important;
+  border-radius: 999px !important;
+  padding: 11px 16px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+}
+
+.resources-tabs button.active,
+.resources-tabs button:hover {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  color: white !important;
+  border-color: transparent !important;
+}
+
+/* sections */
+.resources-grid {
+  display: grid !important;
+  gap: 28px !important;
+}
+
+.resource-section,
+.custom-resource-panel {
+  background: #ffffff !important;
+  border: 1px solid #dbe4f3 !important;
+  border-radius: 36px !important;
+  padding: clamp(20px, 2.4vw, 34px) !important;
+  box-shadow: 0 18px 45px rgba(15,23,42,0.06) !important;
+  overflow: hidden !important;
+}
+
+/* section heading */
+.section-title-row {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 18px !important;
+  margin-bottom: 24px !important;
+}
+
+.section-title-row > span {
+  color: #6d28d9 !important;
+  background: #ede9fe !important;
+  border: 1px solid #ddd6fe !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.16em !important;
+  border-radius: 999px !important;
+  padding: 8px 12px !important;
+  white-space: nowrap !important;
+}
+
+.section-title-row h2 {
+  margin: 0 0 8px !important;
+  color: #0f172a !important;
+  font-size: clamp(24px, 2.5vw, 36px) !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.section-title-row p {
+  margin: 0 !important;
+  color: #64748b !important;
+  font-weight: 740 !important;
+}
+
+/* strict 2x2 cards */
+.resource-card-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 24px !important;
+  width: 100% !important;
+}
+
+.pro-resource-card {
+  position: relative !important;
+  min-height: 320px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  text-decoration: none !important;
+  color: #0f172a !important;
+  background:
+    radial-gradient(circle at top right, rgba(109,40,217,0.1), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 36px !important;
+  padding: 30px !important;
+  overflow: hidden !important;
+  transition: 0.25s ease !important;
+}
+
+.pro-resource-card:hover {
+  transform: translateY(-8px) scale(1.01) !important;
+  box-shadow: 0 28px 60px rgba(15,23,42,0.16) !important;
+  border-color: #c4b5fd !important;
+}
+
+.logo-wrap {
+  width: 92px !important;
+  height: 92px !important;
+  border-radius: 28px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  display: grid !important;
+  place-items: center !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 18px 36px rgba(15,23,42,0.10), inset 0 0 0 8px #f8fafc !important;
+}
+
+.logo-wrap img {
+  width: 72px !important;
+  height: 72px !important;
+  object-fit: contain !important;
+  border-radius: 16px !important;
+}
+
+.pro-resource-card span {
+  width: fit-content !important;
+  color: #4f46e5 !important;
+  background: #eef2ff !important;
+  border: 1px solid #dbeafe !important;
+  border-radius: 999px !important;
+  padding: 7px 11px !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  margin-bottom: 14px !important;
+}
+
+.pro-resource-card h3 {
+  margin: 0 0 10px !important;
+  color: #0f172a !important;
+  font-size: clamp(22px, 1.9vw, 28px) !important;
+  line-height: 1.12 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.pro-resource-card p {
+  margin: 0 !important;
+  color: #64748b !important;
+  font-size: 15.5px !important;
+  line-height: 1.6 !important;
+  font-weight: 720 !important;
+}
+
+.pro-resource-card b {
+  margin-top: auto !important;
+  padding-top: 22px !important;
+  color: #6d28d9 !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+/* form responsive */
+.resource-form,
+.custom-list {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 14px !important;
+}
+
+.resource-form input,
+.resource-form select,
+.resource-form textarea {
+  width: 100% !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 18px !important;
+  padding: 14px 15px !important;
+}
+
+.resource-form textarea {
+  grid-column: 1 / -1 !important;
+}
+
+/* responsive no cut */
+@media (max-width: 980px) {
+  .resource-card-grid,
+  .resource-form,
+  .custom-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  .section-title-row {
+    flex-direction: column !important;
+  }
+
+  .resources-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .resources-page {
+    padding: 14px !important;
+  }
+
+  .resources-hero {
+    min-height: 200px !important;
+    padding: 30px 22px !important;
+  }
+
+  .resources-hero h1 {
+    font-size: 36px !important;
+  }
+
+  .resource-section,
+  .custom-resource-panel {
+    padding: 18px !important;
+    border-radius: 28px !important;
+  }
+
+  .pro-resource-card {
+    min-height: auto !important;
+    padding: 24px !important;
+  }
+
+  .logo-wrap {
+    width: 78px !important;
+    height: 78px !important;
+  }
+
+  .logo-wrap img {
+    width: 62px !important;
+    height: 62px !important;
+  }
+}

@@ -1,0 +1,1074 @@
+import React, { useMemo, useState } from "react";
+import {
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  Plus,
+  RotateCcw,
+  Sparkles,
+  Target,
+  Trash2
+} from "lucide-react";
+
+function dateKey(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function displayDate(date) {
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function dayName(date) {
+  return date.toLocaleDateString("en-US", { weekday: "long" });
+}
+
+function loadTasks() {
+  try {
+    return JSON.parse(localStorage.getItem("skillyatra_today_tasks") || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveTasks(data) {
+  localStorage.setItem("skillyatra_today_tasks", JSON.stringify(data));
+}
+
+export default function TodayPlan() {
+  const now = new Date();
+  const [selectedDate, setSelectedDate] = useState(dateKey(now));
+  const [taskText, setTaskText] = useState("");
+  const [tasksByDate, setTasksByDate] = useState(loadTasks());
+
+  const selected = new Date(selectedDate);
+  const tasks = tasksByDate[selectedDate] || [];
+
+  const completed = tasks.filter((task) => task.done).length;
+  const pending = tasks.length - completed;
+  const progress = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
+
+  const weekDays = useMemo(() => {
+    const base = new Date();
+
+    return Array.from({ length: 7 }, (_, index) => {
+      const d = new Date(base);
+      d.setDate(base.getDate() + index - 1);
+
+      const key = dateKey(d);
+      const dayTasks = tasksByDate[key] || [];
+      const done = dayTasks.filter((task) => task.done).length;
+
+      return {
+        key,
+        date: d,
+        total: dayTasks.length,
+        done
+      };
+    });
+  }, [tasksByDate]);
+
+  const updateAll = (next) => {
+    setTasksByDate(next);
+    saveTasks(next);
+  };
+
+  const addTask = () => {
+    const text = taskText.trim();
+    if (!text) return;
+
+    const next = {
+      ...tasksByDate,
+      [selectedDate]: [
+        ...(tasksByDate[selectedDate] || []),
+        {
+          id: Date.now(),
+          text,
+          done: false,
+          category: "Study",
+          priority: "Medium"
+        }
+      ]
+    };
+
+    updateAll(next);
+    setTaskText("");
+  };
+
+  const toggleTask = (id) => {
+    const next = {
+      ...tasksByDate,
+      [selectedDate]: tasks.map((task) =>
+        task.id === id ? { ...task, done: !task.done } : task
+      )
+    };
+
+    updateAll(next);
+  };
+
+  const deleteTask = (id) => {
+    const next = {
+      ...tasksByDate,
+      [selectedDate]: tasks.filter((task) => task.id !== id)
+    };
+
+    updateAll(next);
+  };
+
+  const clearDate = () => {
+    const next = { ...tasksByDate };
+    delete next[selectedDate];
+    updateAll(next);
+  };
+
+  return (
+    <div className="today-sky-page">
+      <style>{`
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+        .today-sky-page {
+          min-height: 100vh;
+          width: 100%;
+          padding: 34px 42px;
+          font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          color: #0F172A;
+          background:
+            radial-gradient(circle at 16% 4%, rgba(14,165,233,0.13), transparent 30%),
+            radial-gradient(circle at 88% 10%, rgba(125,211,252,0.23), transparent 32%),
+            linear-gradient(180deg, #FFFFFF 0%, #F5FCFF 48%, #FFFFFF 100%);
+          position: relative;
+          overflow-x: hidden;
+        }
+
+        .today-sky-page::before {
+          content: "";
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          background-image:
+            linear-gradient(rgba(14,165,233,0.045) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(14,165,233,0.045) 1px, transparent 1px);
+          background-size: 44px 44px;
+          mask-image: linear-gradient(to bottom, black, transparent 78%);
+          z-index: 0;
+        }
+
+        @keyframes todayFadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(24px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes todayBubble {
+          0%, 100% {
+            transform: translate3d(0,0,0) scale(1);
+            opacity: 0.55;
+          }
+          50% {
+            transform: translate3d(18px,-22px,0) scale(1.08);
+            opacity: 0.86;
+          }
+        }
+
+        @keyframes todayShine {
+          0% {
+            transform: translateX(-130%) skewX(-12deg);
+          }
+          100% {
+            transform: translateX(220%) skewX(-12deg);
+          }
+        }
+
+        .today-bubble {
+          position: fixed;
+          border-radius: 999px;
+          background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.96), rgba(125,211,252,0.30), rgba(14,165,233,0.10));
+          border: 1px solid rgba(186,230,253,0.70);
+          box-shadow: 0 18px 42px rgba(14,165,233,0.10);
+          pointer-events: none;
+          z-index: 0;
+          animation: todayBubble 8s ease-in-out infinite;
+        }
+
+        .today-bubble.one {
+          width: 112px;
+          height: 112px;
+          top: 12%;
+          right: 7%;
+        }
+
+        .today-bubble.two {
+          width: 68px;
+          height: 68px;
+          bottom: 14%;
+          right: 5%;
+          animation-delay: 2s;
+        }
+
+        .today-bubble.three {
+          width: 82px;
+          height: 82px;
+          top: 56%;
+          left: 8%;
+          animation-delay: 3.5s;
+        }
+
+        .today-shell {
+          position: relative;
+          z-index: 2;
+          max-width: 1420px;
+          margin: 0 auto;
+        }
+
+        .today-hero {
+          position: relative;
+          overflow: hidden;
+          border-radius: 34px;
+          padding: 36px 38px;
+          background:
+            radial-gradient(circle at 82% 16%, rgba(255,255,255,0.32), transparent 28%),
+            linear-gradient(135deg, #0284C7 0%, #0EA5E9 56%, #7DD3FC 100%);
+          border: 1px solid rgba(186,230,253,0.70);
+          box-shadow: 0 34px 90px rgba(14,165,233,0.22);
+          color: white;
+          animation: todayFadeUp 0.65s ease both;
+        }
+
+        .today-hero::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 45%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+          transform: translateX(-130%) skewX(-12deg);
+          animation: todayShine 5.5s ease-in-out infinite;
+          pointer-events: none;
+        }
+
+        .today-hero-grid {
+          position: relative;
+          z-index: 1;
+          display: grid;
+          grid-template-columns: 1.15fr 0.85fr;
+          gap: 30px;
+          align-items: center;
+        }
+
+        .today-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 16px;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.16);
+          border: 1px solid rgba(255,255,255,0.30);
+          color: white;
+          font-size: 12px;
+          font-weight: 950;
+          backdrop-filter: blur(18px);
+        }
+
+        .today-title {
+          margin-top: 20px;
+          font-size: clamp(36px, 4.2vw, 62px);
+          line-height: 1.02;
+          font-weight: 950;
+          letter-spacing: -2px;
+          color: white;
+        }
+
+        .today-desc {
+          margin-top: 16px;
+          max-width: 780px;
+          color: rgba(255,255,255,0.90);
+          font-size: 16px;
+          font-weight: 720;
+          line-height: 1.72;
+        }
+
+        .progress-card {
+          border-radius: 28px;
+          background: rgba(255,255,255,0.92);
+          border: 1px solid rgba(255,255,255,0.72);
+          color: #0F172A;
+          padding: 24px;
+          box-shadow: 0 24px 60px rgba(2,132,199,0.12);
+        }
+
+        .progress-value {
+          margin: 0;
+          font-size: 54px;
+          line-height: 1;
+          font-weight: 950;
+          letter-spacing: -1.6px;
+          color: #0F172A;
+        }
+
+        .progress-label {
+          margin-top: 8px;
+          color: #64748B;
+          font-size: 14px;
+          font-weight: 850;
+        }
+
+        .progress-track {
+          margin-top: 22px;
+          height: 12px;
+          border-radius: 999px;
+          background: #E0F2FE;
+          overflow: hidden;
+        }
+
+        .progress-fill {
+          height: 100%;
+          border-radius: 999px;
+          background: linear-gradient(90deg, #0EA5E9, #22C55E);
+          transition: width 0.35s ease;
+        }
+
+        .top-grid {
+          margin-top: 26px;
+          display: grid;
+          grid-template-columns: 0.9fr 1.1fr;
+          gap: 22px;
+        }
+
+        .sky-card {
+          border-radius: 32px;
+          background: rgba(255,255,255,0.96);
+          border: 1px solid rgba(186,230,253,0.95);
+          box-shadow: 0 20px 50px rgba(2,132,199,0.08);
+          padding: 26px;
+          backdrop-filter: blur(18px);
+          animation: todayFadeUp 0.7s ease both;
+        }
+
+        .card-head {
+          display: flex;
+          align-items: center;
+          gap: 13px;
+        }
+
+        .icon-box {
+          width: 58px;
+          height: 58px;
+          min-width: 58px;
+          border-radius: 22px;
+          background: #EAF7FF;
+          border: 2px solid #B7E3FF;
+          color: #0284C7;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .card-title {
+          margin: 0;
+          color: #0F172A;
+          font-size: 25px;
+          line-height: 1.15;
+          font-weight: 950;
+          letter-spacing: -0.7px;
+        }
+
+        .date-input,
+        .task-input {
+          width: 100%;
+          height: 54px;
+          margin-top: 20px;
+          border-radius: 18px;
+          border: 1px solid #BAE6FD;
+          background: #FFFFFF;
+          padding: 0 16px;
+          color: #0F172A;
+          font-size: 15px;
+          font-weight: 800;
+          outline: none;
+          box-shadow: 0 12px 28px rgba(2,132,199,0.05);
+          transition: all 0.22s ease;
+        }
+
+        .date-input:focus,
+        .task-input:focus {
+          border-color: #0EA5E9;
+          box-shadow: 0 0 0 5px rgba(14,165,233,0.13);
+        }
+
+        .selected-date-box {
+          margin-top: 20px;
+          border-radius: 24px;
+          background: linear-gradient(135deg, #E0F2FE, #F0F9FF);
+          border: 1px solid #BAE6FD;
+          padding: 20px;
+        }
+
+        .date-day {
+          margin: 0;
+          color: #0284C7;
+          font-size: 14px;
+          font-weight: 950;
+        }
+
+        .date-main {
+          margin: 8px 0 0;
+          color: #0F172A;
+          font-size: 26px;
+          line-height: 1.15;
+          font-weight: 950;
+          letter-spacing: -0.8px;
+        }
+
+        .date-sub {
+          margin: 9px 0 0;
+          color: #475569;
+          font-size: 14px;
+          line-height: 1.6;
+          font-weight: 720;
+        }
+
+        .task-add-row {
+          margin-top: 20px;
+          display: grid;
+          grid-template-columns: 1fr auto;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .add-btn,
+        .clear-btn,
+        .done-btn,
+        .delete-btn {
+          border: none;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.24s ease;
+        }
+
+        .add-btn {
+          height: 54px;
+          min-width: 128px;
+          border-radius: 18px;
+          background: linear-gradient(135deg, #0EA5E9, #38BDF8);
+          color: white;
+          font-size: 14px;
+          font-weight: 950;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          box-shadow: 0 18px 38px rgba(14,165,233,0.24);
+        }
+
+        .add-btn:hover,
+        .clear-btn:hover,
+        .done-btn:hover,
+        .delete-btn:hover {
+          transform: translateY(-3px);
+        }
+
+        .hint-text {
+          margin: 13px 0 0;
+          color: #64748B;
+          font-size: 14px;
+          font-weight: 720;
+          line-height: 1.6;
+        }
+
+        .section-row {
+          margin-top: 30px;
+          display: flex;
+          align-items: center;
+          gap: 13px;
+        }
+
+        .section-title {
+          margin: 0;
+          color: #0F172A;
+          font-size: 27px;
+          line-height: 1.15;
+          font-weight: 950;
+          letter-spacing: -0.8px;
+        }
+
+        .week-grid {
+          margin-top: 18px;
+          display: grid;
+          grid-template-columns: repeat(7, minmax(0, 1fr));
+          gap: 14px;
+        }
+
+        .week-card {
+          border: 1px solid rgba(186,230,253,0.95);
+          background: #FFFFFF;
+          border-radius: 24px;
+          padding: 18px;
+          text-align: left;
+          cursor: pointer;
+          color: #0F172A;
+          box-shadow: 0 16px 34px rgba(2,132,199,0.06);
+          transition: all 0.24s ease;
+        }
+
+        .week-card:hover {
+          transform: translateY(-5px);
+          border-color: #7DD3FC;
+        }
+
+        .week-card.active {
+          background: linear-gradient(135deg, #0EA5E9, #7DD3FC);
+          border-color: #0EA5E9;
+          color: white;
+          box-shadow: 0 20px 44px rgba(14,165,233,0.22);
+        }
+
+        .week-name {
+          margin: 0;
+          font-size: 14px;
+          font-weight: 950;
+        }
+
+        .week-date {
+          margin: 7px 0 0;
+          font-size: 13px;
+          font-weight: 800;
+          opacity: 0.82;
+        }
+
+        .week-done {
+          margin: 14px 0 0;
+          font-size: 12px;
+          font-weight: 950;
+        }
+
+        .stats-grid {
+          margin-top: 26px;
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 16px;
+        }
+
+        .stat-card {
+          border-radius: 26px;
+          background: #FFFFFF;
+          border: 1px solid rgba(186,230,253,0.95);
+          box-shadow: 0 16px 34px rgba(2,132,199,0.06);
+          padding: 22px;
+        }
+
+        .stat-label {
+          margin: 0;
+          color: #64748B;
+          font-size: 14px;
+          font-weight: 950;
+        }
+
+        .stat-value {
+          margin: 9px 0 0;
+          color: #0F172A;
+          font-size: 34px;
+          line-height: 1.05;
+          font-weight: 950;
+          letter-spacing: -0.8px;
+        }
+
+        .todo-panel {
+          margin-top: 26px;
+          border-radius: 32px;
+          background: rgba(255,255,255,0.96);
+          border: 1px solid rgba(186,230,253,0.95);
+          box-shadow: 0 20px 50px rgba(2,132,199,0.08);
+          padding: 26px;
+        }
+
+        .todo-panel-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 18px;
+          flex-wrap: wrap;
+        }
+
+        .todo-title {
+          margin: 0;
+          color: #0F172A;
+          font-size: 27px;
+          line-height: 1.15;
+          font-weight: 950;
+          letter-spacing: -0.8px;
+        }
+
+        .todo-sub {
+          margin: 7px 0 0;
+          color: #64748B;
+          font-size: 14px;
+          line-height: 1.6;
+          font-weight: 720;
+        }
+
+        .clear-btn {
+          height: 46px;
+          border-radius: 16px;
+          background: #FEF2F2;
+          color: #DC2626;
+          padding: 0 16px;
+          font-size: 14px;
+          font-weight: 950;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .empty-state {
+          margin-top: 24px;
+          border-radius: 28px;
+          border: 1px dashed #BAE6FD;
+          background: linear-gradient(135deg, #FFFFFF, #F0F9FF);
+          padding: 52px 24px;
+          text-align: center;
+        }
+
+        .empty-state h3 {
+          margin: 16px 0 0;
+          color: #0F172A;
+          font-size: 20px;
+          font-weight: 950;
+        }
+
+        .empty-state p {
+          margin: 8px 0 0;
+          color: #64748B;
+          font-size: 14px;
+          font-weight: 720;
+        }
+
+        .todo-list {
+          margin-top: 24px;
+          display: grid;
+          gap: 14px;
+        }
+
+        .todo-item {
+          border-radius: 26px;
+          border: 1px solid rgba(186,230,253,0.95);
+          background: #FFFFFF;
+          padding: 20px;
+          display: grid;
+          grid-template-columns: 1fr auto;
+          gap: 18px;
+          align-items: center;
+          transition: all 0.24s ease;
+        }
+
+        .todo-item:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 24px 52px rgba(2,132,199,0.10);
+        }
+
+        .todo-item.done {
+          background: linear-gradient(135deg, #ECFDF5, #F0F9FF);
+          border-color: #BBF7D0;
+        }
+
+        .todo-left {
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+        }
+
+        .check-btn {
+          margin-top: 2px;
+          width: 34px;
+          height: 34px;
+          min-width: 34px;
+          border-radius: 999px;
+          border: 2px solid #BAE6FD;
+          background: white;
+          color: transparent;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+
+        .todo-item.done .check-btn {
+          border-color: #22C55E;
+          background: #22C55E;
+          color: white;
+        }
+
+        .badge-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .todo-badge {
+          border-radius: 999px;
+          padding: 7px 11px;
+          font-size: 11px;
+          font-weight: 950;
+        }
+
+        .badge-blue {
+          background: #E0F2FE;
+          color: #0284C7;
+        }
+
+        .badge-orange {
+          background: #FFF7ED;
+          color: #EA580C;
+        }
+
+        .badge-status {
+          background: #F1F5F9;
+          color: #475569;
+        }
+
+        .todo-item.done .badge-status {
+          background: #DCFCE7;
+          color: #15803D;
+        }
+
+        .todo-text {
+          margin: 12px 0 0;
+          color: #0F172A;
+          font-size: 18px;
+          line-height: 1.35;
+          font-weight: 950;
+        }
+
+        .todo-item.done .todo-text {
+          color: #64748B;
+          text-decoration: line-through;
+        }
+
+        .todo-actions {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .done-btn {
+          height: 42px;
+          border-radius: 15px;
+          padding: 0 15px;
+          font-size: 13px;
+          font-weight: 950;
+          background: #22C55E;
+          color: white;
+        }
+
+        .done-btn.undo {
+          background: #F1F5F9;
+          color: #334155;
+        }
+
+        .delete-btn {
+          width: 42px;
+          height: 42px;
+          border-radius: 15px;
+          background: #FEF2F2;
+          color: #DC2626;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        @media (max-width: 1180px) {
+          .today-hero-grid,
+          .top-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .week-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+
+          .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 720px) {
+          .today-sky-page {
+            padding: 18px;
+          }
+
+          .today-hero,
+          .sky-card,
+          .todo-panel {
+            border-radius: 26px;
+            padding: 22px;
+          }
+
+          .today-title {
+            font-size: 36px;
+            letter-spacing: -1px;
+          }
+
+          .task-add-row,
+          .todo-item {
+            grid-template-columns: 1fr;
+          }
+
+          .week-grid,
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .todo-actions {
+            justify-content: flex-start;
+            flex-wrap: wrap;
+          }
+        }
+      `}</style>
+
+      <div className="today-bubble one" />
+      <div className="today-bubble two" />
+      <div className="today-bubble three" />
+
+      <div className="today-shell">
+        <section className="today-hero">
+          <div className="today-hero-grid">
+            <div>
+              <div className="today-badge">
+                <Sparkles size={16} />
+                Personal Study Todo Planner
+              </div>
+
+              <h1 className="today-title">
+                What do you want to study today?
+              </h1>
+
+              <p className="today-desc">
+                Add your own tasks date-wise. Your todo list stays saved while moving between sections.
+              </p>
+            </div>
+
+            <div className="progress-card">
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 18, alignItems: "flex-start" }}>
+                <div>
+                  <h2 className="progress-value">{progress}%</h2>
+                  <p className="progress-label">
+                    {completed} of {tasks.length} completed
+                  </p>
+                </div>
+
+                <div className="icon-box">
+                  <Target size={30} strokeWidth={2.5} />
+                </div>
+              </div>
+
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: `${progress}%` }} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="top-grid">
+          <div className="sky-card">
+            <div className="card-head">
+              <div className="icon-box">
+                <CalendarDays size={27} strokeWidth={2.5} />
+              </div>
+
+              <h2 className="card-title">Select Date</h2>
+            </div>
+
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(event) => setSelectedDate(event.target.value)}
+              className="date-input"
+            />
+
+            <div className="selected-date-box">
+              <p className="date-day">{dayName(selected)}</p>
+
+              <h3 className="date-main">
+                {displayDate(selected)}
+              </h3>
+
+              <p className="date-sub">
+                {tasks.length} task{tasks.length === 1 ? "" : "s"} added for this date.
+              </p>
+            </div>
+          </div>
+
+          <div className="sky-card">
+            <div className="card-head">
+              <div className="icon-box">
+                <Plus size={27} strokeWidth={2.5} />
+              </div>
+
+              <h2 className="card-title">Add New Todo</h2>
+            </div>
+
+            <div className="task-add-row">
+              <input
+                value={taskText}
+                onChange={(event) => setTaskText(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") addTask();
+                }}
+                placeholder="I want to do today..."
+                className="task-input"
+              />
+
+              <button type="button" onClick={addTask} className="add-btn">
+                <Plus size={17} />
+                Add
+              </button>
+            </div>
+
+            <p className="hint-text">
+              Example: OS revision, JavaScript practice, DBMS joins, 5 DSA problems.
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <div className="section-row">
+            <div className="icon-box">
+              <CalendarDays size={27} strokeWidth={2.5} />
+            </div>
+            <h2 className="section-title">Weekly View</h2>
+          </div>
+
+          <div className="week-grid">
+            {weekDays.map((day) => {
+              const active = day.key === selectedDate;
+
+              return (
+                <button
+                  key={day.key}
+                  type="button"
+                  onClick={() => setSelectedDate(day.key)}
+                  className={active ? "week-card active" : "week-card"}
+                >
+                  <p className="week-name">{dayName(day.date)}</p>
+
+                  <p className="week-date">
+                    {displayDate(day.date)}
+                  </p>
+
+                  <p className="week-done">
+                    {day.done}/{day.total} done
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="stats-grid">
+          <div className="stat-card">
+            <p className="stat-label">Total Tasks</p>
+            <h3 className="stat-value">{tasks.length}</h3>
+          </div>
+
+          <div className="stat-card">
+            <p className="stat-label">Completed</p>
+            <h3 className="stat-value" style={{ color: "#059669" }}>{completed}</h3>
+          </div>
+
+          <div className="stat-card">
+            <p className="stat-label">Pending</p>
+            <h3 className="stat-value" style={{ color: "#EA580C" }}>{pending}</h3>
+          </div>
+
+          <div className="stat-card">
+            <p className="stat-label">Progress</p>
+            <h3 className="stat-value" style={{ color: "#0284C7" }}>{progress}%</h3>
+          </div>
+        </section>
+
+        <section className="todo-panel">
+          <div className="todo-panel-head">
+            <div>
+              <h2 className="todo-title">
+                My Todo List - {dayName(selected)}
+              </h2>
+
+              <p className="todo-sub">
+                {completed} of {tasks.length} completed for {displayDate(selected)}.
+              </p>
+            </div>
+
+            {tasks.length > 0 && (
+              <button type="button" onClick={clearDate} className="clear-btn">
+                <RotateCcw size={16} />
+                Clear This Date
+              </button>
+            )}
+          </div>
+
+          {tasks.length === 0 ? (
+            <div className="empty-state">
+              <Clock size={42} color="#94A3B8" />
+
+              <h3>No task added for this date</h3>
+
+              <p>Add a task from the input above to start tracking.</p>
+            </div>
+          ) : (
+            <div className="todo-list">
+              {tasks.map((task) => (
+                <div key={task.id} className={task.done ? "todo-item done" : "todo-item"}>
+                  <div className="todo-left">
+                    <button
+                      type="button"
+                      onClick={() => toggleTask(task.id)}
+                      className="check-btn"
+                    >
+                      <CheckCircle2 size={20} />
+                    </button>
+
+                    <div>
+                      <div className="badge-row">
+                        <span className="todo-badge badge-blue">Study</span>
+                        <span className="todo-badge badge-orange">Medium</span>
+                        <span className="todo-badge badge-status">
+                          {task.done ? "Completed" : "Pending"}
+                        </span>
+                      </div>
+
+                      <h3 className="todo-text">
+                        {task.text}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div className="todo-actions">
+                    <button
+                      type="button"
+                      onClick={() => toggleTask(task.id)}
+                      className={task.done ? "done-btn undo" : "done-btn"}
+                    >
+                      {task.done ? "Undo" : "Mark Done"}
+                    </button>
+
+                    <button type="button" onClick={() => deleteTask(task.id)} className="delete-btn">
+                      <Trash2 size={17} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}

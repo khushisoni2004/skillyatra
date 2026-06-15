@@ -1,0 +1,13 @@
+{
+  "watch": ["src"],
+  "ext": "js,mjs,cjs",
+  "ignore": [
+    "src/data/*.json",
+    "src/data/**/*.json",
+    "src/data/datasets/**",
+    "src/data/progressStore.json",
+    "src/data/permanentMcqBank.json",
+    "src/data/mcqQuestionIndex.json",
+    "node_modules/**"
+  ]
+}

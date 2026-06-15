@@ -1,0 +1,1421 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Emergency safe global reset */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f8fcff;
+  color: #0f172a;
+}
+
+a {
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* =====================================================
+   FINAL CLEAN DASHBOARD FIX — SIDEBAR + STAT CARDS
+   Keep at end of file
+===================================================== */
+
+/* ---------- SIDEBAR FINAL ---------- */
+body aside,
+body .sidebar,
+body [class*="sidebar"],
+body [class*="Sidebar"] {
+  width: 300px !important;
+  min-width: 300px !important;
+  max-width: 300px !important;
+  flex: 0 0 300px !important;
+  background:
+    radial-gradient(circle at 18% 4%, rgba(14,165,233,0.13), transparent 30%),
+    linear-gradient(180deg, #FFFFFF 0%, #F8FCFF 55%, #FFFFFF 100%) !important;
+  border-right: 1px solid #BDE6FC !important;
+  box-shadow: 14px 0 38px rgba(14,165,233,0.07) !important;
+  overflow: hidden !important;
+}
+
+/* Sidebar brand container */
+body aside > div:first-child,
+body .sidebar > div:first-child,
+body [class*="sidebar"] > div:first-child,
+body [class*="Sidebar"] > div:first-child {
+  padding: 24px 18px 18px 18px !important;
+  border-bottom: 1px solid rgba(186,230,253,0.75) !important;
+}
+
+/* Sidebar logo row */
+body aside > div:first-child > div:first-child,
+body .sidebar > div:first-child > div:first-child,
+body [class*="sidebar"] > div:first-child > div:first-child,
+body [class*="Sidebar"] > div:first-child > div:first-child {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Logo square same Home theme */
+body aside > div:first-child > div:first-child > div:first-child,
+body .sidebar > div:first-child > div:first-child > div:first-child,
+body [class*="sidebar"] > div:first-child > div:first-child > div:first-child,
+body [class*="Sidebar"] > div:first-child > div:first-child > div:first-child {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, #4F46E5 0%, #0EA5E9 55%, #34D399 100%) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: 0 18px 34px rgba(14,165,233,0.24) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Brand text area */
+body aside > div:first-child > div:first-child > div:last-child,
+body .sidebar > div:first-child > div:first-child > div:last-child,
+body [class*="sidebar"] > div:first-child > div:first-child > div:last-child,
+body [class*="Sidebar"] > div:first-child > div:first-child > div:last-child {
+  min-width: 0 !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+}
+
+/* SkillYatra title */
+body aside > div:first-child h1,
+body aside > div:first-child h2,
+body aside > div:first-child h3,
+body .sidebar > div:first-child h1,
+body .sidebar > div:first-child h2,
+body .sidebar > div:first-child h3,
+body [class*="sidebar"] > div:first-child h1,
+body [class*="sidebar"] > div:first-child h2,
+body [class*="sidebar"] > div:first-child h3,
+body [class*="Sidebar"] > div:first-child h1,
+body [class*="Sidebar"] > div:first-child h2,
+body [class*="Sidebar"] > div:first-child h3 {
+  font-size: 25px !important;
+  line-height: 1.02 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.8px !important;
+  color: #0F172A !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+}
+
+/* Placement GPS subtitle full visible */
+body aside > div:first-child p,
+body .sidebar > div:first-child p,
+body [class*="sidebar"] > div:first-child p,
+body [class*="Sidebar"] > div:first-child p {
+  font-size: 13px !important;
+  line-height: 1.15 !important;
+  font-weight: 900 !important;
+  color: #0284C7 !important;
+  margin: 6px 0 0 0 !important;
+  max-width: 110px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+/* Sidebar readiness card */
+body aside div,
+body .sidebar div,
+body [class*="sidebar"] div,
+body [class*="Sidebar"] div {
+  box-sizing: border-box !important;
+}
+
+/* Sidebar links: keep text inside, black normally */
+body aside a,
+body aside button,
+body .sidebar a,
+body .sidebar button,
+body [class*="sidebar"] a,
+body [class*="sidebar"] button,
+body [class*="Sidebar"] a,
+body [class*="Sidebar"] button {
+  width: calc(100% - 36px) !important;
+  max-width: calc(100% - 36px) !important;
+  margin-left: 18px !important;
+  margin-right: 18px !important;
+  border-radius: 18px !important;
+  color: #0F172A !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  transform: none !important;
+}
+
+/* Sidebar text no outside */
+body aside a *,
+body aside button *,
+body .sidebar a *,
+body .sidebar button *,
+body [class*="sidebar"] a *,
+body [class*="sidebar"] button *,
+body [class*="Sidebar"] a *,
+body [class*="Sidebar"] button * {
+  color: inherit !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+}
+
+/* Sidebar hover */
+body aside a:hover,
+body aside button:hover,
+body .sidebar a:hover,
+body .sidebar button:hover,
+body [class*="sidebar"] a:hover,
+body [class*="sidebar"] button:hover,
+body [class*="Sidebar"] a:hover,
+body [class*="Sidebar"] button:hover {
+  background: #E0F2FE !important;
+  border-color: #BAE6FD !important;
+  color: #0284C7 !important;
+}
+
+/* Sidebar active selected */
+body aside a.active,
+body aside a[aria-current="page"],
+body .sidebar a.active,
+body .sidebar a[aria-current="page"],
+body [class*="sidebar"] a.active,
+body [class*="sidebar"] a[aria-current="page"],
+body [class*="Sidebar"] a.active,
+body [class*="Sidebar"] a[aria-current="page"],
+body aside .active,
+body .sidebar .active,
+body [class*="sidebar"] .active,
+body [class*="Sidebar"] .active {
+  background: linear-gradient(135deg, #E0F2FE 0%, #F0F9FF 100%) !important;
+  border: 1px solid #8DD3FF !important;
+  color: #0284C7 !important;
+  box-shadow: 0 14px 28px rgba(14,165,233,0.12) !important;
+}
+
+/* ---------- DASHBOARD TOP STAT CARDS FINAL ---------- */
+.clean-stat-grid {
+  margin-top: 26px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 24px !important;
+}
+
+.clean-stat-card {
+  min-height: 146px !important;
+  padding: 28px 30px !important;
+  border-radius: 30px !important;
+  background: #FFFFFF !important;
+  border: 2px solid #B7E3FF !important;
+  box-shadow: 0 18px 42px rgba(14,165,233,0.08) !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 70px !important;
+  gap: 22px !important;
+  align-items: start !important;
+  overflow: hidden !important;
+  position: relative !important;
+  transition: all 0.24s ease !important;
+}
+
+.clean-stat-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 28px 60px rgba(14,165,233,0.14) !important;
+  border-color: #7DD3FC !important;
+}
+
+.clean-stat-left {
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.clean-stat-title {
+  margin: 0 0 12px 0 !important;
+  padding: 0 !important;
+  color: #64748B !important;
+  font-size: 15px !important;
+  line-height: 1.25 !important;
+  font-weight: 950 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+.clean-stat-value {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #0F172A !important;
+  font-size: 34px !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.9px !important;
+  font-weight: 950 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: normal !important;
+}
+
+.clean-stat-icon {
+  width: 70px !important;
+  height: 70px !important;
+  min-width: 70px !important;
+  border-radius: 24px !important;
+  background: #EAF7FF !important;
+  border: 2px solid #B7E3FF !important;
+  color: #0284C7 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Kill old top card visuals if still present */
+.gpsd-card,
+.gpsd-card *,
+.gpsd-card-label,
+.gpsd-card-value,
+.gpsd-card-text {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.gpsd-card-text {
+  display: none !important;
+}
+
+/* Focus radar note removed */
+.gpsd-notice {
+  display: none !important;
+}
+
+/* Dashboard page nice space */
+.gpsd-page {
+  padding: 34px 42px !important;
+}
+
+/* Responsive */
+@media (max-width: 1180px) {
+  .clean-stat-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ===== SkillYatra Final Amazing Premium Effects ===== */
+
+html {
+  scroll-behavior: smooth !important;
+}
+
+@keyframes syAuroraMove {
+  0% {
+    transform: translate3d(-8%, -6%, 0) scale(1);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate3d(8%, 4%, 0) scale(1.12);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(-8%, -6%, 0) scale(1);
+    opacity: 0.65;
+  }
+}
+
+@keyframes sySoftGridMove {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 80px 80px;
+  }
+}
+
+@keyframes syButtonGlow {
+  0%, 100% {
+    box-shadow: 0 18px 38px rgba(14,165,233,0.28);
+  }
+  50% {
+    box-shadow: 0 26px 58px rgba(14,165,233,0.42);
+  }
+}
+
+@keyframes syCardGlowLine {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+@keyframes syTinyFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(4deg);
+  }
+}
+
+@keyframes syHeroTitleGlow {
+  0%, 100% {
+    text-shadow: 0 0 0 rgba(14,165,233,0);
+  }
+  50% {
+    text-shadow: 0 18px 45px rgba(14,165,233,0.18);
+  }
+}
+
+/* soft animated page background */
+.sy-home {
+  isolation: isolate !important;
+}
+
+.sy-home::after {
+  content: "" !important;
+  position: fixed !important;
+  inset: -20% !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  background:
+    radial-gradient(circle at 15% 18%, rgba(14,165,233,0.14), transparent 28%),
+    radial-gradient(circle at 78% 12%, rgba(125,211,252,0.22), transparent 28%),
+    radial-gradient(circle at 55% 85%, rgba(186,230,253,0.35), transparent 30%) !important;
+  filter: blur(4px) !important;
+  animation: syAuroraMove 12s ease-in-out infinite !important;
+}
+
+.sy-home::before {
+  animation: sySoftGridMove 18s linear infinite !important;
+}
+
+/* nav more premium */
+.home-nav.scrolled {
+  border-bottom: 1px solid rgba(186,230,253,0.85) !important;
+}
+
+.brand-mark {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.brand-mark::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(110deg, transparent, rgba(255,255,255,0.32), transparent) !important;
+  transform: translateX(-120%) !important;
+  animation: syCardGlowLine 3.8s ease-in-out infinite !important;
+}
+
+/* hero title polish */
+.hero-title {
+  animation: syHeroTitleGlow 5s ease-in-out infinite !important;
+}
+
+.gradient-text {
+  filter: drop-shadow(0 12px 28px rgba(14,165,233,0.20)) !important;
+}
+
+/* buttons more alive */
+.btn-primary,
+.nav-signup {
+  animation: syButtonGlow 3.8s ease-in-out infinite !important;
+}
+
+.btn-primary,
+.btn-secondary,
+.nav-btn {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.btn-primary::after,
+.btn-secondary::after,
+.nav-btn::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.34), transparent) !important;
+  transform: translateX(-120%) !important;
+  pointer-events: none !important;
+}
+
+.btn-primary:hover::after,
+.btn-secondary:hover::after,
+.nav-btn:hover::after {
+  animation: syCardGlowLine 0.75s ease !important;
+}
+
+/* cards premium shine */
+.feature-card,
+.flow-card,
+.mini-card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.feature-card::after,
+.flow-card::after,
+.mini-card::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 45% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(14,165,233,0.08), transparent) !important;
+  transform: translateX(-130%) skewX(-12deg) !important;
+  pointer-events: none !important;
+}
+
+.feature-card:hover::after,
+.flow-card:hover::after,
+.mini-card:hover::after {
+  animation: syCardGlowLine 0.8s ease !important;
+}
+
+.feature-card:hover .feature-icon,
+.flow-card:hover .flow-icon {
+  background: linear-gradient(135deg, #0EA5E9, #7DD3FC) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 18px 36px rgba(14,165,233,0.24) !important;
+}
+
+/* flow cards deeper connected feel */
+.flow-card {
+  transform-style: preserve-3d !important;
+}
+
+.flow-card:hover {
+  transform: perspective(900px) rotateX(2deg) rotateY(-2deg) translateY(-9px) !important;
+}
+
+/* add decorative floating bubbles near 3D image */
+.image-card {
+  position: relative !important;
+}
+
+.image-card > span {
+  display: none;
+}
+
+.image-card::before {
+  z-index: 2 !important;
+}
+
+.image-card::after {
+  z-index: 2 !important;
+}
+
+.image-card .image-caption {
+  border: 1px solid rgba(14,165,233,0.22) !important;
+}
+
+/* section headings better */
+.section-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 14px !important;
+  border-radius: 999px !important;
+  background: rgba(224,242,254,0.82) !important;
+  border: 1px solid rgba(186,230,253,0.95) !important;
+  box-shadow: 0 12px 26px rgba(2,132,199,0.06) !important;
+}
+
+.section-title {
+  margin-top: 14px !important;
+}
+
+/* final CTA glow */
+.last-cta-box {
+  position: relative !important;
+}
+
+.last-cta-box::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -2px !important;
+  background: linear-gradient(120deg, rgba(255,255,255,0.25), transparent, rgba(255,255,255,0.22)) !important;
+  opacity: 0.8 !important;
+  pointer-events: none !important;
+}
+
+.last-cta-box a:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+}
+
+/* small premium selection */
+::selection {
+  background: rgba(14,165,233,0.22) !important;
+  color: #075985 !important;
+}
+
+/* responsive safety */
+@media (max-width: 640px) {
+  .sy-home::after {
+    opacity: 0.65 !important;
+  }
+
+  .section-title {
+    font-size: 30px !important;
+  }
+}
+
+/* ===== Home navbar + hero title final visibility fix ===== */
+
+/* navbar left shift and bigger logo */
+.sy-home .nav-inner {
+  max-width: 1420px !important;
+  padding-left: 22px !important;
+  padding-right: 32px !important;
+}
+
+.sy-home .brand {
+  margin-left: 0 !important;
+  transform: translateX(-42px) !important;
+  gap: 18px !important;
+}
+
+.sy-home .brand-mark {
+  width: 76px !important;
+  height: 76px !important;
+  border-radius: 28px !important;
+  box-shadow: 0 24px 52px rgba(14,165,233,0.34) !important;
+}
+
+.sy-home .brand-mark svg {
+  width: 42px !important;
+  height: 42px !important;
+  stroke-width: 2.7 !important;
+}
+
+.sy-home .brand-title {
+  font-size: 32px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  color: #0F172A !important;
+  letter-spacing: -1.1px !important;
+}
+
+.sy-home .brand-subtitle {
+  font-size: 15px !important;
+  margin-top: 8px !important;
+  font-weight: 950 !important;
+  color: #0284C7 !important;
+}
+
+/* make Login / Sign Up stable and visible */
+.sy-home .nav-actions {
+  transform: translateX(-18px) !important;
+}
+
+.sy-home .nav-btn {
+  font-size: 17px !important;
+  padding: 16px 36px !important;
+  border-radius: 18px !important;
+}
+
+/* hero starts little higher and title becomes clearly visible */
+.sy-home .hero-grid {
+  padding-top: 118px !important;
+  align-items: center !important;
+}
+
+.sy-home .badge {
+  margin-bottom: 20px !important;
+  font-size: 14px !important;
+  padding: 12px 22px !important;
+}
+
+/* actual project name big visible */
+.sy-home .hero-title {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin-top: 16px !important;
+  margin-bottom: 0 !important;
+  font-size: clamp(64px, 7vw, 104px) !important;
+  line-height: 0.98 !important;
+  font-weight: 950 !important;
+  letter-spacing: -4px !important;
+  color: #0F172A !important;
+  position: relative !important;
+  z-index: 5 !important;
+  text-shadow: 0 18px 48px rgba(14,165,233,0.16) !important;
+}
+
+.sy-home .gradient-text {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 45%, #38BDF8 100%) !important;
+  background-size: 200% 200% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  filter: drop-shadow(0 18px 32px rgba(14,165,233,0.22)) !important;
+}
+
+.sy-home .hero-desc {
+  margin-top: 24px !important;
+  font-size: 19px !important;
+  color: #334155 !important;
+  font-weight: 760 !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* page width visible in screenshots */
+.sy-home .home-main {
+  max-width: 1420px !important;
+}
+
+/* mobile safety */
+@media (max-width: 900px) {
+  .sy-home .brand {
+    transform: translateX(0) !important;
+  }
+
+  .sy-home .nav-actions {
+    transform: translateX(0) !important;
+  }
+
+  .sy-home .brand-mark {
+    width: 58px !important;
+    height: 58px !important;
+    border-radius: 22px !important;
+  }
+
+  .sy-home .brand-title {
+    font-size: 24px !important;
+  }
+
+  .sy-home .brand-subtitle {
+    font-size: 12px !important;
+  }
+
+  .sy-home .nav-btn {
+    font-size: 13px !important;
+    padding: 11px 15px !important;
+  }
+
+  .sy-home .hero-title {
+    font-size: 46px !important;
+    letter-spacing: -1.6px !important;
+  }
+}
+
+/* ===== Final Home Header + Logo + Hero Image Balance Fix ===== */
+
+/* logo/name ko wapas proper andar align */
+.sy-home .nav-inner {
+  max-width: 1240px !important;
+  padding-left: 32px !important;
+  padding-right: 32px !important;
+}
+
+.sy-home .brand {
+  transform: none !important;
+  margin-left: 0 !important;
+  gap: 14px !important;
+}
+
+.sy-home .brand-mark {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 22px !important;
+  box-shadow: 0 18px 38px rgba(14,165,233,0.28) !important;
+}
+
+.sy-home .brand-mark svg {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.sy-home .brand-title {
+  font-size: 25px !important;
+  line-height: 1 !important;
+  letter-spacing: -0.8px !important;
+}
+
+.sy-home .brand-subtitle {
+  font-size: 13px !important;
+  margin-top: 6px !important;
+}
+
+/* login/sign up pehle jaisa balanced */
+.sy-home .nav-actions {
+  transform: none !important;
+}
+
+.sy-home .nav-btn {
+  font-size: 15px !important;
+  padding: 13px 30px !important;
+  border-radius: 17px !important;
+}
+
+/* hero heading short and professional */
+.sy-home .hero-title {
+  font-size: clamp(50px, 5.4vw, 78px) !important;
+  line-height: 1.03 !important;
+  letter-spacing: -2.6px !important;
+  margin-top: 18px !important;
+  max-width: 660px !important;
+}
+
+.sy-home .gradient-text {
+  display: inline-block !important;
+}
+
+/* hero area balanced */
+.sy-home .hero-grid {
+  grid-template-columns: 0.95fr 1.05fr !important;
+  gap: 54px !important;
+  padding-top: 128px !important;
+}
+
+.sy-home .hero-desc {
+  max-width: 600px !important;
+  font-size: 17px !important;
+  line-height: 1.75 !important;
+}
+
+/* 3D image bigger like earlier */
+.sy-home .image-card {
+  width: 100% !important;
+  max-width: 620px !important;
+  margin-left: auto !important;
+  transform: scale(1.08) !important;
+  transform-origin: center !important;
+}
+
+.sy-home .image-card img {
+  min-height: 420px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+/* caption thoda compact so image clean dikhe */
+.sy-home .image-caption {
+  left: 28px !important;
+  right: 28px !important;
+  bottom: 28px !important;
+  padding: 15px 18px !important;
+}
+
+.sy-home .image-caption h3 {
+  font-size: 21px !important;
+  line-height: 1.18 !important;
+}
+
+/* next section thoda upar balanced */
+.sy-home .feature-section {
+  margin-top: 86px !important;
+}
+
+@media (max-width: 980px) {
+  .sy-home .hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .sy-home .image-card {
+    transform: none !important;
+    max-width: 100% !important;
+  }
+
+  .sy-home .hero-title {
+    font-size: 46px !important;
+    letter-spacing: -1.5px !important;
+  }
+}
+
+/* ===== SkillYatra Final Amazing Premium Effects ===== */
+
+html {
+  scroll-behavior: smooth !important;
+}
+
+@keyframes syAuroraMove {
+  0% {
+    transform: translate3d(-8%, -6%, 0) scale(1);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate3d(8%, 4%, 0) scale(1.12);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(-8%, -6%, 0) scale(1);
+    opacity: 0.65;
+  }
+}
+
+@keyframes sySoftGridMove {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 80px 80px;
+  }
+}
+
+@keyframes syButtonGlow {
+  0%, 100% {
+    box-shadow: 0 18px 38px rgba(14,165,233,0.28);
+  }
+  50% {
+    box-shadow: 0 26px 58px rgba(14,165,233,0.42);
+  }
+}
+
+@keyframes syCardGlowLine {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+@keyframes syTinyFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(4deg);
+  }
+}
+
+@keyframes syHeroTitleGlow {
+  0%, 100% {
+    text-shadow: 0 0 0 rgba(14,165,233,0);
+  }
+  50% {
+    text-shadow: 0 18px 45px rgba(14,165,233,0.18);
+  }
+}
+
+/* soft animated page background */
+.sy-home {
+  isolation: isolate !important;
+}
+
+.sy-home::after {
+  content: "" !important;
+  position: fixed !important;
+  inset: -20% !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  background:
+    radial-gradient(circle at 15% 18%, rgba(14,165,233,0.14), transparent 28%),
+    radial-gradient(circle at 78% 12%, rgba(125,211,252,0.22), transparent 28%),
+    radial-gradient(circle at 55% 85%, rgba(186,230,253,0.35), transparent 30%) !important;
+  filter: blur(4px) !important;
+  animation: syAuroraMove 12s ease-in-out infinite !important;
+}
+
+.sy-home::before {
+  animation: sySoftGridMove 18s linear infinite !important;
+}
+
+/* nav more premium */
+.home-nav.scrolled {
+  border-bottom: 1px solid rgba(186,230,253,0.85) !important;
+}
+
+.brand-mark {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.brand-mark::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(110deg, transparent, rgba(255,255,255,0.32), transparent) !important;
+  transform: translateX(-120%) !important;
+  animation: syCardGlowLine 3.8s ease-in-out infinite !important;
+}
+
+/* hero title polish */
+.hero-title {
+  animation: syHeroTitleGlow 5s ease-in-out infinite !important;
+}
+
+.gradient-text {
+  filter: drop-shadow(0 12px 28px rgba(14,165,233,0.20)) !important;
+}
+
+/* buttons more alive */
+.btn-primary,
+.nav-signup {
+  animation: syButtonGlow 3.8s ease-in-out infinite !important;
+}
+
+.btn-primary,
+.btn-secondary,
+.nav-btn {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.btn-primary::after,
+.btn-secondary::after,
+.nav-btn::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.34), transparent) !important;
+  transform: translateX(-120%) !important;
+  pointer-events: none !important;
+}
+
+.btn-primary:hover::after,
+.btn-secondary:hover::after,
+.nav-btn:hover::after {
+  animation: syCardGlowLine 0.75s ease !important;
+}
+
+/* cards premium shine */
+.feature-card,
+.flow-card,
+.mini-card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.feature-card::after,
+.flow-card::after,
+.mini-card::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 45% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(14,165,233,0.08), transparent) !important;
+  transform: translateX(-130%) skewX(-12deg) !important;
+  pointer-events: none !important;
+}
+
+.feature-card:hover::after,
+.flow-card:hover::after,
+.mini-card:hover::after {
+  animation: syCardGlowLine 0.8s ease !important;
+}
+
+.feature-card:hover .feature-icon,
+.flow-card:hover .flow-icon {
+  background: linear-gradient(135deg, #0EA5E9, #7DD3FC) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 18px 36px rgba(14,165,233,0.24) !important;
+}
+
+/* flow cards deeper connected feel */
+.flow-card {
+  transform-style: preserve-3d !important;
+}
+
+.flow-card:hover {
+  transform: perspective(900px) rotateX(2deg) rotateY(-2deg) translateY(-9px) !important;
+}
+
+/* add decorative floating bubbles near 3D image */
+.image-card {
+  position: relative !important;
+}
+
+.image-card > span {
+  display: none;
+}
+
+.image-card::before {
+  z-index: 2 !important;
+}
+
+.image-card::after {
+  z-index: 2 !important;
+}
+
+.image-card .image-caption {
+  border: 1px solid rgba(14,165,233,0.22) !important;
+}
+
+/* section headings better */
+.section-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 14px !important;
+  border-radius: 999px !important;
+  background: rgba(224,242,254,0.82) !important;
+  border: 1px solid rgba(186,230,253,0.95) !important;
+  box-shadow: 0 12px 26px rgba(2,132,199,0.06) !important;
+}
+
+.section-title {
+  margin-top: 14px !important;
+}
+
+/* final CTA glow */
+.last-cta-box {
+  position: relative !important;
+}
+
+.last-cta-box::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -2px !important;
+  background: linear-gradient(120deg, rgba(255,255,255,0.25), transparent, rgba(255,255,255,0.22)) !important;
+  opacity: 0.8 !important;
+  pointer-events: none !important;
+}
+
+.last-cta-box a:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+}
+
+/* small premium selection */
+::selection {
+  background: rgba(14,165,233,0.22) !important;
+  color: #075985 !important;
+}
+
+/* responsive safety */
+@media (max-width: 640px) {
+  .sy-home::after {
+    opacity: 0.65 !important;
+  }
+
+  .section-title {
+    font-size: 30px !important;
+  }
+}
+
+/* =====================================================
+   FINAL SIDEBAR FIX — animated sky-blue + visible Dashboard
+   Keep this at the END of index.css
+===================================================== */
+
+/* Sidebar final size and animated background */
+body aside,
+body .sidebar,
+body [class*="sidebar"],
+body [class*="Sidebar"] {
+  position: relative !important;
+  width: 300px !important;
+  min-width: 300px !important;
+  max-width: 300px !important;
+  flex: 0 0 300px !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 18% 6%, rgba(14,165,233,0.15), transparent 30%),
+    radial-gradient(circle at 90% 18%, rgba(125,211,252,0.18), transparent 34%),
+    linear-gradient(180deg, #FFFFFF 0%, #F6FCFF 48%, #FFFFFF 100%) !important;
+  border-right: 1px solid #BDE6FC !important;
+  box-shadow: 18px 0 48px rgba(14,165,233,0.08) !important;
+}
+
+/* animated soft bubbles inside sidebar */
+body aside::before,
+body .sidebar::before,
+body [class*="sidebar"]::before,
+body [class*="Sidebar"]::before {
+  content: "" !important;
+  position: absolute !important;
+  width: 180px !important;
+  height: 180px !important;
+  top: -55px !important;
+  left: -50px !important;
+  border-radius: 999px !important;
+  background: radial-gradient(circle, rgba(125,211,252,0.34), rgba(14,165,233,0.12), transparent 72%) !important;
+  animation: sySidebarBubbleOne 7s ease-in-out infinite !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+body aside::after,
+body .sidebar::after,
+body [class*="sidebar"]::after,
+body [class*="Sidebar"]::after {
+  content: "" !important;
+  position: absolute !important;
+  width: 145px !important;
+  height: 145px !important;
+  bottom: 80px !important;
+  right: -58px !important;
+  border-radius: 999px !important;
+  background: radial-gradient(circle, rgba(14,165,233,0.24), rgba(186,230,253,0.18), transparent 72%) !important;
+  animation: sySidebarBubbleTwo 8s ease-in-out infinite reverse !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+@keyframes sySidebarBubbleOne {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(20px, 18px, 0) scale(1.12);
+    opacity: 0.9;
+  }
+}
+
+@keyframes sySidebarBubbleTwo {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(-18px, -22px, 0) scale(1.1);
+    opacity: 0.85;
+  }
+}
+
+/* keep all real sidebar content above animation */
+body aside > *,
+body .sidebar > *,
+body [class*="sidebar"] > *,
+body [class*="Sidebar"] > * {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Brand/top logo area clean */
+body aside > div:first-child,
+body .sidebar > div:first-child,
+body [class*="sidebar"] > div:first-child,
+body [class*="Sidebar"] > div:first-child {
+  padding: 26px 20px 20px 20px !important;
+  border-bottom: 1px solid rgba(186,230,253,0.75) !important;
+  background: transparent !important;
+}
+
+/* Logo row should not cut SkillYatra */
+body aside > div:first-child > div:first-child,
+body .sidebar > div:first-child > div:first-child,
+body [class*="sidebar"] > div:first-child > div:first-child,
+body [class*="Sidebar"] > div:first-child > div:first-child {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+/* Home-style logo box */
+body aside > div:first-child > div:first-child > div:first-child,
+body .sidebar > div:first-child > div:first-child > div:first-child,
+body [class*="sidebar"] > div:first-child > div:first-child > div:first-child,
+body [class*="Sidebar"] > div:first-child > div:first-child > div:first-child {
+  width: 58px !important;
+  height: 58px !important;
+  min-width: 58px !important;
+  border-radius: 22px !important;
+  background: linear-gradient(135deg, #4F46E5 0%, #0EA5E9 55%, #34D399 100%) !important;
+  border: none !important;
+  box-shadow: 0 18px 34px rgba(14,165,233,0.24) !important;
+  color: #FFFFFF !important;
+}
+
+/* Brand text visible */
+body aside > div:first-child > div:first-child > div:last-child,
+body .sidebar > div:first-child > div:first-child > div:last-child,
+body [class*="sidebar"] > div:first-child > div:first-child > div:last-child,
+body [class*="Sidebar"] > div:first-child > div:first-child > div:last-child {
+  min-width: 0 !important;
+  flex: 1 !important;
+  overflow: visible !important;
+}
+
+/* SkillYatra heading */
+body aside > div:first-child h1,
+body aside > div:first-child h2,
+body aside > div:first-child h3,
+body .sidebar > div:first-child h1,
+body .sidebar > div:first-child h2,
+body .sidebar > div:first-child h3,
+body [class*="sidebar"] > div:first-child h1,
+body [class*="sidebar"] > div:first-child h2,
+body [class*="sidebar"] > div:first-child h3,
+body [class*="Sidebar"] > div:first-child h1,
+body [class*="Sidebar"] > div:first-child h2,
+body [class*="Sidebar"] > div:first-child h3 {
+  display: block !important;
+  max-width: 170px !important;
+  color: #0F172A !important;
+  font-size: 25px !important;
+  font-weight: 950 !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.7px !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+/* Placement GPS text */
+body aside > div:first-child p,
+body .sidebar > div:first-child p,
+body [class*="sidebar"] > div:first-child p,
+body [class*="Sidebar"] > div:first-child p {
+  color: #0284C7 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1.15 !important;
+  margin-top: 5px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+/* Sidebar nav item final structure */
+body aside a,
+body aside button,
+body .sidebar a,
+body .sidebar button,
+body [class*="sidebar"] a,
+body [class*="sidebar"] button,
+body [class*="Sidebar"] a,
+body [class*="Sidebar"] button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+  width: calc(100% - 34px) !important;
+  max-width: calc(100% - 34px) !important;
+  min-height: 50px !important;
+  margin-left: 17px !important;
+  margin-right: 17px !important;
+  padding: 13px 18px !important;
+  border-radius: 18px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: #0F172A !important;
+  text-decoration: none !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  transform: none !important;
+}
+
+/* icons fixed width */
+body aside a svg,
+body aside button svg,
+body .sidebar a svg,
+body .sidebar button svg,
+body [class*="sidebar"] a svg,
+body [class*="sidebar"] button svg,
+body [class*="Sidebar"] a svg,
+body [class*="Sidebar"] button svg {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  color: currentColor !important;
+}
+
+/* text inside link always visible */
+body aside a *,
+body aside button *,
+body .sidebar a *,
+body .sidebar button *,
+body [class*="sidebar"] a *,
+body [class*="sidebar"] button *,
+body [class*="Sidebar"] a *,
+body [class*="Sidebar"] button * {
+  color: inherit !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+/* Dashboard active option must show text */
+body aside a.active,
+body aside a[aria-current="page"],
+body .sidebar a.active,
+body .sidebar a[aria-current="page"],
+body [class*="sidebar"] a.active,
+body [class*="sidebar"] a[aria-current="page"],
+body [class*="Sidebar"] a.active,
+body [class*="Sidebar"] a[aria-current="page"],
+body aside .active,
+body .sidebar .active,
+body [class*="sidebar"] .active,
+body [class*="Sidebar"] .active {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+  background: linear-gradient(135deg, #E0F2FE 0%, #F0F9FF 100%) !important;
+  border: 1px solid #8DD3FF !important;
+  color: #0284C7 !important;
+  box-shadow: 0 14px 28px rgba(14,165,233,0.13) !important;
+  overflow: hidden !important;
+}
+
+/* Hover */
+body aside a:hover,
+body aside button:hover,
+body .sidebar a:hover,
+body .sidebar button:hover,
+body [class*="sidebar"] a:hover,
+body [class*="sidebar"] button:hover,
+body [class*="Sidebar"] a:hover,
+body [class*="Sidebar"] button:hover {
+  background: #E0F2FE !important;
+  border-color: #BAE6FD !important;
+  color: #0284C7 !important;
+}
+
+/* If Dashboard text direct node is hidden due old rule, make link wider inside */
+body aside a[href*="dashboard"],
+body .sidebar a[href*="dashboard"],
+body [class*="sidebar"] a[href*="dashboard"],
+body [class*="Sidebar"] a[href*="dashboard"] {
+  justify-content: flex-start !important;
+  color: #0284C7 !important;
+}
+
+/* bottom user block spacing */
+body aside hr,
+body .sidebar hr,
+body [class*="sidebar"] hr,
+body [class*="Sidebar"] hr {
+  border-color: rgba(186,230,253,0.75) !important;
+}

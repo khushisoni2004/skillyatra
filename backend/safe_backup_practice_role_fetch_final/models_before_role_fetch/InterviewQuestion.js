@@ -1,0 +1,1 @@
+const mongoose=require('mongoose'); const InterviewQuestionSchema=new mongoose.Schema({question:String,type:String,answerFormat:String,badAnswer:String,goodAnswer:String,tips:[String],sourceDataset:String,topic:String,companyRelevance:[String]},{timestamps:true}); module.exports=mongoose.model('InterviewQuestion',InterviewQuestionSchema);

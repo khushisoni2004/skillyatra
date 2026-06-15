@@ -1,0 +1,169 @@
+:root {
+  --sy-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --sy-bg: #f4f7fb;
+  --sy-text: #0f172a;
+  --sy-muted: #64748b;
+  --sy-border: #dbe4f3;
+  --sy-purple: #6d28d9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  background: var(--sy-bg) !important;
+  color: var(--sy-text) !important;
+  font-family: var(--sy-font) !important;
+  overflow-x: hidden !important;
+}
+
+main,
+.page,
+.sy-page,
+.dashboard-page,
+.today-page,
+.roadmaps-page,
+.dsa-page,
+.practice-page,
+.resources-page,
+.companies-page,
+.resume-page,
+.interview-page,
+.progress-page,
+.admin-page,
+.profile-page,
+.role-practice-page,
+.company-detail-page,
+.role-detail-page {
+  width: 100% !important;
+  min-height: 100vh !important;
+  padding: clamp(14px, 2vw, 28px) !important;
+  background: var(--sy-bg) !important;
+  color: var(--sy-text) !important;
+  font-family: var(--sy-font) !important;
+  overflow-x: hidden !important;
+}
+
+.dashboard-hero,
+.hero,
+.page-hero,
+.page-header,
+.section-header,
+.dsa-header,
+.practice-header,
+.resources-header,
+.resources-hero,
+.companies-header,
+.roadmaps-header,
+.today-header,
+.resume-header,
+.interview-header,
+.progress-header,
+.admin-header,
+.profile-header,
+.role-header,
+.company-header {
+  width: 100% !important;
+  min-height: clamp(190px, 22vw, 260px) !important;
+  border-radius: clamp(24px, 3vw, 38px) !important;
+  padding: clamp(30px, 4vw, 54px) !important;
+  margin-bottom: 28px !important;
+  background: linear-gradient(125deg, #4f3be6 0%, #6d28d9 42%, #050816 100%) !important;
+  color: #ffffff !important;
+  overflow: hidden !important;
+}
+
+.dashboard-hero *,
+.hero *,
+.page-hero *,
+.page-header *,
+.section-header *,
+.dsa-header *,
+.practice-header *,
+.resources-header *,
+.resources-hero *,
+.companies-header *,
+.roadmaps-header *,
+.today-header *,
+.resume-header *,
+.interview-header *,
+.progress-header *,
+.admin-header *,
+.profile-header *,
+.role-header *,
+.company-header * {
+  color: #ffffff !important;
+  font-family: var(--sy-font) !important;
+}
+
+.dashboard-hero h1,
+.hero h1,
+.page-hero h1,
+.page-header h1,
+.section-header h1,
+.dsa-header h1,
+.practice-header h1,
+.resources-header h1,
+.resources-hero h1,
+.companies-header h1,
+.roadmaps-header h1,
+.today-header h1,
+.resume-header h1,
+.interview-header h1,
+.progress-header h1,
+.admin-header h1,
+.profile-header h1,
+.role-header h1,
+.company-header h1,
+.page-title,
+.dsa-title {
+  color: #ffffff !important;
+  font-size: clamp(34px, 4.6vw, 62px) !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.card,
+.stat-card,
+.feature-card,
+.roadmap-card,
+.company-card,
+.resource-card,
+.question-card,
+.practice-card,
+.progress-card,
+.resume-card,
+.interview-card,
+.admin-card,
+.dsa-stat-card,
+.dsa-filter-card,
+.dsa-question-card,
+[class*="card"] {
+  max-width: 100% !important;
+  background: #ffffff !important;
+  color: var(--sy-text) !important;
+  border: 1px solid var(--sy-border) !important;
+  border-radius: 28px !important;
+  font-family: var(--sy-font) !important;
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: var(--sy-font) !important;
+  max-width: 100% !important;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}

@@ -1,0 +1,33 @@
+node_modules
+.env
+.env.local
+.DS_Store
+dist
+build
+.vite
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# local backups / large temporary folders
+backup-before-undo
+safe-backup-before-full-undo
+safe_backup_final
+datasets
+*.zip
+*.dmg
+*.tgz
+
+# local backup folders - do not push
+backup-before-undo/
+safe-backup-before-full-undo/
+safe_backup_final/
+frontend/safe_backup_today_route_final/
+frontend/safe_backup_today_unique/
+frontend/safe_backup_today_weekly/
+frontend/src/data/_backup/
+frontend/src/pages/_backup/
+frontend/src/pages_backup/
+frontend/**/_backup/
+frontend/**/*backup*

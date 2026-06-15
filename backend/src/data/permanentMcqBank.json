@@ -1,0 +1,2030 @@
+{
+  "ok": true,
+  "questions": [
+    {
+      "id": "perm-1",
+      "subject": "Quantitative Aptitude",
+      "topic": "Percentage",
+      "question": "What percentage is 75 of 300?",
+      "options": [
+        {
+          "key": "A",
+          "text": "25%"
+        },
+        {
+          "key": "B",
+          "text": "20%"
+        },
+        {
+          "key": "C",
+          "text": "30%"
+        },
+        {
+          "key": "D",
+          "text": "15%"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-2",
+      "subject": "Quantitative Aptitude",
+      "topic": "Percentage",
+      "question": "If 40% of a number is 80, what is the number?",
+      "options": [
+        {
+          "key": "A",
+          "text": "160"
+        },
+        {
+          "key": "B",
+          "text": "180"
+        },
+        {
+          "key": "C",
+          "text": "200"
+        },
+        {
+          "key": "D",
+          "text": "220"
+        }
+      ],
+      "answer": "C",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-3",
+      "subject": "Quantitative Aptitude",
+      "topic": "Profit and Loss",
+      "question": "A shopkeeper buys an item for 500 and sells it for 600. Find profit percentage.",
+      "options": [
+        {
+          "key": "A",
+          "text": "10%"
+        },
+        {
+          "key": "B",
+          "text": "15%"
+        },
+        {
+          "key": "C",
+          "text": "20%"
+        },
+        {
+          "key": "D",
+          "text": "25%"
+        }
+      ],
+      "answer": "C",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-4",
+      "subject": "Quantitative Aptitude",
+      "topic": "Average",
+      "question": "Average of 10, 20, 30 and 40 is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "20"
+        },
+        {
+          "key": "B",
+          "text": "25"
+        },
+        {
+          "key": "C",
+          "text": "30"
+        },
+        {
+          "key": "D",
+          "text": "35"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-5",
+      "subject": "Quantitative Aptitude",
+      "topic": "Ratio",
+      "question": "Ratio of 20 to 50 is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "2:5"
+        },
+        {
+          "key": "B",
+          "text": "5:2"
+        },
+        {
+          "key": "C",
+          "text": "1:5"
+        },
+        {
+          "key": "D",
+          "text": "4:5"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-6",
+      "subject": "Quantitative Aptitude",
+      "topic": "Speed Distance",
+      "question": "A train covers 120 km in 2 hours. What is the speed?",
+      "options": [
+        {
+          "key": "A",
+          "text": "40 km/h"
+        },
+        {
+          "key": "B",
+          "text": "50 km/h"
+        },
+        {
+          "key": "C",
+          "text": "60 km/h"
+        },
+        {
+          "key": "D",
+          "text": "70 km/h"
+        }
+      ],
+      "answer": "C",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-7",
+      "subject": "Quantitative Aptitude",
+      "topic": "Interest",
+      "question": "Simple interest on 1000 at 10% per annum for 2 years is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "100"
+        },
+        {
+          "key": "B",
+          "text": "150"
+        },
+        {
+          "key": "C",
+          "text": "200"
+        },
+        {
+          "key": "D",
+          "text": "250"
+        }
+      ],
+      "answer": "C",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-8",
+      "subject": "Quantitative Aptitude",
+      "topic": "Time and Work",
+      "question": "A can complete a work in 10 days and B in 20 days. Together they complete it in:",
+      "options": [
+        {
+          "key": "A",
+          "text": "5.67 days"
+        },
+        {
+          "key": "B",
+          "text": "6.67 days"
+        },
+        {
+          "key": "C",
+          "text": "7.67 days"
+        },
+        {
+          "key": "D",
+          "text": "8.67 days"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-9",
+      "subject": "Quantitative Aptitude",
+      "topic": "Mensuration",
+      "question": "Area of a rectangle with length 12 and breadth 5 is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "17"
+        },
+        {
+          "key": "B",
+          "text": "34"
+        },
+        {
+          "key": "C",
+          "text": "60"
+        },
+        {
+          "key": "D",
+          "text": "120"
+        }
+      ],
+      "answer": "C",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-10",
+      "subject": "Quantitative Aptitude",
+      "topic": "Probability",
+      "question": "Probability of getting head when one coin is tossed is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "1/4"
+        },
+        {
+          "key": "B",
+          "text": "1/2"
+        },
+        {
+          "key": "C",
+          "text": "1"
+        },
+        {
+          "key": "D",
+          "text": "0"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-11",
+      "subject": "Logical Reasoning",
+      "topic": "Series",
+      "question": "Find the next number: 2, 4, 8, 16, ?",
+      "options": [
+        {
+          "key": "A",
+          "text": "24"
+        },
+        {
+          "key": "B",
+          "text": "30"
+        },
+        {
+          "key": "C",
+          "text": "32"
+        },
+        {
+          "key": "D",
+          "text": "36"
+        }
+      ],
+      "answer": "C",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-12",
+      "subject": "Logical Reasoning",
+      "topic": "Series",
+      "question": "Find the next number: 3, 6, 12, 24, ?",
+      "options": [
+        {
+          "key": "A",
+          "text": "36"
+        },
+        {
+          "key": "B",
+          "text": "42"
+        },
+        {
+          "key": "C",
+          "text": "48"
+        },
+        {
+          "key": "D",
+          "text": "54"
+        }
+      ],
+      "answer": "C",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-13",
+      "subject": "Logical Reasoning",
+      "topic": "Coding Decoding",
+      "question": "If CAT is coded as DBU, then DOG is coded as:",
+      "options": [
+        {
+          "key": "A",
+          "text": "EPH"
+        },
+        {
+          "key": "B",
+          "text": "EOG"
+        },
+        {
+          "key": "C",
+          "text": "FQI"
+        },
+        {
+          "key": "D",
+          "text": "CPH"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-14",
+      "subject": "Logical Reasoning",
+      "topic": "Coding Decoding",
+      "question": "If BOOK is coded as CPPL, then PEN is coded as:",
+      "options": [
+        {
+          "key": "A",
+          "text": "QFO"
+        },
+        {
+          "key": "B",
+          "text": "QEN"
+        },
+        {
+          "key": "C",
+          "text": "PDO"
+        },
+        {
+          "key": "D",
+          "text": "RFO"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-15",
+      "subject": "Logical Reasoning",
+      "topic": "Coding Decoding",
+      "question": "If ROAD is coded as URDG, then LAMP is coded as:",
+      "options": [
+        {
+          "key": "A",
+          "text": "ODPS"
+        },
+        {
+          "key": "B",
+          "text": "MBNQ"
+        },
+        {
+          "key": "C",
+          "text": "KZLO"
+        },
+        {
+          "key": "D",
+          "text": "NCOQ"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-16",
+      "subject": "Logical Reasoning",
+      "topic": "Coding Decoding",
+      "question": "If TABLE is coded as ELBAT, then CHAIR is coded as:",
+      "options": [
+        {
+          "key": "A",
+          "text": "RIAHC"
+        },
+        {
+          "key": "B",
+          "text": "CHAIR"
+        },
+        {
+          "key": "C",
+          "text": "RIHAC"
+        },
+        {
+          "key": "D",
+          "text": "RAIHC"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-17",
+      "subject": "Logical Reasoning",
+      "topic": "Coding Decoding",
+      "question": "If A = 1, B = 2, C = 3, then code value of CAB is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "6"
+        },
+        {
+          "key": "B",
+          "text": "7"
+        },
+        {
+          "key": "C",
+          "text": "5"
+        },
+        {
+          "key": "D",
+          "text": "8"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-18",
+      "subject": "Logical Reasoning",
+      "topic": "Coding Decoding",
+      "question": "In a code, MONDAY is written as NPOEBZ. How is SUNDAY written?",
+      "options": [
+        {
+          "key": "A",
+          "text": "TVOEBZ"
+        },
+        {
+          "key": "B",
+          "text": "RTOCZX"
+        },
+        {
+          "key": "C",
+          "text": "TVOECZ"
+        },
+        {
+          "key": "D",
+          "text": "TVPEBZ"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-19",
+      "subject": "Logical Reasoning",
+      "topic": "Coding Decoding",
+      "question": "If FISH is coded as GJTI, then BIRD is coded as:",
+      "options": [
+        {
+          "key": "A",
+          "text": "CJSE"
+        },
+        {
+          "key": "B",
+          "text": "CJRD"
+        },
+        {
+          "key": "C",
+          "text": "AJQC"
+        },
+        {
+          "key": "D",
+          "text": "DKTF"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-20",
+      "subject": "Logical Reasoning",
+      "topic": "Coding Decoding",
+      "question": "If SKY is coded as 19-11-25, then SUN is coded as:",
+      "options": [
+        {
+          "key": "A",
+          "text": "19-21-14"
+        },
+        {
+          "key": "B",
+          "text": "18-20-13"
+        },
+        {
+          "key": "C",
+          "text": "20-22-15"
+        },
+        {
+          "key": "D",
+          "text": "19-20-14"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-21",
+      "subject": "Logical Reasoning",
+      "topic": "Coding Decoding",
+      "question": "If TRAIN is coded as USBJO, then PLANE is coded as:",
+      "options": [
+        {
+          "key": "A",
+          "text": "QMBOF"
+        },
+        {
+          "key": "B",
+          "text": "OKZMD"
+        },
+        {
+          "key": "C",
+          "text": "RNCQG"
+        },
+        {
+          "key": "D",
+          "text": "QMBOD"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-22",
+      "subject": "Logical Reasoning",
+      "topic": "Direction Sense",
+      "question": "A person walks north, then turns right. Which direction is he facing?",
+      "options": [
+        {
+          "key": "A",
+          "text": "North"
+        },
+        {
+          "key": "B",
+          "text": "South"
+        },
+        {
+          "key": "C",
+          "text": "East"
+        },
+        {
+          "key": "D",
+          "text": "West"
+        }
+      ],
+      "answer": "C",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-23",
+      "subject": "Logical Reasoning",
+      "topic": "Blood Relation",
+      "question": "A is B's father. B is C's sister. A is C's:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Brother"
+        },
+        {
+          "key": "B",
+          "text": "Father"
+        },
+        {
+          "key": "C",
+          "text": "Uncle"
+        },
+        {
+          "key": "D",
+          "text": "Son"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-24",
+      "subject": "Logical Reasoning",
+      "topic": "Syllogism",
+      "question": "All cats are animals. Some animals are dogs. Which conclusion is definitely true?",
+      "options": [
+        {
+          "key": "A",
+          "text": "All dogs are cats"
+        },
+        {
+          "key": "B",
+          "text": "All cats are animals"
+        },
+        {
+          "key": "C",
+          "text": "Some cats are dogs"
+        },
+        {
+          "key": "D",
+          "text": "No animals are cats"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-25",
+      "subject": "Logical Reasoning",
+      "topic": "Calendar",
+      "question": "If today is Monday, what day will it be after 10 days?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Wednesday"
+        },
+        {
+          "key": "B",
+          "text": "Thursday"
+        },
+        {
+          "key": "C",
+          "text": "Friday"
+        },
+        {
+          "key": "D",
+          "text": "Saturday"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-26",
+      "subject": "Logical Reasoning",
+      "topic": "Clock",
+      "question": "At 3:00, angle between hour and minute hand is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "60°"
+        },
+        {
+          "key": "B",
+          "text": "75°"
+        },
+        {
+          "key": "C",
+          "text": "90°"
+        },
+        {
+          "key": "D",
+          "text": "120°"
+        }
+      ],
+      "answer": "C",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-27",
+      "subject": "Verbal Ability",
+      "topic": "Grammar",
+      "question": "Choose the correct sentence.",
+      "options": [
+        {
+          "key": "A",
+          "text": "He go to school"
+        },
+        {
+          "key": "B",
+          "text": "He goes to school"
+        },
+        {
+          "key": "C",
+          "text": "He going school"
+        },
+        {
+          "key": "D",
+          "text": "He gone school"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-28",
+      "subject": "Verbal Ability",
+      "topic": "Synonym",
+      "question": "Synonym of happy is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Sad"
+        },
+        {
+          "key": "B",
+          "text": "Joyful"
+        },
+        {
+          "key": "C",
+          "text": "Angry"
+        },
+        {
+          "key": "D",
+          "text": "Weak"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-29",
+      "subject": "Verbal Ability",
+      "topic": "Antonym",
+      "question": "Antonym of strong is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Powerful"
+        },
+        {
+          "key": "B",
+          "text": "Weak"
+        },
+        {
+          "key": "C",
+          "text": "Hard"
+        },
+        {
+          "key": "D",
+          "text": "Tough"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-30",
+      "subject": "Verbal Ability",
+      "topic": "Vocabulary",
+      "question": "Choose the correctly spelled word.",
+      "options": [
+        {
+          "key": "A",
+          "text": "Definately"
+        },
+        {
+          "key": "B",
+          "text": "Definitely"
+        },
+        {
+          "key": "C",
+          "text": "Definetly"
+        },
+        {
+          "key": "D",
+          "text": "Definatly"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-31",
+      "subject": "Verbal Ability",
+      "topic": "Grammar",
+      "question": "Fill in the blank: She ____ going to college.",
+      "options": [
+        {
+          "key": "A",
+          "text": "is"
+        },
+        {
+          "key": "B",
+          "text": "are"
+        },
+        {
+          "key": "C",
+          "text": "am"
+        },
+        {
+          "key": "D",
+          "text": "were"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-32",
+      "subject": "Programming",
+      "topic": "DSA",
+      "question": "Which data structure follows LIFO?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Queue"
+        },
+        {
+          "key": "B",
+          "text": "Stack"
+        },
+        {
+          "key": "C",
+          "text": "Array"
+        },
+        {
+          "key": "D",
+          "text": "Graph"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-33",
+      "subject": "Programming",
+      "topic": "DSA",
+      "question": "Which data structure follows FIFO?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Stack"
+        },
+        {
+          "key": "B",
+          "text": "Queue"
+        },
+        {
+          "key": "C",
+          "text": "Tree"
+        },
+        {
+          "key": "D",
+          "text": "Heap"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-34",
+      "subject": "Programming",
+      "topic": "Complexity",
+      "question": "Time complexity of binary search is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "O(n)"
+        },
+        {
+          "key": "B",
+          "text": "O(log n)"
+        },
+        {
+          "key": "C",
+          "text": "O(n²)"
+        },
+        {
+          "key": "D",
+          "text": "O(1)"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-35",
+      "subject": "Programming",
+      "topic": "OOPs",
+      "question": "Which OOP concept allows same function name with different behavior?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Inheritance"
+        },
+        {
+          "key": "B",
+          "text": "Polymorphism"
+        },
+        {
+          "key": "C",
+          "text": "Encapsulation"
+        },
+        {
+          "key": "D",
+          "text": "Abstraction"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-36",
+      "subject": "Programming",
+      "topic": "C++",
+      "question": "Which keyword is used to create a class in C++?",
+      "options": [
+        {
+          "key": "A",
+          "text": "object"
+        },
+        {
+          "key": "B",
+          "text": "class"
+        },
+        {
+          "key": "C",
+          "text": "struct only"
+        },
+        {
+          "key": "D",
+          "text": "define"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-37",
+      "subject": "Programming",
+      "topic": "Python",
+      "question": "Which Python data type stores key-value pairs?",
+      "options": [
+        {
+          "key": "A",
+          "text": "List"
+        },
+        {
+          "key": "B",
+          "text": "Tuple"
+        },
+        {
+          "key": "C",
+          "text": "Dictionary"
+        },
+        {
+          "key": "D",
+          "text": "Set"
+        }
+      ],
+      "answer": "C",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-38",
+      "subject": "Programming",
+      "topic": "JavaScript",
+      "question": "Which keyword declares a block-scoped variable in JavaScript?",
+      "options": [
+        {
+          "key": "A",
+          "text": "var"
+        },
+        {
+          "key": "B",
+          "text": "let"
+        },
+        {
+          "key": "C",
+          "text": "define"
+        },
+        {
+          "key": "D",
+          "text": "int"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-39",
+      "subject": "Programming",
+      "topic": "Recursion",
+      "question": "Recursion means:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Function calling itself"
+        },
+        {
+          "key": "B",
+          "text": "Loop only"
+        },
+        {
+          "key": "C",
+          "text": "Database query"
+        },
+        {
+          "key": "D",
+          "text": "CSS styling"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-40",
+      "subject": "React",
+      "topic": "Hooks",
+      "question": "Which hook is used to manage state in React?",
+      "options": [
+        {
+          "key": "A",
+          "text": "useState"
+        },
+        {
+          "key": "B",
+          "text": "useEffect"
+        },
+        {
+          "key": "C",
+          "text": "useMemo"
+        },
+        {
+          "key": "D",
+          "text": "useRef"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-41",
+      "subject": "React",
+      "topic": "Hooks",
+      "question": "Which hook is used for side effects in React?",
+      "options": [
+        {
+          "key": "A",
+          "text": "useState"
+        },
+        {
+          "key": "B",
+          "text": "useEffect"
+        },
+        {
+          "key": "C",
+          "text": "useRef"
+        },
+        {
+          "key": "D",
+          "text": "useCallback"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-42",
+      "subject": "React",
+      "topic": "Props",
+      "question": "Props in React are used to:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Pass data to component"
+        },
+        {
+          "key": "B",
+          "text": "Store database"
+        },
+        {
+          "key": "C",
+          "text": "Start server"
+        },
+        {
+          "key": "D",
+          "text": "Compile CSS"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-43",
+      "subject": "React",
+      "topic": "Components",
+      "question": "React component name should usually start with:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Lowercase"
+        },
+        {
+          "key": "B",
+          "text": "Uppercase"
+        },
+        {
+          "key": "C",
+          "text": "Number"
+        },
+        {
+          "key": "D",
+          "text": "Symbol"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-44",
+      "subject": "React",
+      "topic": "Routing",
+      "question": "Which package is commonly used for routing in React?",
+      "options": [
+        {
+          "key": "A",
+          "text": "react-router-dom"
+        },
+        {
+          "key": "B",
+          "text": "express"
+        },
+        {
+          "key": "C",
+          "text": "mongoose"
+        },
+        {
+          "key": "D",
+          "text": "numpy"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-45",
+      "subject": "React",
+      "topic": "Virtual DOM",
+      "question": "React uses Virtual DOM mainly to:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Improve UI update efficiency"
+        },
+        {
+          "key": "B",
+          "text": "Store passwords"
+        },
+        {
+          "key": "C",
+          "text": "Create database"
+        },
+        {
+          "key": "D",
+          "text": "Run backend"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-46",
+      "subject": "React",
+      "topic": "JSX",
+      "question": "JSX allows writing:",
+      "options": [
+        {
+          "key": "A",
+          "text": "HTML-like syntax inside JavaScript"
+        },
+        {
+          "key": "B",
+          "text": "SQL queries only"
+        },
+        {
+          "key": "C",
+          "text": "Python code"
+        },
+        {
+          "key": "D",
+          "text": "MongoDB schema"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-47",
+      "subject": "Backend",
+      "topic": "API",
+      "question": "What is the main purpose of REST API?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Client-server communication using HTTP"
+        },
+        {
+          "key": "B",
+          "text": "Styling web pages"
+        },
+        {
+          "key": "C",
+          "text": "Compiling Java"
+        },
+        {
+          "key": "D",
+          "text": "Creating images"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-48",
+      "subject": "Backend",
+      "topic": "HTTP",
+      "question": "Which HTTP method is used to fetch data?",
+      "options": [
+        {
+          "key": "A",
+          "text": "GET"
+        },
+        {
+          "key": "B",
+          "text": "POST"
+        },
+        {
+          "key": "C",
+          "text": "PUT"
+        },
+        {
+          "key": "D",
+          "text": "DELETE"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-49",
+      "subject": "Backend",
+      "topic": "HTTP",
+      "question": "Which HTTP method is used to create a resource?",
+      "options": [
+        {
+          "key": "A",
+          "text": "GET"
+        },
+        {
+          "key": "B",
+          "text": "POST"
+        },
+        {
+          "key": "C",
+          "text": "PATCH"
+        },
+        {
+          "key": "D",
+          "text": "DELETE"
+        }
+      ],
+      "answer": "B",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-50",
+      "subject": "Backend",
+      "topic": "Express",
+      "question": "Which package is commonly used to create a Node.js server?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Express.js"
+        },
+        {
+          "key": "B",
+          "text": "React"
+        },
+        {
+          "key": "C",
+          "text": "Tailwind"
+        },
+        {
+          "key": "D",
+          "text": "NumPy"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-51",
+      "subject": "Backend",
+      "topic": "Authentication",
+      "question": "JWT is mainly used for:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Authentication"
+        },
+        {
+          "key": "B",
+          "text": "Styling"
+        },
+        {
+          "key": "C",
+          "text": "Image compression"
+        },
+        {
+          "key": "D",
+          "text": "Database indexing only"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-52",
+      "subject": "Backend",
+      "topic": "Database",
+      "question": "MongoDB stores data mainly in:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Documents"
+        },
+        {
+          "key": "B",
+          "text": "Rows only"
+        },
+        {
+          "key": "C",
+          "text": "CSS files"
+        },
+        {
+          "key": "D",
+          "text": "Binary trees only"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-53",
+      "subject": "Backend",
+      "topic": "Middleware",
+      "question": "CORS is used to:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Control cross-origin requests"
+        },
+        {
+          "key": "B",
+          "text": "Create schema"
+        },
+        {
+          "key": "C",
+          "text": "Encrypt password"
+        },
+        {
+          "key": "D",
+          "text": "Render component"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-54",
+      "subject": "Backend",
+      "topic": "Security",
+      "question": "bcrypt is used for:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Password hashing"
+        },
+        {
+          "key": "B",
+          "text": "CSS styling"
+        },
+        {
+          "key": "C",
+          "text": "Image rendering"
+        },
+        {
+          "key": "D",
+          "text": "Sorting array"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-55",
+      "subject": "Backend",
+      "topic": "API",
+      "question": "CRUD stands for:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Create Read Update Delete"
+        },
+        {
+          "key": "B",
+          "text": "Compile Run Upload Deploy"
+        },
+        {
+          "key": "C",
+          "text": "Cache Route Use Delete"
+        },
+        {
+          "key": "D",
+          "text": "Create Render Update Debug"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-56",
+      "subject": "Backend",
+      "topic": "HTTP",
+      "question": "Status code 404 means:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Resource not found"
+        },
+        {
+          "key": "B",
+          "text": "Success"
+        },
+        {
+          "key": "C",
+          "text": "Server error"
+        },
+        {
+          "key": "D",
+          "text": "Unauthorized"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-57",
+      "subject": "Core CS",
+      "topic": "OS",
+      "question": "What is a process?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Program in execution"
+        },
+        {
+          "key": "B",
+          "text": "Only a file"
+        },
+        {
+          "key": "C",
+          "text": "Database row"
+        },
+        {
+          "key": "D",
+          "text": "Network cable"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-58",
+      "subject": "Core CS",
+      "topic": "OS",
+      "question": "What is a thread?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Lightweight execution unit"
+        },
+        {
+          "key": "B",
+          "text": "Hard disk"
+        },
+        {
+          "key": "C",
+          "text": "Compiler"
+        },
+        {
+          "key": "D",
+          "text": "Database"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-59",
+      "subject": "Core CS",
+      "topic": "OS",
+      "question": "Deadlock occurs when:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Processes wait forever for resources"
+        },
+        {
+          "key": "B",
+          "text": "CPU becomes faster"
+        },
+        {
+          "key": "C",
+          "text": "Memory empty"
+        },
+        {
+          "key": "D",
+          "text": "Network starts"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-60",
+      "subject": "Core CS",
+      "topic": "OS",
+      "question": "Round Robin scheduling uses:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Time quantum"
+        },
+        {
+          "key": "B",
+          "text": "Stack pointer"
+        },
+        {
+          "key": "C",
+          "text": "IP address"
+        },
+        {
+          "key": "D",
+          "text": "Primary key"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-61",
+      "subject": "Core CS",
+      "topic": "OS",
+      "question": "Paging is used for:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Memory management"
+        },
+        {
+          "key": "B",
+          "text": "Password hashing"
+        },
+        {
+          "key": "C",
+          "text": "API routing"
+        },
+        {
+          "key": "D",
+          "text": "CSS loading"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-62",
+      "subject": "Core CS",
+      "topic": "DBMS",
+      "question": "What does DBMS stand for?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Database Management System"
+        },
+        {
+          "key": "B",
+          "text": "Data Backup System"
+        },
+        {
+          "key": "C",
+          "text": "Digital Binary System"
+        },
+        {
+          "key": "D",
+          "text": "Database Machine Software"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-63",
+      "subject": "Core CS",
+      "topic": "DBMS",
+      "question": "Which key uniquely identifies a row?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Primary key"
+        },
+        {
+          "key": "B",
+          "text": "Foreign key"
+        },
+        {
+          "key": "C",
+          "text": "Index only"
+        },
+        {
+          "key": "D",
+          "text": "Candidate value"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-64",
+      "subject": "Core CS",
+      "topic": "DBMS",
+      "question": "Foreign key is used to:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Create relationship between tables"
+        },
+        {
+          "key": "B",
+          "text": "Encrypt table"
+        },
+        {
+          "key": "C",
+          "text": "Delete all rows"
+        },
+        {
+          "key": "D",
+          "text": "Create frontend route"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-65",
+      "subject": "Core CS",
+      "topic": "DBMS",
+      "question": "Normalization is used to:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Reduce redundancy"
+        },
+        {
+          "key": "B",
+          "text": "Increase duplicate data"
+        },
+        {
+          "key": "C",
+          "text": "Create UI"
+        },
+        {
+          "key": "D",
+          "text": "Compile SQL"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-66",
+      "subject": "Core CS",
+      "topic": "DBMS",
+      "question": "ACID stands for:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Atomicity Consistency Isolation Durability"
+        },
+        {
+          "key": "B",
+          "text": "Accuracy Control Index Data"
+        },
+        {
+          "key": "C",
+          "text": "Array Code Insert Delete"
+        },
+        {
+          "key": "D",
+          "text": "Atomic Class Integer Data"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-67",
+      "subject": "Core CS",
+      "topic": "Computer Network",
+      "question": "How many layers are there in OSI model?",
+      "options": [
+        {
+          "key": "A",
+          "text": "7"
+        },
+        {
+          "key": "B",
+          "text": "5"
+        },
+        {
+          "key": "C",
+          "text": "4"
+        },
+        {
+          "key": "D",
+          "text": "6"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-68",
+      "subject": "Core CS",
+      "topic": "Computer Network",
+      "question": "TCP is a:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Connection-oriented protocol"
+        },
+        {
+          "key": "B",
+          "text": "Connectionless protocol"
+        },
+        {
+          "key": "C",
+          "text": "Database protocol"
+        },
+        {
+          "key": "D",
+          "text": "Encryption protocol"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-69",
+      "subject": "Core CS",
+      "topic": "Computer Network",
+      "question": "DNS is used to:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Convert domain names to IP addresses"
+        },
+        {
+          "key": "B",
+          "text": "Encrypt passwords"
+        },
+        {
+          "key": "C",
+          "text": "Create tables"
+        },
+        {
+          "key": "D",
+          "text": "Compile code"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-70",
+      "subject": "Core CS",
+      "topic": "Computer Network",
+      "question": "Router is used to:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Forward packets between networks"
+        },
+        {
+          "key": "B",
+          "text": "Store rows"
+        },
+        {
+          "key": "C",
+          "text": "Run hooks"
+        },
+        {
+          "key": "D",
+          "text": "Hash passwords"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-71",
+      "subject": "Core CS",
+      "topic": "Computer Architecture",
+      "question": "Which unit performs arithmetic and logical operations in CPU?",
+      "options": [
+        {
+          "key": "A",
+          "text": "ALU"
+        },
+        {
+          "key": "B",
+          "text": "RAM"
+        },
+        {
+          "key": "C",
+          "text": "Cache"
+        },
+        {
+          "key": "D",
+          "text": "Bus"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-72",
+      "subject": "Core CS",
+      "topic": "Computer Architecture",
+      "question": "What is cache memory used for?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Fast access to frequently used data"
+        },
+        {
+          "key": "B",
+          "text": "Permanent file storage"
+        },
+        {
+          "key": "C",
+          "text": "Routing packets"
+        },
+        {
+          "key": "D",
+          "text": "User authentication"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-73",
+      "subject": "Core CS",
+      "topic": "Computer Architecture",
+      "question": "What is pipelining?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Overlapping instruction execution stages"
+        },
+        {
+          "key": "B",
+          "text": "Creating database tables"
+        },
+        {
+          "key": "C",
+          "text": "Routing packets"
+        },
+        {
+          "key": "D",
+          "text": "Styling web pages"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-74",
+      "subject": "Core CS",
+      "topic": "Computer Architecture",
+      "question": "RISC architecture mainly uses:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Simple fixed-length instructions"
+        },
+        {
+          "key": "B",
+          "text": "Complex variable instructions only"
+        },
+        {
+          "key": "C",
+          "text": "No registers"
+        },
+        {
+          "key": "D",
+          "text": "Only memory operations"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    },
+    {
+      "id": "perm-75",
+      "subject": "Core CS",
+      "topic": "Computer Architecture",
+      "question": "A register is:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Small fast storage inside CPU"
+        },
+        {
+          "key": "B",
+          "text": "External hard disk"
+        },
+        {
+          "key": "C",
+          "text": "Network device"
+        },
+        {
+          "key": "D",
+          "text": "Database table"
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "sourceDataset": "Permanent Placement Bank"
+    }
+  ]
+}

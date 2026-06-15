@@ -1,0 +1,1 @@
+const mongoose=require('mongoose'); const BookmarkSchema=new mongoose.Schema({userId:{type:mongoose.Schema.Types.ObjectId,ref:'User'},itemId:String,itemType:String,note:String},{timestamps:true}); module.exports=mongoose.model('Bookmark',BookmarkSchema);

@@ -1,0 +1,1 @@
+const mongoose=require('mongoose'); const SavedAnswerSchema=new mongoose.Schema({userId:{type:mongoose.Schema.Types.ObjectId,ref:'User'},questionId:{type:mongoose.Schema.Types.ObjectId,ref:'InterviewQuestion'},answer:String,feedback:String},{timestamps:true}); module.exports=mongoose.model('SavedAnswer',SavedAnswerSchema);

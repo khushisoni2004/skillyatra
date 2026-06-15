@@ -1,0 +1,1188 @@
+/* ===========================
+   COMPANIES / COMPANY DETAIL / ROLE DETAIL THEME
+   Blue + white only
+   No data / API logic change
+=========================== */
+
+.companies-theme-page,
+.company-detail-theme-page,
+.company-role-theme-page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 28px;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(56, 189, 248, 0.18), transparent 26%),
+    radial-gradient(circle at 92% 12%, rgba(125, 211, 252, 0.16), transparent 28%),
+    radial-gradient(circle at 50% 90%, rgba(14, 165, 233, 0.08), transparent 32%),
+    linear-gradient(135deg, #eef9ff 0%, #ffffff 52%, #f3fbff 100%);
+}
+
+/* HERO */
+
+.companies-theme-hero,
+.company-role-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 36px;
+  padding: 42px 46px;
+  min-height: 220px;
+  background:
+    linear-gradient(135deg, #0284c7 0%, #0ea5e9 52%, #67c3ff 100%);
+  border: 1px solid rgba(186, 230, 253, 0.95);
+  box-shadow:
+    0 28px 64px rgba(14, 165, 233, 0.18),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.companies-theme-hero::before,
+.company-role-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px);
+  background-size: 42px 42px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.companies-theme-hero::after,
+.company-role-hero::after {
+  content: "";
+  position: absolute;
+  right: -45px;
+  bottom: -92px;
+  width: 240px;
+  height: 240px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.16);
+  box-shadow:
+    -235px -18px 0 -92px rgba(255,255,255,0.10),
+    -455px 52px 0 -120px rgba(255,255,255,0.08);
+  animation: companyBubbleFloat 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes companyBubbleFloat {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-10px) scale(1.03); }
+}
+
+.companies-theme-kicker,
+.company-role-kicker {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  margin-bottom: 12px;
+  color: rgba(255,255,255,0.92);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+.companies-theme-hero h1,
+.company-role-hero h1 {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(38px, 4.4vw, 62px);
+  line-height: 1.04;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  text-shadow: 0 18px 36px rgba(2, 132, 199, 0.20);
+}
+
+.companies-theme-hero p,
+.company-role-hero p {
+  position: relative;
+  z-index: 2;
+  color: rgba(255,255,255,0.92);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* Hide old header extra content */
+.companies-theme-page .companies-theme-hero h1 + p,
+.company-detail-theme-page .companies-theme-hero h1 + p,
+.companies-theme-page .companies-theme-hero .mt-8.grid,
+.company-detail-theme-page .companies-theme-hero .mt-8.grid,
+.companies-theme-page .companies-theme-hero .lg\:items-end > div:last-child {
+  display: none !important;
+}
+
+/* PANELS */
+
+.companies-theme-panel,
+.company-role-panel {
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 92% 10%, rgba(125, 211, 252, 0.12), transparent 28%),
+    rgba(255,255,255,0.97);
+  border: 1px solid rgba(186, 230, 253, 0.95);
+  box-shadow: 0 18px 52px rgba(14, 165, 233, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.company-role-summary-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.company-role-summary-card {
+  border-radius: 24px;
+  padding: 18px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.24);
+  backdrop-filter: blur(8px);
+}
+
+.company-role-summary-card h3,
+.company-role-summary-card p {
+  color: #ffffff !important;
+}
+
+.company-role-summary-card h3 {
+  margin: 10px 0 0;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.company-role-summary-card p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.96;
+}
+
+/* TEXT */
+
+.companies-theme-page h2,
+.company-detail-theme-page h2,
+.company-role-theme-page h2 {
+  color: #0f172a;
+  font-size: clamp(26px, 2.3vw, 36px);
+  line-height: 1.15;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin: 0 0 10px;
+}
+
+.companies-theme-page h3,
+.company-detail-theme-page h3,
+.company-role-theme-page h3 {
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 800;
+  margin: 0;
+}
+
+.companies-theme-page p,
+.company-detail-theme-page p,
+.company-role-theme-page p {
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.6;
+  font-weight: 650;
+}
+
+/* BUTTONS */
+
+.company-theme-btn,
+.theme-btn {
+  border: none;
+  border-radius: 18px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 55%, #38bdf8 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 16px 38px rgba(14,165,233,0.18);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.company-theme-btn:hover,
+.theme-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 20px 42px rgba(14,165,233,0.22);
+}
+
+/* CHIPS */
+
+.company-chip,
+.company-role-chip,
+.company-skill-chip,
+.company-location-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+/* PREP STEPS */
+
+.company-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border-radius: 22px;
+  padding: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
+  border: 1px solid #cfeeff;
+  box-shadow: 0 10px 24px rgba(14,165,233,0.05);
+}
+
+.company-step-number {
+  min-width: 34px;
+  height: 34px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+/* YOUTUBE CARDS */
+
+.company-link-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.company-link-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  min-height: 116px;
+  border-radius: 24px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(125,211,252,0.12), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
+  border: 1px solid #dbeafe;
+  box-shadow: 0 12px 28px rgba(14,165,233,0.06);
+  transition: 0.22s ease;
+  text-decoration: none;
+}
+
+.company-link-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 34px rgba(14,165,233,0.12);
+}
+
+.company-link-icon {
+  min-width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.company-link-card h4 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 17px;
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+.company-link-card p {
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+/* ROLE LAYOUT */
+
+.company-role-main-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.company-role-stack {
+  display: grid;
+  gap: 18px;
+}
+
+/* Dropdown same safe */
+.companies-theme-page div[class*="absolute"][class*="bg-white"] button {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+
+.companies-theme-page div[class*="absolute"][class*="bg-white"] button:hover {
+  background: #f0f9ff !important;
+  color: #0284c7 !important;
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+  .company-role-main-grid,
+  .company-link-grid,
+  .company-role-summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .companies-theme-page,
+  .company-detail-theme-page,
+  .company-role-theme-page {
+    padding: 16px;
+  }
+
+  .companies-theme-hero,
+  .company-role-hero {
+    min-height: 180px;
+    padding: 28px 22px;
+    border-radius: 28px;
+  }
+
+  .companies-theme-hero h1,
+  .company-role-hero h1 {
+    font-size: 36px;
+  }
+
+  .company-role-main-grid,
+  .company-link-grid,
+  .company-role-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .companies-theme-panel,
+  .company-role-panel {
+    border-radius: 24px;
+  }
+}
+
+/* =====================================================
+   FINAL COMPANIES PAGE CLEAN SKY THEME
+   Only UI changes. No API/data/navigation change.
+===================================================== */
+
+/* Page background same as other pages */
+#root .companies-theme-page,
+#root .company-detail-theme-page {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(56, 189, 248, 0.22), transparent 30%),
+    radial-gradient(circle at 92% 10%, rgba(34, 197, 94, 0.10), transparent 28%),
+    linear-gradient(135deg, #eef8ff 0%, #f8fcff 52%, #ecfeff 100%) !important;
+}
+
+/* Header simple premium blue theme */
+#root .companies-theme-hero {
+  min-height: 190px !important;
+  padding: 34px 38px !important;
+  border-radius: 34px !important;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(125, 211, 252, 0.28), transparent 30%),
+    linear-gradient(135deg, #0ea5e9 0%, #38bdf8 55%, #22c55e 100%) !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow: 0 26px 64px rgba(14, 165, 233, 0.22) !important;
+}
+
+/* Remove header description, selected company box, stats from Companies header */
+#root .companies-theme-page .companies-theme-hero h1 + p {
+  display: none !important;
+}
+
+#root .companies-theme-page .companies-theme-hero .lg\:items-end > div:last-child {
+  display: none !important;
+}
+
+#root .companies-theme-page .companies-theme-hero .mt-8.grid {
+  display: none !important;
+}
+
+/* Company detail header also clean */
+#root .company-detail-theme-page .companies-theme-hero h1 + p {
+  display: none !important;
+}
+
+#root .company-detail-theme-page .companies-theme-hero .mt-8.grid {
+  display: none !important;
+}
+
+/* Header text readable */
+#root .companies-theme-hero p:first-child {
+  color: rgba(255,255,255,0.92) !important;
+  letter-spacing: 0.30em !important;
+}
+
+#root .companies-theme-hero h1 {
+  color: #ffffff !important;
+  font-size: clamp(34px, 4vw, 58px) !important;
+  text-shadow: 0 12px 28px rgba(2, 132, 199, 0.28) !important;
+}
+
+/* Panels clean */
+#root .companies-theme-panel {
+  background:
+    radial-gradient(circle at 92% 8%, rgba(125, 211, 252, 0.15), transparent 30%),
+    rgba(255,255,255,0.97) !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow: 0 22px 58px rgba(14, 165, 233, 0.10) !important;
+}
+
+/* Dropdown button simple blue border, no heavy green color */
+#root .companies-theme-page button:has(+ div) {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #7dd3fc !important;
+  box-shadow: 0 12px 30px rgba(14, 165, 233, 0.10) !important;
+}
+
+/* Dropdown list simple white theme */
+#root .companies-theme-page div[class*="absolute"][class*="bg-white"] {
+  background: #ffffff !important;
+  border: 1px solid #93c5fd !important;
+  box-shadow: 0 24px 60px rgba(14, 165, 233, 0.15) !important;
+}
+
+#root .companies-theme-page div[class*="absolute"][class*="bg-white"] button {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+
+#root .companies-theme-page div[class*="absolute"][class*="bg-white"] button:hover {
+  background: #f0f9ff !important;
+  color: #0284c7 !important;
+  border-color: #bae6fd !important;
+  transform: none !important;
+}
+
+/* Active dropdown item readable */
+#root .companies-theme-page div[class*="absolute"][class*="bg-white"] button[class*="bg-indigo-600"] {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8) !important;
+  color: #ffffff !important;
+}
+
+/* Search button sky only */
+#root .companies-theme-page button[class*="from-indigo"],
+#root .companies-theme-page button[class*="bg-indigo"],
+#root .companies-theme-page button[class*="bg-slate-950"],
+#root .company-detail-theme-page button[class*="from-indigo"],
+#root .company-detail-theme-page button[class*="bg-indigo"],
+#root .company-detail-theme-page button[class*="bg-slate-950"] {
+  background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 52%, #22c55e 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 18px 42px rgba(14, 165, 233, 0.22) !important;
+}
+
+/* Inputs visible and clean */
+#root .companies-theme-page input {
+  background: #ffffff !important;
+  border: 1px solid #93c5fd !important;
+  color: #0f172a !important;
+  font-size: 15px !important;
+  font-weight: 750 !important;
+}
+
+#root .companies-theme-page input::placeholder {
+  color: #94a3b8 !important;
+}
+
+#root .companies-theme-page input:focus {
+  border-color: #0ea5e9 !important;
+  box-shadow: 0 0 0 5px rgba(14, 165, 233, 0.16) !important;
+}
+
+/* Role cards data font visible, not too bold */
+#root .companies-theme-page h2,
+#root .company-detail-theme-page h2 {
+  color: #0f172a !important;
+  font-weight: 900 !important;
+}
+
+#root .companies-theme-page h3,
+#root .company-detail-theme-page h3 {
+  color: #0f172a !important;
+  font-size: 22px !important;
+  font-weight: 850 !important;
+  line-height: 1.25 !important;
+}
+
+#root .companies-theme-page .mt-6.grid p,
+#root .company-detail-theme-page .mt-6.grid p {
+  color: #475569 !important;
+  font-size: 15px !important;
+  font-weight: 650 !important;
+}
+
+/* Skill chips bigger readable */
+#root .companies-theme-page span[class*="text-indigo-700"],
+#root .company-detail-theme-page span[class*="text-indigo-700"] {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 1px solid #bae6fd !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  padding: 7px 12px !important;
+}
+
+/* Role cards premium hover */
+#root .companies-theme-page div[class*="hover:shadow-2xl"],
+#root .company-detail-theme-page div[class*="hover:shadow-xl"] {
+  background:
+    radial-gradient(circle at 88% 12%, rgba(14,165,233,0.10), transparent 32%),
+    linear-gradient(135deg, #ffffff 0%, #f8fcff 100%) !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+}
+
+#root .companies-theme-page div[class*="hover:shadow-2xl"]:hover,
+#root .company-detail-theme-page div[class*="hover:shadow-xl"]:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 28px 60px rgba(14, 165, 233, 0.16) !important;
+}
+
+/* Empty cards clean */
+#root .companies-theme-page div[class*="shadow-inner"] {
+  background:
+    radial-gradient(circle at 90% 10%, rgba(125,211,252,0.16), transparent 30%),
+    #ffffff !important;
+  border: 1px solid #bae6fd !important;
+}
+
+/* Company detail top cards/panels same clean theme */
+#root .company-detail-theme-page .companies-theme-panel {
+  background: rgba(255,255,255,0.97) !important;
+  border: 1px solid rgba(186,230,253,0.95) !important;
+  box-shadow: 0 22px 58px rgba(14,165,233,0.10) !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  #root .companies-theme-hero {
+    min-height: auto !important;
+    padding: 26px !important;
+    border-radius: 28px !important;
+  }
+
+  #root .companies-theme-hero h1 {
+    font-size: 34px !important;
+  }
+}
+
+/* =====================================================
+   FINAL COMPANIES HEADER MATCH WITH RESOURCES HEADER
+   Same theme on Companies + Company Detail pages.
+   Only UI. No API/data/navigation change.
+===================================================== */
+
+/* Same page background as Resources */
+#root .companies-theme-page,
+#root .company-detail-theme-page {
+  background:
+    radial-gradient(circle at 6% 6%, rgba(56, 189, 248, 0.23), transparent 30%),
+    radial-gradient(circle at 92% 8%, rgba(34, 197, 94, 0.10), transparent 28%),
+    linear-gradient(135deg, #eef8ff 0%, #f8fcff 52%, #ecfeff 100%) !important;
+}
+
+/* Main header exactly like Placement Learning Hub */
+#root .companies-theme-hero {
+  min-height: 230px !important;
+  padding: 54px 58px !important;
+  border-radius: 36px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  background:
+    radial-gradient(circle at 86% 70%, rgba(255,255,255,0.30) 0 8%, transparent 22%),
+    radial-gradient(circle at 18% 55%, rgba(255,255,255,0.10) 0 6%, transparent 22%),
+    linear-gradient(135deg, #0284c7 0%, #0ea5e9 52%, #22c55e 100%) !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow:
+    0 30px 74px rgba(14, 165, 233, 0.22),
+    inset 0 1px 0 rgba(255,255,255,0.28) !important;
+}
+
+/* Grid overlay same premium effect */
+#root .companies-theme-hero::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.14) 1px, transparent 1px) !important;
+  background-size: 42px 42px !important;
+  opacity: 0.42 !important;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.30)) !important;
+  pointer-events: none !important;
+}
+
+/* Big bubble like Resources header */
+#root .companies-theme-hero::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 7.5% !important;
+  bottom: -110px !important;
+  width: 280px !important;
+  height: 280px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.28) !important;
+  box-shadow:
+    -280px -40px 0 -105px rgba(255,255,255,0.11),
+    -520px 52px 0 -130px rgba(255,255,255,0.10) !important;
+  animation: companiesBubbleFloat 5.5s ease-in-out infinite !important;
+  pointer-events: none !important;
+}
+
+@keyframes companiesBubbleFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-12px) scale(1.03);
+  }
+}
+
+/* Header content spacing like Resources */
+#root .companies-theme-hero > div.relative,
+#root .companies-theme-hero > div[class*="relative"] {
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+#root .companies-theme-hero p:first-child {
+  color: rgba(255,255,255,0.92) !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.34em !important;
+  text-transform: uppercase !important;
+}
+
+#root .companies-theme-hero h1 {
+  color: #ffffff !important;
+  margin-top: 26px !important;
+  font-size: clamp(44px, 5.4vw, 76px) !important;
+  line-height: 0.98 !important;
+  letter-spacing: -0.055em !important;
+  font-weight: 1000 !important;
+  text-shadow: 0 18px 36px rgba(2, 132, 199, 0.30) !important;
+}
+
+/* Remove old header extra content on Companies page */
+#root .companies-theme-page .companies-theme-hero h1 + p {
+  display: none !important;
+}
+
+#root .companies-theme-page .companies-theme-hero .lg\:items-end > div:last-child {
+  display: none !important;
+}
+
+#root .companies-theme-page .companies-theme-hero .mt-8.grid {
+  display: none !important;
+}
+
+/* Same clean header on next redirected Company Detail page */
+#root .company-detail-theme-page .companies-theme-hero h1 + p {
+  display: none !important;
+}
+
+#root .company-detail-theme-page .companies-theme-hero .mt-8.grid {
+  display: none !important;
+}
+
+/* Company Detail page panels same as this page */
+#root .company-detail-theme-page .companies-theme-panel,
+#root .company-detail-theme-page section[class*="companies-theme-panel"] {
+  background:
+    radial-gradient(circle at 92% 8%, rgba(125, 211, 252, 0.15), transparent 30%),
+    rgba(255,255,255,0.97) !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow: 0 22px 58px rgba(14, 165, 233, 0.10) !important;
+}
+
+/* Back button on detail page same premium */
+#root .company-detail-theme-page > button:first-child {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  border: 1px solid #bae6fd !important;
+  box-shadow: 0 14px 34px rgba(14, 165, 233, 0.14) !important;
+}
+
+#root .company-detail-theme-page > button:first-child:hover {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8) !important;
+  color: #ffffff !important;
+  transform: translateY(-3px) scale(1.02) !important;
+}
+
+/* Keep dropdown simple blue/white */
+#root .companies-theme-page div[class*="absolute"][class*="bg-white"] button {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+
+#root .companies-theme-page div[class*="absolute"][class*="bg-white"] button:hover {
+  background: #f0f9ff !important;
+  color: #0284c7 !important;
+}
+
+/* Better visible role data in both pages */
+#root .companies-theme-page h3,
+#root .company-detail-theme-page h3 {
+  font-size: 22px !important;
+  font-weight: 850 !important;
+  color: #0f172a !important;
+}
+
+#root .companies-theme-page p,
+#root .company-detail-theme-page p {
+  font-weight: 650 !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  #root .companies-theme-hero {
+    min-height: 190px !important;
+    padding: 34px 28px !important;
+    border-radius: 28px !important;
+  }
+
+  #root .companies-theme-hero h1 {
+    font-size: 42px !important;
+  }
+
+  #root .companies-theme-hero::after {
+    width: 190px !important;
+    height: 190px !important;
+    right: -20px !important;
+    bottom: -70px !important;
+  }
+}
+
+/* =====================================================
+   FINAL BLUE-WHITE COMPANY + ROLE DETAIL THEME
+   Only UI. No API/data/dropdown/navigation change.
+===================================================== */
+
+/* Remove green from Companies + Company Detail + Role Detail pages */
+#root .companies-theme-page,
+#root .company-detail-theme-page,
+#root [class*="company-role"],
+#root [class*="role-detail"],
+#root main,
+#root .min-h-screen {
+  --company-blue-1: #eaf8ff;
+  --company-blue-2: #f8fcff;
+  --company-blue-3: #dff6ff;
+}
+
+/* Page background: blue-white bubbles like home/resources */
+#root .companies-theme-page,
+#root .company-detail-theme-page {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(56, 189, 248, 0.24), transparent 30%),
+    radial-gradient(circle at 88% 14%, rgba(14, 165, 233, 0.12), transparent 28%),
+    radial-gradient(circle at 50% 92%, rgba(125, 211, 252, 0.18), transparent 32%),
+    linear-gradient(135deg, #eaf8ff 0%, #ffffff 50%, #effaff 100%) !important;
+}
+
+/* Any role detail page root also gets same background */
+#root div[class*="min-h-screen"][class*="bg-slate"],
+#root div[class*="min-h-screen"][class*="bg-gradient"] {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(56, 189, 248, 0.22), transparent 30%),
+    radial-gradient(circle at 88% 14%, rgba(14, 165, 233, 0.12), transparent 28%),
+    linear-gradient(135deg, #eaf8ff 0%, #ffffff 50%, #effaff 100%) !important;
+}
+
+/* Header: blue only, no green */
+#root .companies-theme-hero,
+#root .company-detail-theme-page section:first-of-type,
+#root div[class*="min-h-screen"] section:first-of-type {
+  background:
+    radial-gradient(circle at 86% 70%, rgba(255,255,255,0.30) 0 8%, transparent 22%),
+    radial-gradient(circle at 18% 55%, rgba(255,255,255,0.12) 0 6%, transparent 22%),
+    linear-gradient(135deg, #0284c7 0%, #0ea5e9 48%, #38bdf8 100%) !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow:
+    0 30px 74px rgba(14, 165, 233, 0.22),
+    inset 0 1px 0 rgba(255,255,255,0.28) !important;
+  color: #ffffff !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* Header grid overlay */
+#root .companies-theme-hero::before,
+#root .company-detail-theme-page section:first-of-type::before,
+#root div[class*="min-h-screen"] section:first-of-type::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px) !important;
+  background-size: 42px 42px !important;
+  opacity: 0.42 !important;
+  pointer-events: none !important;
+}
+
+/* Header bubble */
+#root .companies-theme-hero::after,
+#root .company-detail-theme-page section:first-of-type::after,
+#root div[class*="min-h-screen"] section:first-of-type::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 7% !important;
+  bottom: -110px !important;
+  width: 280px !important;
+  height: 280px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.28) !important;
+  box-shadow:
+    -280px -40px 0 -105px rgba(255,255,255,0.12),
+    -520px 52px 0 -130px rgba(255,255,255,0.10) !important;
+  animation: companiesBlueBubbleFloat 5.5s ease-in-out infinite !important;
+  pointer-events: none !important;
+}
+
+@keyframes companiesBlueBubbleFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.03); }
+}
+
+/* Header text white */
+#root .companies-theme-hero h1,
+#root .company-detail-theme-page section:first-of-type h1,
+#root div[class*="min-h-screen"] section:first-of-type h1 {
+  color: #ffffff !important;
+  text-shadow: 0 18px 36px rgba(2,132,199,0.30) !important;
+}
+
+#root .companies-theme-hero p,
+#root .company-detail-theme-page section:first-of-type p,
+#root div[class*="min-h-screen"] section:first-of-type p {
+  color: rgba(255,255,255,0.92) !important;
+}
+
+/* Remove green from buttons: blue-only gradient */
+#root .companies-theme-page button[class*="from-indigo"],
+#root .companies-theme-page button[class*="bg-indigo"],
+#root .companies-theme-page button[class*="bg-slate-950"],
+#root .company-detail-theme-page button[class*="from-indigo"],
+#root .company-detail-theme-page button[class*="bg-indigo"],
+#root .company-detail-theme-page button[class*="bg-slate-950"],
+#root div[class*="min-h-screen"] button[class*="from-indigo"],
+#root div[class*="min-h-screen"] button[class*="bg-indigo"],
+#root div[class*="min-h-screen"] button[class*="bg-slate-950"] {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 52%, #38bdf8 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 18px 42px rgba(14,165,233,0.22) !important;
+}
+
+/* Panels/cards blue-white */
+#root .companies-theme-panel,
+#root .company-detail-theme-page .companies-theme-panel,
+#root div[class*="min-h-screen"] section:not(:first-of-type),
+#root div[class*="rounded-[32px]"],
+#root div[class*="rounded-[30px]"],
+#root div[class*="rounded-[28px]"] {
+  border-color: rgba(186,230,253,0.95) !important;
+  box-shadow: 0 22px 58px rgba(14,165,233,0.10) !important;
+}
+
+/* Green package chips become blue */
+#root span[class*="text-emerald-700"] {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 1px solid #bae6fd !important;
+}
+
+/* Skill chips readable */
+#root span[class*="text-indigo-700"] {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 1px solid #bae6fd !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+/* Role detail text readable */
+#root div[class*="min-h-screen"] h2,
+#root div[class*="min-h-screen"] h3 {
+  color: #0f172a !important;
+}
+
+#root div[class*="min-h-screen"] p {
+  color: #475569 !important;
+}
+
+/* Do NOT disturb company dropdown */
+#root .companies-theme-page div[class*="absolute"][class*="bg-white"] button {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+
+#root .companies-theme-page div[class*="absolute"][class*="bg-white"] button:hover {
+  background: #f0f9ff !important;
+  color: #0284c7 !important;
+}
+
+/* =====================================================
+   FINAL ROLE DETAIL PAGE BLUE-WHITE BUBBLE THEME
+   Target: /companies/:company/roles/:id
+   Only UI. No API/data/dropdown/navigation change.
+===================================================== */
+
+/* Role detail page background same as Home/Resources */
+#root .company-role-theme-page,
+#root .company-detail-theme-page,
+#root .companies-theme-page {
+  min-height: 100vh !important;
+  background:
+    radial-gradient(circle at 7% 7%, rgba(56, 189, 248, 0.22), transparent 30%),
+    radial-gradient(circle at 92% 10%, rgba(125, 211, 252, 0.18), transparent 30%),
+    radial-gradient(circle at 50% 92%, rgba(14, 165, 233, 0.10), transparent 34%),
+    linear-gradient(135deg, #eaf8ff 0%, #ffffff 52%, #effaff 100%) !important;
+}
+
+/* Stretch page properly */
+#root .company-role-theme-page,
+#root .company-detail-theme-page,
+#root .companies-theme-page {
+  width: 100% !important;
+  padding: 32px !important;
+}
+
+/* Header same premium blue-white bubble, no green */
+#root .company-role-theme-page section:first-of-type,
+#root .company-detail-theme-page .companies-theme-hero,
+#root .companies-theme-page .companies-theme-hero {
+  min-height: 215px !important;
+  width: 100% !important;
+  border-radius: 36px !important;
+  padding: 44px 50px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  background:
+    radial-gradient(circle at 86% 68%, rgba(255,255,255,0.28) 0 8%, transparent 22%),
+    radial-gradient(circle at 18% 58%, rgba(255,255,255,0.12) 0 6%, transparent 22%),
+    linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%) !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow:
+    0 30px 74px rgba(14, 165, 233, 0.22),
+    inset 0 1px 0 rgba(255,255,255,0.30) !important;
+  color: #ffffff !important;
+}
+
+/* Header grid effect */
+#root .company-role-theme-page section:first-of-type::before,
+#root .company-detail-theme-page .companies-theme-hero::before,
+#root .companies-theme-page .companies-theme-hero::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px) !important;
+  background-size: 42px 42px !important;
+  opacity: 0.42 !important;
+  pointer-events: none !important;
+}
+
+/* Header bubble effect */
+#root .company-role-theme-page section:first-of-type::after,
+#root .company-detail-theme-page .companies-theme-hero::after,
+#root .companies-theme-page .companies-theme-hero::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 7% !important;
+  bottom: -105px !important;
+  width: 270px !important;
+  height: 270px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.27) !important;
+  box-shadow:
+    -275px -38px 0 -105px rgba(255,255,255,0.12),
+    -515px 52px 0 -130px rgba(255,255,255,0.10) !important;
+  animation: companyRoleBubbleMove 5.5s ease-in-out infinite !important;
+  pointer-events: none !important;
+}
+
+@keyframes companyRoleBubbleMove {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-12px) scale(1.03);
+  }
+}
+
+/* Header text: white, medium size, proper readable */
+#root .company-role-theme-page section:first-of-type h1,
+#root .company-detail-theme-page .companies-theme-hero h1,
+#root .companies-theme-page .companies-theme-hero h1 {
+  color: #ffffff !important;
+  font-size: clamp(38px, 4.2vw, 56px) !important;
+  line-height: 1.05 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.035em !important;
+  text-shadow: 0 16px 34px rgba(2,132,199,0.30) !important;
+}
+
+#root .company-role-theme-page section:first-of-type p,
+#root .company-detail-theme-page .companies-theme-hero p,
+#root .companies-theme-page .companies-theme-hero p {
+  color: rgba(255,255,255,0.92) !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+/* Hide unnecessary stats/description in headers */
+#root .companies-theme-page .companies-theme-hero h1 + p,
+#root .companies-theme-page .companies-theme-hero .lg\:items-end > div:last-child,
+#root .companies-theme-page .companies-theme-hero .mt-8.grid,
+#root .company-detail-theme-page .companies-theme-hero h1 + p,
+#root .company-detail-theme-page .companies-theme-hero .mt-8.grid {
+  display: none !important;
+}
+
+/* Panels/cards on role detail page */
+#root .company-role-theme-page section:not(:first-of-type),
+#root .company-role-theme-page div[class*="rounded"],
+#root .company-detail-theme-page section:not(:first-of-type),
+#root .companies-theme-panel {
+  background:
+    radial-gradient(circle at 92% 8%, rgba(125, 211, 252, 0.13), transparent 30%),
+    rgba(255,255,255,0.97) !important;
+  border-color: rgba(186,230,253,0.95) !important;
+  box-shadow: 0 22px 58px rgba(14,165,233,0.10) !important;
+}
+
+/* Remove green shade everywhere on these company pages */
+#root .company-role-theme-page [class*="emerald"],
+#root .company-detail-theme-page [class*="emerald"],
+#root .companies-theme-page [class*="emerald"] {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+
+/* Buttons blue only */
+#root .company-role-theme-page button[class*="from-indigo"],
+#root .company-role-theme-page button[class*="bg-indigo"],
+#root .company-role-theme-page button[class*="bg-slate-950"],
+#root .company-detail-theme-page button[class*="from-indigo"],
+#root .company-detail-theme-page button[class*="bg-indigo"],
+#root .company-detail-theme-page button[class*="bg-slate-950"],
+#root .companies-theme-page button[class*="from-indigo"],
+#root .companies-theme-page button[class*="bg-indigo"],
+#root .companies-theme-page button[class*="bg-slate-950"] {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 52%, #38bdf8 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 18px 42px rgba(14,165,233,0.22) !important;
+}
+
+#root .company-role-theme-page button:hover,
+#root .company-detail-theme-page button:hover,
+#root .companies-theme-page button:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+}
+
+/* Text on role detail page visible, medium bold not overbold */
+#root .company-role-theme-page h2,
+#root .company-role-theme-page h3,
+#root .company-detail-theme-page h2,
+#root .company-detail-theme-page h3 {
+  color: #0f172a !important;
+  font-size: 22px !important;
+  font-weight: 850 !important;
+  line-height: 1.25 !important;
+}
+
+#root .company-role-theme-page p,
+#root .company-detail-theme-page p {
+  color: #475569 !important;
+  font-size: 15px !important;
+  font-weight: 650 !important;
+}
+
+/* Skill chips blue-white */
+#root .company-role-theme-page span,
+#root .company-detail-theme-page span,
+#root .companies-theme-page span[class*="text-indigo-700"] {
+  border-color: #bae6fd !important;
+}
+
+#root .company-role-theme-page span[class*="text-indigo"],
+#root .company-detail-theme-page span[class*="text-indigo"],
+#root .companies-theme-page span[class*="text-indigo"] {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+
+/* Do not change dropdown behavior/theme too much */
+#root .companies-theme-page div[class*="absolute"][class*="bg-white"] button {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+
+#root .companies-theme-page div[class*="absolute"][class*="bg-white"] button:hover {
+  background: #f0f9ff !important;
+  color: #0284c7 !important;
+}
+
+/* Mobile stretch */
+@media (max-width: 768px) {
+  #root .company-role-theme-page,
+  #root .company-detail-theme-page,
+  #root .companies-theme-page {
+    padding: 18px !important;
+  }
+
+  #root .company-role-theme-page section:first-of-type,
+  #root .company-detail-theme-page .companies-theme-hero,
+  #root .companies-theme-page .companies-theme-hero {
+    min-height: 180px !important;
+    padding: 30px 26px !important;
+    border-radius: 28px !important;
+  }
+
+  #root .company-role-theme-page section:first-of-type h1,
+  #root .company-detail-theme-page .companies-theme-hero h1,
+  #root .companies-theme-page .companies-theme-hero h1 {
+    font-size: 36px !important;
+  }
+}

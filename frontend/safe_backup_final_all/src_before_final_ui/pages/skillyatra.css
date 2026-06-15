@@ -1,0 +1,5 @@
+/* SkillYatra page styling bridge file */
+/* This file fixes Dashboard.jsx import: import "./skillyatra.css"; */
+/* Data, API, backend, MongoDB untouched. */
+
+@import "../index.css";
