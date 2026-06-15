@@ -985,3 +985,27 @@
     font-size: 36px;
   }
 }
+
+/* =====================================================
+   CLEAN COMPANIES HEADER
+   Hide description + stats only. Data/API unchanged.
+===================================================== */
+
+.companies-hero > div:first-child p:not(.companies-eyebrow) {
+  display: none !important;
+}
+
+.companies-stats,
+.company-stat-card {
+  display: none !important;
+}
+
+.companies-hero {
+  grid-template-columns: 1fr !important;
+  min-height: 185px !important;
+  align-items: center !important;
+}
+
+.companies-hero h1 {
+  margin-top: 14px !important;
+}
