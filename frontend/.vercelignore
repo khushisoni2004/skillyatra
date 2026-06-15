@@ -1,0 +1,17 @@
+node_modules
+dist
+.git
+.env
+.env.local
+.DS_Store
+*.log
+
+# local backups
+safe_backup_today_route_final
+safe_backup_today_unique
+safe_backup_today_weekly
+src/data/_backup
+src/pages/_backup
+src/pages_backup
+**/_backup
+**/*backup*

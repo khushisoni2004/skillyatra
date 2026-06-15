@@ -10,7 +10,8 @@ import {
   Sparkles
 } from "lucide-react";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+import { BACKEND_BASE } from "../lib/config";
+const API_BASE = BACKEND_BASE;
 
 export default function Login() {
   const navigate = useNavigate();

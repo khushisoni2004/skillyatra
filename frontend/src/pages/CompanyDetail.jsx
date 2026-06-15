@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Companies.css";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+import { BACKEND_BASE } from "../lib/config";
+const API_BASE = BACKEND_BASE;
 
 export default function CompanyDetail() {
   const navigate = useNavigate();

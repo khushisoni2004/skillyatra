@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+import { BACKEND_BASE } from "../lib/config";
+const API_BASE = BACKEND_BASE;
 
 function Badge({ children, type = "default" }) {
   const styles = {
