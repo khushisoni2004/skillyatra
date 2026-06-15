@@ -4,6 +4,7 @@ import "./Companies.css";
 import { BACKEND_BASE } from "../lib/config";
 
 const API_BASE = BACKEND_BASE;
+const YOUTUBE_LOGO = "https://www.google.com/s2/favicons?domain=youtube.com&sz=128";
 
 function cleanList(value) {
   return Array.isArray(value) ? value.filter(Boolean) : [];
@@ -13,15 +14,35 @@ function makeYoutubeSearch(query) {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
 }
 
+function makeInstantRole(companyName, roleName = "Software Engineer") {
+  return {
+    roleName,
+    expectedPackage: "Package not specified in dataset",
+    expectedExperience: "Experience not specified in dataset",
+    locations: ["India"],
+    skills: ["DSA", "Java", "Python", "SQL", "OOPs"]
+  };
+}
+
 function readSelectedRole(companyName, roleNumber) {
   try {
-    const raw = sessionStorage.getItem(`skillyatra_selected_role:${companyName}:${roleNumber}`);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return parsed?.role || null;
-  } catch {
-    return null;
-  }
+    const selected = sessionStorage.getItem(`skillyatra_selected_role:${companyName}:${roleNumber}`);
+    if (selected) {
+      const parsed = JSON.parse(selected);
+      if (parsed?.role) return parsed.role;
+    }
+
+    const snapshot = sessionStorage.getItem(`skillyatra_company_snapshot:${companyName}`);
+    if (snapshot) {
+      const parsed = JSON.parse(snapshot);
+      const index = Math.max(Number(roleNumber || 1) - 1, 0);
+      if (Array.isArray(parsed?.roles) && parsed.roles[index]) {
+        return parsed.roles[index];
+      }
+    }
+  } catch {}
+
+  return makeInstantRole(companyName);
 }
 
 export default function CompanyRoleDetail() {
@@ -34,35 +55,37 @@ export default function CompanyRoleDetail() {
 
   const [roles, setRoles] = useState([]);
   const [role, setRole] = useState(() => readSelectedRole(decodedCompanyName, roleNumber));
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/companies/${encodeURIComponent(decodedCompanyName)}/roles`, {
-      method: "GET",
-      cache: "no-store",
-      mode: "cors"
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const list = Array.isArray(data?.roles) ? data.roles : [];
-        setRoles(list);
+    const urls = [
+      `${API_BASE}/api/companies/${encodeURIComponent(decodedCompanyName)}/roles`,
+      `${API_BASE}/companies/${encodeURIComponent(decodedCompanyName)}/roles`
+    ];
 
-        const selected = list[selectedIndex] || list[0] || null;
-        if (selected) {
-          setRole(selected);
-          try {
-            sessionStorage.setItem(
-              `skillyatra_selected_role:${decodedCompanyName}:${roleNumber}`,
-              JSON.stringify({ companyName: decodedCompanyName, role: selected })
-            );
-          } catch {}
-        } else if (!role) {
-          setError("Role data not available for this company.");
-        }
+    urls.forEach((url) => {
+      fetch(url, {
+        method: "GET",
+        cache: "no-store",
+        mode: "cors"
       })
-      .catch(() => {
-        if (!role) setError("Role data not available right now.");
-      });
+        .then((res) => res.json())
+        .then((data) => {
+          const list = Array.isArray(data?.roles) ? data.roles : [];
+          if (list.length) {
+            setRoles(list);
+
+            const selected = list[selectedIndex] || list[0] || role;
+            if (selected) {
+              setRole(selected);
+              sessionStorage.setItem(
+                `skillyatra_selected_role:${decodedCompanyName}:${roleNumber}`,
+                JSON.stringify({ companyName: decodedCompanyName, role: selected })
+              );
+            }
+          }
+        })
+        .catch(() => {});
+    });
   }, [decodedCompanyName, selectedIndex, roleNumber]);
 
   const skills = useMemo(() => cleanList(role?.skills), [role]);
@@ -138,24 +161,6 @@ export default function CompanyRoleDetail() {
     return [...base, ...skillLinks].slice(0, 8);
   }, [role, skills]);
 
-  if (!role) {
-    return (
-      <div className="company-role-page">
-        <div className="company-role-shell">
-          <button type="button" onClick={() => navigate("/companies")} className="company-theme-btn">
-            ← Back to Companies
-          </button>
-
-          <section className="role-detail-hero">
-            <p>DATASET BASED ROLE PREPARATION</p>
-            <h1>{decodedCompanyName}</h1>
-            <span>{error || "Role data is syncing from dataset."}</span>
-          </section>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="company-role-page">
       <div className="company-role-shell">
@@ -169,7 +174,7 @@ export default function CompanyRoleDetail() {
 
         <section className="role-detail-hero">
           <p>DATASET BASED ROLE PREPARATION</p>
-          <h1>{role.roleName}</h1>
+          <h1>{role?.roleName || "Software Engineer"}</h1>
           <span>{decodedCompanyName}</span>
         </section>
 
@@ -180,11 +185,11 @@ export default function CompanyRoleDetail() {
           </div>
           <div>
             <span>Package</span>
-            <strong>{role.expectedPackage || "Package not specified"}</strong>
+            <strong>{role?.expectedPackage || "Package not specified"}</strong>
           </div>
           <div>
             <span>Experience</span>
-            <strong>{role.expectedExperience || "Experience not specified"}</strong>
+            <strong>{role?.expectedExperience || "Experience not specified"}</strong>
           </div>
           <div>
             <span>Skills</span>
@@ -257,8 +262,11 @@ export default function CompanyRoleDetail() {
 
           <div className="role-video-grid">
             {youtubeLinks.map((item, index) => (
-              <a key={`${item.title}-${index}`} href={item.url} target="_blank" rel="noreferrer">
-                <b>▶ {item.title}</b>
+              <a key={`${item.title}-${index}`} href={item.url} target="_blank" rel="noreferrer" className="youtube-prep-link">
+                <div className="youtube-prep-link-top">
+                  <img src={YOUTUBE_LOGO} alt="YouTube" className="youtube-prep-logo" />
+                  <b>{item.title}</b>
+                </div>
                 <span>{item.subtitle}</span>
               </a>
             ))}

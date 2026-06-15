@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "./Companies.css";
 import { API_BASE } from "../lib/config";
 
-const COMPANIES_CACHE_KEY = "skillyatra_companies_cache_v5";
-const ROLES_CACHE_PREFIX = "skillyatra_company_roles_cache_v5";
-const CACHE_TIME = 1000 * 60 * 30;
+const COMPANIES_CACHE_KEY = "skillyatra_companies_cache_v7";
+const ROLES_CACHE_PREFIX = "skillyatra_company_roles_cache_v7";
+const CACHE_TIME = 1000 * 60 * 60;
 
 const INSTANT_COMPANIES = [
   { companyName: "Google", totalJobCount: 75 },
@@ -17,21 +17,48 @@ const INSTANT_COMPANIES = [
   { companyName: "Accenture", totalJobCount: 130 },
   { companyName: "Capgemini", totalJobCount: 95 },
   { companyName: "Cognizant", totalJobCount: 100 },
-  { companyName: "IBM", totalJobCount: 90 }
+  { companyName: "IBM", totalJobCount: 90 },
+  { companyName: "Flipkart", totalJobCount: 60 },
+  { companyName: "Deloitte", totalJobCount: 85 },
+  { companyName: "HCL", totalJobCount: 70 },
+  { companyName: "Tech Mahindra", totalJobCount: 75 },
+  { companyName: "LTIMindtree", totalJobCount: 65 },
+  { companyName: "Mastercard", totalJobCount: 40 },
+  { companyName: "Oracle", totalJobCount: 55 },
+  { companyName: "Adobe", totalJobCount: 45 },
+  { companyName: "Paytm", totalJobCount: 35 },
+  { companyName: "PhonePe", totalJobCount: 38 },
+  { companyName: "Zomato", totalJobCount: 34 },
+  { companyName: "Swiggy", totalJobCount: 32 }
 ];
 
-function mergeCompanies(oldList, newList) {
-  const map = new Map();
+const COMPANY_ALIASES = {
+  google: ["google india"],
+  amazon: ["amazon india"],
+  microsoft: ["microsoft india"],
+  infosys: ["infosys limited"],
+  tcs: ["tata consultancy services", "tata consultancy service"],
+  wipro: ["wipro limited"],
+  accenture: ["accenture india"],
+  capgemini: ["cap gemini", "capgemini india"],
+  cognizant: ["cts", "cognizant technology solutions"],
+  ibm: ["international business machines", "ibm india"],
+  deloitte: ["deloitte usi", "deloitte india", "deloitte consulting", "deloitree", "deloitee"],
+  flipkart: ["flip kart", "flipkart internet"],
+  hcl: ["hcltech", "hcl technologies"],
+  techmahindra: ["tech mahindra"],
+  ltimindtree: ["lti", "mindtree", "lti mindtree"],
+  mastercard: ["master card"],
+  oracle: ["oracle india"],
+  adobe: ["adobe india"],
+  paytm: ["paytm india"],
+  phonepe: ["phone pe"],
+  zomato: ["zomato india"],
+  swiggy: ["swiggy india"]
+};
 
-  [...(oldList || []), ...(newList || [])].forEach((item) => {
-    const name = item?.companyName;
-    if (!name) return;
-    map.set(String(name).toLowerCase(), item);
-  });
-
-  return Array.from(map.values()).sort((a, b) =>
-    String(a.companyName || "").localeCompare(String(b.companyName || ""))
-  );
+function normalize(value = "") {
+  return String(value).toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 function readCache(key) {
@@ -69,47 +96,135 @@ function roleCacheKey(companyName) {
   return `${ROLES_CACHE_PREFIX}:${companyName}`;
 }
 
+function getAliases(companyName = "") {
+  const key = normalize(companyName);
+  return COMPANY_ALIASES[key] || [];
+}
+
+function uniqueCompanies(list = []) {
+  const map = new Map();
+
+  list.forEach((item) => {
+    if (!item?.companyName) return;
+    const key = normalize(item.companyName);
+
+    if (!map.has(key)) {
+      map.set(key, item);
+    } else {
+      const existing = map.get(key);
+      map.set(key, {
+        ...existing,
+        ...item,
+        totalJobCount:
+          Number(item.totalJobCount || 0) > Number(existing.totalJobCount || 0)
+            ? item.totalJobCount
+            : existing.totalJobCount
+      });
+    }
+  });
+
+  return Array.from(map.values());
+}
+
+function mergeCompanies(prev = [], next = []) {
+  return uniqueCompanies([...(prev || []), ...(next || [])]).sort((a, b) =>
+    String(a.companyName || "").localeCompare(String(b.companyName || ""))
+  );
+}
+
+function levenshtein(a = "", b = "") {
+  const m = a.length;
+  const n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i += 1) dp[i][0] = i;
+  for (let j = 0; j <= n; j += 1) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i += 1) {
+    for (let j = 1; j <= n; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+
+  return dp[m][n];
+}
+
+function getCompanyMatchScore(company, query) {
+  const q = normalize(query);
+  if (!q) return 0;
+
+  const name = normalize(company?.companyName || "");
+  const aliases = getAliases(company?.companyName || "").map(normalize);
+  const all = [name, ...aliases].filter(Boolean);
+
+  if (all.some((item) => item === q)) return 100;
+  if (all.some((item) => item.startsWith(q))) return 94;
+  if (all.some((item) => item.includes(q))) return 86;
+
+  let best = 0;
+
+  for (const item of all) {
+    const dist = levenshtein(q, item);
+    const maxLen = Math.max(q.length, item.length) || 1;
+    const similarity = 1 - dist / maxLen;
+
+    if (similarity >= 0.58) {
+      best = Math.max(best, Math.round(similarity * 76));
+    }
+  }
+
+  return best;
+}
+
 function makeInstantRoles(companyName) {
-  const name = String(companyName || "Company").trim();
+  const label = companyName || "Company";
 
   return [
     {
       roleName: "Software Engineer",
-      expectedPackage: "Dataset syncing",
+      expectedPackage: "Package not specified in dataset",
       expectedExperience: "Freshers / Entry Level",
-      locations: ["India", "Remote / Hybrid"],
-      skills: ["DSA", "Java", "Python", "SQL", "React"]
+      locations: ["India"],
+      skills: ["DSA", "Java", "Python", "SQL", "OOPs"]
     },
     {
       roleName: "Associate Software Engineer",
-      expectedPackage: "Dataset syncing",
+      expectedPackage: "Package not specified in dataset",
       expectedExperience: "0-2 years",
       locations: ["India"],
-      skills: ["Programming", "Problem Solving", "OOPs", "Database"]
+      skills: ["Problem Solving", "Programming", "DBMS", "OS"]
     },
     {
       roleName: "Data Analyst",
-      expectedPackage: "Dataset syncing",
+      expectedPackage: "Package not specified in dataset",
       expectedExperience: "Freshers / Entry Level",
       locations: ["India"],
       skills: ["Excel", "SQL", "Python", "Data Analysis"]
     },
     {
-      roleName: `${name} Interview Preparation`,
-      expectedPackage: "Dataset syncing",
+      roleName: `${label} Interview Preparation`,
+      expectedPackage: "Package not specified in dataset",
       expectedExperience: "Role based",
       locations: ["Company specific"],
-      skills: ["Aptitude", "Communication", "Resume Projects", "HR Questions"]
+      skills: ["Aptitude", "Communication", "Projects", "Resume"]
     }
   ];
 }
 
-function saveCompanySnapshot(company) {
+function saveCompanySnapshot(companyName, roles = [], company = {}) {
   try {
-    if (!company?.companyName) return;
     sessionStorage.setItem(
-      `skillyatra_company_snapshot:${company.companyName}`,
-      JSON.stringify(company)
+      `skillyatra_company_snapshot:${companyName}`,
+      JSON.stringify({
+        ...company,
+        companyName,
+        roles
+      })
     );
   } catch {}
 }
@@ -117,48 +232,48 @@ function saveCompanySnapshot(company) {
 export default function Companies() {
   const navigate = useNavigate();
 
-  const [companies, setCompanies] = useState(() => readCache(COMPANIES_CACHE_KEY)?.companies || INSTANT_COMPANIES);
+  const [companies, setCompanies] = useState(() => {
+    const cached = readCache(COMPANIES_CACHE_KEY);
+    return cached?.companies?.length
+      ? mergeCompanies(cached.companies, INSTANT_COMPANIES)
+      : INSTANT_COMPANIES;
+  });
+
   const [selectedCompany, setSelectedCompany] = useState("");
   const [roles, setRoles] = useState([]);
-
   const [search, setSearch] = useState("");
   const [dropdownCompany, setDropdownCompany] = useState("");
   const [companyMenuOpen, setCompanyMenuOpen] = useState(false);
-
-  const [totalCompanies, setTotalCompanies] = useState(() => readCache(COMPANIES_CACHE_KEY)?.totalCompanies || 2000);
-  const [totalJobRows, setTotalJobRows] = useState(() => readCache(COMPANIES_CACHE_KEY)?.totalJobRows || 104128);
-
-  const [loading, setLoading] = useState(false);
-  const [softUpdating, setSoftUpdating] = useState(false);
-  const [rolesLoading, setRolesLoading] = useState(false);
-
-  const [error, setError] = useState("");
   const [searchedOnce, setSearchedOnce] = useState(false);
   const [rolesViewed, setRolesViewed] = useState(false);
+  const [error, setError] = useState("");
 
-  const applyCompaniesData = (data) => {
-    const list = Array.isArray(data?.companies) ? data.companies : [];
+  const cachedBase = readCache(COMPANIES_CACHE_KEY);
+  const [totalCompanies, setTotalCompanies] = useState(cachedBase?.totalCompanies || 0);
+  const [totalJobRows, setTotalJobRows] = useState(cachedBase?.totalJobRows || 0);
 
-    list.forEach(saveCompanySnapshot);
-    setCompanies((prev) => mergeCompanies(prev, list));
-    setTotalCompanies(data?.totalCompanies || data?.totalAllCompanies || list.length || 0);
-    setTotalJobRows(data?.totalJobRows || 0);
+  const storeCompanies = (list, meta = {}) => {
+    const merged = mergeCompanies(companies, list);
+
+    setCompanies(merged);
+    setTotalCompanies(meta.totalCompanies || meta.totalAllCompanies || merged.length || 0);
+    setTotalJobRows(meta.totalJobRows || totalJobRows || 0);
+
+    writeCache(COMPANIES_CACHE_KEY, {
+      companies: merged,
+      totalCompanies: meta.totalCompanies || meta.totalAllCompanies || merged.length || 0,
+      totalJobRows: meta.totalJobRows || totalJobRows || 0
+    });
   };
 
   const loadCompanies = async ({ force = false } = {}) => {
     const cached = !force ? readCache(COMPANIES_CACHE_KEY) : null;
 
-    // Instant UI: never block page for companies API.
-    if (cached) {
-      applyCompaniesData(cached);
-    } else if (!companies.length) {
-      setCompanies(INSTANT_COMPANIES);
-      setTotalCompanies(2000);
-      setTotalJobRows(104128);
+    if (cached?.companies?.length) {
+      setCompanies(mergeCompanies(cached.companies, INSTANT_COMPANIES));
+      setTotalCompanies(cached.totalCompanies || cached.companies.length || 0);
+      setTotalJobRows(cached.totalJobRows || 0);
     }
-
-    setLoading(false);
-    setSoftUpdating(false);
 
     try {
       setError("");
@@ -170,122 +285,24 @@ export default function Companies() {
       });
 
       const data = await res.json();
+      const list = Array.isArray(data?.companies) ? data.companies : [];
 
-      if (data?.ok) {
-        writeCache(COMPANIES_CACHE_KEY, data);
-        applyCompaniesData(data);
+      if (list.length) {
+        storeCompanies(list, data);
       }
     } catch {
-      // Keep instant companies visible. Do not show loading or error on first screen.
-    } finally {
-      setLoading(false);
-      setSoftUpdating(false);
+      // keep instant companies visible
     }
   };
-
-  const loadRoles = async (companyName) => {
-    if (!companyName) return;
-
-    const key = roleCacheKey(companyName);
-    const cached = readCache(key);
-
-    setSelectedCompany(companyName);
-    setRolesViewed(true);
-    setSearchedOnce(true);
-    setRolesLoading(false);
-
-    const companyFromList = companies.find(
-      (item) =>
-        String(item.companyName || "").toLowerCase() ===
-        String(companyName || "").toLowerCase()
-    );
-
-    if (companyFromList) {
-      saveCompanySnapshot(companyFromList);
-    } else {
-      saveCompanySnapshot({
-        companyName,
-        totalJobCount: 0,
-        roles: makeInstantRoles(companyName)
-      });
-    }
-
-    if (cached && Array.isArray(cached.roles) && cached.roles.length) {
-      setRoles(cached.roles);
-    } else if (Array.isArray(companyFromList?.roles) && companyFromList.roles.length) {
-      setRoles(companyFromList.roles);
-      writeCache(key, { roles: companyFromList.roles });
-    } else {
-      const instantRoles = makeInstantRoles(companyName);
-      setRoles(instantRoles);
-      writeCache(key, { roles: instantRoles });
-    }
-
-    // Backend real roles sync in background. UI never blocks.
-    fetch(`${API_BASE}/companies/${encodeURIComponent(companyName)}/roles`, {
-      method: "GET",
-      cache: "no-store",
-      mode: "cors"
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const nextRoles = Array.isArray(data?.roles) ? data.roles : [];
-        if (nextRoles.length) {
-          writeCache(key, { roles: nextRoles });
-          setRoles(nextRoles);
-          saveCompanySnapshot({
-            ...(companyFromList || { companyName }),
-            roles: nextRoles
-          });
-        }
-      })
-      .catch(() => {})
-      .finally(() => {
-        setRolesLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    loadCompanies();
-  }, []);
-
-  const searchedCompanies = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return [];
-
-    return companies
-      .filter((company) =>
-        String(company.companyName || "").toLowerCase().includes(q)
-      )
-      .slice(0, 300);
-  }, [companies, search]);
-
-  const dropdownCompanies = useMemo(() => {
-    return companies
-      .filter((company) => company.companyName)
-      .sort((a, b) =>
-        String(a.companyName).localeCompare(String(b.companyName))
-      );
-  }, [companies]);
-
-  const searchSuggestions = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return [];
-
-    return companies
-      .filter((company) =>
-        String(company.companyName || "").toLowerCase().includes(q)
-      )
-      .slice(0, 20);
-  }, [companies, search]);
 
   const searchCompaniesFromBackend = async (query) => {
     const q = String(query || "").trim();
-    if (!q) return [];
+    if (!q) return;
 
     const urls = [
       `${API_BASE}/companies?search=${encodeURIComponent(q)}&limit=50000`,
       `${API_BASE}/companies?q=${encodeURIComponent(q)}&limit=50000`,
+      `${API_BASE}/companies?keyword=${encodeURIComponent(q)}&limit=50000`,
       `${API_BASE}/api/companies?search=${encodeURIComponent(q)}&limit=50000`,
       `${API_BASE}/api/companies?q=${encodeURIComponent(q)}&limit=50000`
     ];
@@ -302,34 +319,119 @@ export default function Companies() {
         const list = Array.isArray(data?.companies) ? data.companies : [];
 
         if (list.length) {
-          const merged = mergeCompanies(companies, list);
-          setCompanies(merged);
-          writeCache(COMPANIES_CACHE_KEY, {
-            companies: merged,
-            totalCompanies: data?.totalCompanies || data?.totalAllCompanies || merged.length,
-            totalJobRows: data?.totalJobRows || totalJobRows
-          });
-          return list;
+          storeCompanies(list, data);
+          return;
         }
       } catch {}
     }
-
-    return [];
   };
 
-  const handleSearch = async () => {
+  const rankedCompanies = useMemo(() => {
     const q = search.trim();
+    if (!q) return [];
 
+    return companies
+      .map((company) => ({
+        company,
+        score: getCompanyMatchScore(company, q)
+      }))
+      .filter((item) => item.score > 0)
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return String(a.company.companyName || "").localeCompare(
+          String(b.company.companyName || "")
+        );
+      })
+      .map((item) => item.company);
+  }, [companies, search]);
+
+  const searchSuggestions = useMemo(() => rankedCompanies.slice(0, 12), [rankedCompanies]);
+  const searchedCompanies = useMemo(() => rankedCompanies.slice(0, 100), [rankedCompanies]);
+
+  const dropdownCompanies = useMemo(() => {
+    return uniqueCompanies(companies).sort((a, b) =>
+      String(a.companyName || "").localeCompare(String(b.companyName || ""))
+    );
+  }, [companies]);
+
+  const loadRoles = async (companyName) => {
+    if (!companyName) return;
+
+    const key = roleCacheKey(companyName);
+    const cached = readCache(key);
+    const companyFromList = companies.find(
+      (item) => normalize(item.companyName) === normalize(companyName)
+    );
+
+    setSelectedCompany(companyName);
+    setRolesViewed(true);
     setSearchedOnce(true);
+
+    if (cached?.roles?.length) {
+      setRoles(cached.roles);
+      saveCompanySnapshot(companyName, cached.roles, companyFromList || {});
+    } else if (companyFromList?.roles?.length) {
+      setRoles(companyFromList.roles);
+      writeCache(key, { roles: companyFromList.roles });
+      saveCompanySnapshot(companyName, companyFromList.roles, companyFromList);
+    } else {
+      const instantRoles = makeInstantRoles(companyName);
+      setRoles(instantRoles);
+      writeCache(key, { roles: instantRoles });
+      saveCompanySnapshot(companyName, instantRoles, companyFromList || {});
+    }
+
+    fetch(`${API_BASE}/companies/${encodeURIComponent(companyName)}/roles`, {
+      method: "GET",
+      cache: "no-store",
+      mode: "cors"
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const nextRoles = Array.isArray(data?.roles) ? data.roles : [];
+        if (nextRoles.length) {
+          setRoles(nextRoles);
+          writeCache(key, { roles: nextRoles });
+          saveCompanySnapshot(companyName, nextRoles, companyFromList || {});
+        }
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    loadCompanies();
+  }, []);
+
+  const handleSearch = async () => {
+    setSearchedOnce(true);
+    setCompanyMenuOpen(false);
+
+    if (search.trim().length >= 2) {
+      await searchCompaniesFromBackend(search);
+    }
+
+    if (searchedCompanies.length > 0) {
+      const best = searchedCompanies[0];
+      setSearch(best.companyName);
+      setDropdownCompany(best.companyName);
+      loadRoles(best.companyName);
+      return;
+    }
+
+    const instantMatch = INSTANT_COMPANIES.find(
+      (item) => getCompanyMatchScore(item, search) > 0
+    );
+
+    if (instantMatch) {
+      setSearch(instantMatch.companyName);
+      setDropdownCompany(instantMatch.companyName);
+      loadRoles(instantMatch.companyName);
+      return;
+    }
+
     setSelectedCompany("");
     setRoles([]);
     setRolesViewed(false);
-    setDropdownCompany("");
-    setCompanyMenuOpen(false);
-
-    if (q.length >= 2) {
-      await searchCompaniesFromBackend(q);
-    }
   };
 
   const handleDropdownChange = (companyName) => {
@@ -349,21 +451,7 @@ export default function Companies() {
 
   const openCompany = (companyName) => {
     if (!companyName) return;
-
-    const companyFromList = companies.find(
-      (item) =>
-        String(item.companyName || "").toLowerCase() ===
-        String(companyName || "").toLowerCase()
-    );
-
-    saveCompanySnapshot(
-      companyFromList || {
-        companyName,
-        totalJobCount: roles.length,
-        roles: roles.length ? roles : makeInstantRoles(companyName)
-      }
-    );
-
+    saveCompanySnapshot(companyName, roles.length ? roles : makeInstantRoles(companyName));
     navigate(`/companies/${encodeURIComponent(companyName)}`);
   };
 
@@ -371,13 +459,13 @@ export default function Companies() {
     if (!companyName) return;
 
     try {
-      const role = roles[roleIndex] || makeInstantRoles(companyName)[roleIndex] || makeInstantRoles(companyName)[0];
-      if (role) {
-        sessionStorage.setItem(
-          `skillyatra_selected_role:${companyName}:${roleIndex + 1}`,
-          JSON.stringify({ companyName, role })
-        );
-      }
+      sessionStorage.setItem(
+        `skillyatra_selected_role:${companyName}:${roleIndex + 1}`,
+        JSON.stringify({
+          companyName,
+          role: roles[roleIndex] || makeInstantRoles(companyName)[0]
+        })
+      );
     } catch {}
 
     navigate(`/companies/${encodeURIComponent(companyName)}/roles/${roleIndex + 1}`);
@@ -390,32 +478,6 @@ export default function Companies() {
           <div>
             <p className="companies-eyebrow">Company Wise Preparation</p>
             <h1>Company + Job Roles</h1>
-            <p>
-              Search or select a company from dropdown to view real dataset roles,
-              required skills, locations and role-wise preparation.
-            </p>
-          </div>
-
-          <div className="companies-stats">
-            <div className="company-stat-card">
-              <span>Selected Company</span>
-              <strong>{selectedCompany || "Search first"}</strong>
-            </div>
-
-            <div className="company-stat-card">
-              <span>Companies Loaded</span>
-              <strong>{totalCompanies || companies.length || 0}</strong>
-            </div>
-
-            <div className="company-stat-card">
-              <span>Dataset Job Rows</span>
-              <strong>{totalJobRows || 0}</strong>
-            </div>
-
-            <div className="company-stat-card">
-              <span>Roles Loaded</span>
-              <strong>{rolesViewed ? roles.length : 0}</strong>
-            </div>
           </div>
         </section>
 
@@ -435,7 +497,7 @@ export default function Companies() {
                   setRolesViewed(false);
                   setDropdownCompany("");
 
-                  if (value.trim().length >= 3) {
+                  if (value.trim().length >= 2) {
                     searchCompaniesFromBackend(value);
                   }
                 }}
@@ -454,7 +516,6 @@ export default function Companies() {
                       onClick={() => {
                         setSearch(company.companyName);
                         setDropdownCompany(company.companyName);
-                        setCompanyMenuOpen(false);
                         loadRoles(company.companyName);
                       }}
                     >
@@ -474,8 +535,7 @@ export default function Companies() {
                 className="company-dropdown-trigger"
                 onClick={() => {
                   setCompanyMenuOpen((value) => !value);
-                  loadCompanies({ force: true });
-                  searchCompaniesFromBackend(search || "a");
+                  loadCompanies({ force: false });
                 }}
               >
                 <span>{dropdownCompany || "Select company directly"}</span>
@@ -510,40 +570,33 @@ export default function Companies() {
             </button>
           </div>
 
-          {false && loading && (
-            <div className="company-alert loading">Loading companies...</div>
-          )}
-
-          {false && softUpdating && (
-            <div className="company-alert loading">Refreshing companies in background...</div>
-          )}
-
           {error && <div className="company-alert error">{error}</div>}
 
-          {!search.trim() && (
+          {!search.trim() && !rolesViewed && (
             <div className="company-start-box">
               <h3>🔍 Search company to start</h3>
-              <p>No job role data is shown before search or dropdown selection.</p>
+              <p>Type company name and suggestions will appear instantly.</p>
             </div>
           )}
 
           {search.trim() && searchedOnce && searchedCompanies.length === 0 && (
             <div className="company-start-box">
-              <h3>No company found in dataset for "{search}".</h3>
+              <h3>No exact company match found for "{search}".</h3>
+              <p>Try another spelling or choose from dropdown.</p>
             </div>
           )}
 
-          {search.trim() && searchedOnce && searchedCompanies.length > 0 && (
+          {search.trim() && searchedCompanies.length > 0 && (
             <div className="company-options">
               <div className="company-options-head">
                 <div>
-                  <h2>Company Option Bar</h2>
-                  <p>Click company to load roles. Company detail opens only from detail button.</p>
+                  <h2>Matching Companies</h2>
+                  <p>Click company to load roles instantly.</p>
                 </div>
 
                 {selectedCompany && (
                   <button type="button" onClick={() => openCompany(selectedCompany)}>
-                    Company Detail →
+                    Open company detail →
                   </button>
                 )}
               </div>
@@ -557,6 +610,7 @@ export default function Companies() {
                       key={company.companyName}
                       type="button"
                       onClick={() => {
+                        setSearch(company.companyName);
                         setDropdownCompany(company.companyName);
                         loadRoles(company.companyName);
                       }}
@@ -598,13 +652,14 @@ export default function Companies() {
             </div>
           )}
 
-          {rolesViewed && !rolesLoading && roles.length === 0 && (
+          {rolesViewed && roles.length === 0 && (
             <div className="empty-roles">
-              <h3>Role preparation cards are ready. Select a company again if you want to refresh dataset roles.</h3>
+              <h3>No roles available right now.</h3>
+              <p>Select another company or refresh the search.</p>
             </div>
           )}
 
-          {rolesViewed && !rolesLoading && roles.length > 0 && (
+          {rolesViewed && roles.length > 0 && (
             <div className="roles-grid">
               {roles.map((role, index) => {
                 const skills = role.skills || [];
@@ -619,8 +674,8 @@ export default function Companies() {
                     </p>
 
                     <div className="role-meta">
-                      <span>{role.expectedPackage}</span>
-                      <span>{role.expectedExperience}</span>
+                      <span>{role.expectedPackage || "Package not specified in dataset"}</span>
+                      <span>{role.expectedExperience || "Experience not specified in dataset"}</span>
                     </div>
 
                     <h4>Required Skills</h4>
