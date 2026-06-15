@@ -1,25 +1,16 @@
-const CACHE_NAME = "skillyatra-api-cache-v1";
+const CACHE_NAME = "skillyatra-fast-api-cache-v3";
 const BACKEND_ORIGIN = "https://skillyatra-backend.onrender.com";
 
-const SAFE_API_PREFIXES = [
-  "/api/health",
-  "/api/dsa/questions",
-  "/api/companies",
-  "/api/resources",
-  "/api/resume/companies",
-  "/api/interview/companies",
-  "/api/practice/questions"
-];
-
-function isSafeApiRequest(request) {
+function isBackendGet(request) {
   try {
     const url = new URL(request.url);
-
-    if (request.method !== "GET") return false;
-    if (url.origin !== BACKEND_ORIGIN) return false;
-    if (request.headers.has("Authorization")) return false;
-
-    return SAFE_API_PREFIXES.some((prefix) => url.pathname.startsWith(prefix));
+    return (
+      request.method === "GET" &&
+      url.origin === BACKEND_ORIGIN &&
+      url.pathname.startsWith("/api/") &&
+      !url.pathname.includes("/auth/login") &&
+      !url.pathname.includes("/auth/register")
+    );
   } catch {
     return false;
   }
@@ -35,28 +26,39 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-
-  if (!isSafeApiRequest(request)) return;
+  if (!isBackendGet(request)) return;
 
   event.respondWith(
     caches.open(CACHE_NAME).then(async (cache) => {
       const cached = await cache.match(request);
 
-      const networkFetch = fetch(request)
+      const networkPromise = fetch(request)
         .then((response) => {
           if (response && response.ok) {
             cache.put(request, response.clone());
           }
           return response;
         })
-        .catch(() => cached);
+        .catch(() => null);
 
       if (cached) {
-        event.waitUntil(networkFetch);
+        event.waitUntil(networkPromise);
         return cached;
       }
 
-      return networkFetch;
+      const fresh = await networkPromise;
+      if (fresh) return fresh;
+
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          message: "Network unavailable and no cache found"
+        }),
+        {
+          status: 503,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
     })
   );
 });

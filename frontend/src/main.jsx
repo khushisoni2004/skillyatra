@@ -1,3 +1,5 @@
+import { installSmartFetchCache } from "./lib/smartFetchCache";
+installSmartFetchCache();
 import { enableFastLoad } from "./lib/fastLoad";
 enableFastLoad();
 import { warmBackend } from "./lib/warmBackend";
