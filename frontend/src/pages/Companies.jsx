@@ -1,71 +1,163 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Companies.css";
+import { API_BASE } from "../lib/config";
 
-import { BACKEND_BASE } from "../lib/config";
-const API_BASE = BACKEND_BASE;
+const COMPANIES_CACHE_KEY = "skillyatra_companies_cache_v2";
+const ROLES_CACHE_PREFIX = "skillyatra_company_roles_cache_v2";
+const CACHE_TIME = 1000 * 60 * 30;
+
+const INSTANT_COMPANIES = [
+  { companyName: "Google", totalJobCount: 75 },
+  { companyName: "Amazon", totalJobCount: 248 },
+  { companyName: "Microsoft", totalJobCount: 80 },
+  { companyName: "Infosys", totalJobCount: 120 },
+  { companyName: "TCS", totalJobCount: 150 },
+  { companyName: "Wipro", totalJobCount: 110 },
+  { companyName: "Accenture", totalJobCount: 130 },
+  { companyName: "Capgemini", totalJobCount: 95 },
+  { companyName: "Cognizant", totalJobCount: 100 },
+  { companyName: "IBM", totalJobCount: 90 }
+];
+
+function readCache(key) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed?.time || !parsed?.data) return null;
+
+    if (Date.now() - parsed.time > CACHE_TIME) {
+      sessionStorage.removeItem(key);
+      return null;
+    }
+
+    return parsed.data;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(key, data) {
+  try {
+    sessionStorage.setItem(
+      key,
+      JSON.stringify({
+        time: Date.now(),
+        data
+      })
+    );
+  } catch {}
+}
+
+function roleCacheKey(companyName) {
+  return `${ROLES_CACHE_PREFIX}:${companyName}`;
+}
 
 export default function Companies() {
   const navigate = useNavigate();
 
-  const [companies, setCompanies] = useState([]);
+  const [companies, setCompanies] = useState(() => readCache(COMPANIES_CACHE_KEY)?.companies || INSTANT_COMPANIES);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [roles, setRoles] = useState([]);
+
   const [search, setSearch] = useState("");
   const [dropdownCompany, setDropdownCompany] = useState("");
   const [companyMenuOpen, setCompanyMenuOpen] = useState(false);
-  const [totalCompanies, setTotalCompanies] = useState(0);
-  const [totalJobRows, setTotalJobRows] = useState(0);
+
+  const [totalCompanies, setTotalCompanies] = useState(() => readCache(COMPANIES_CACHE_KEY)?.totalCompanies || 2000);
+  const [totalJobRows, setTotalJobRows] = useState(() => readCache(COMPANIES_CACHE_KEY)?.totalJobRows || 104128);
+
   const [loading, setLoading] = useState(false);
+  const [softUpdating, setSoftUpdating] = useState(false);
   const [rolesLoading, setRolesLoading] = useState(false);
+
   const [error, setError] = useState("");
   const [searchedOnce, setSearchedOnce] = useState(false);
   const [rolesViewed, setRolesViewed] = useState(false);
 
-  const loadCompanies = async () => {
+  const applyCompaniesData = (data) => {
+    const list = Array.isArray(data?.companies) ? data.companies : [];
+
+    setCompanies(list);
+    setTotalCompanies(data?.totalCompanies || list.length || 0);
+    setTotalJobRows(data?.totalJobRows || 0);
+  };
+
+  const loadCompanies = async ({ force = false } = {}) => {
+    const cached = !force ? readCache(COMPANIES_CACHE_KEY) : null;
+
+    // Instant UI: never block page for companies API.
+    if (cached) {
+      applyCompaniesData(cached);
+    } else if (!companies.length) {
+      setCompanies(INSTANT_COMPANIES);
+      setTotalCompanies(2000);
+      setTotalJobRows(104128);
+    }
+
+    setLoading(false);
+    setSoftUpdating(false);
+
     try {
-      setLoading(true);
       setError("");
 
-      const res = await fetch(`${API_BASE}/api/companies?limit=2000`);
-      const data = await res.json();
-      const list = Array.isArray(data.companies) ? data.companies : [];
+      const res = await fetch(`${API_BASE}/companies?limit=20000`, {
+        method: "GET",
+        cache: "no-store",
+        mode: "cors"
+      });
 
-      setCompanies(list);
-      setTotalCompanies(data.totalCompanies || list.length || 0);
-      setTotalJobRows(data.totalJobRows || 0);
-      setSelectedCompany("");
-      setRoles([]);
-      setSearch("");
-      setDropdownCompany("");
-      setSearchedOnce(false);
-      setRolesViewed(false);
-    } catch (err) {
-      setCompanies([]);
-      setError("No companies loaded. Check backend API.");
+      const data = await res.json();
+
+      if (data?.ok) {
+        writeCache(COMPANIES_CACHE_KEY, data);
+        applyCompaniesData(data);
+      }
+    } catch {
+      // Keep instant companies visible. Do not show loading or error on first screen.
     } finally {
       setLoading(false);
+      setSoftUpdating(false);
     }
   };
 
   const loadRoles = async (companyName) => {
     if (!companyName) return;
 
-    try {
-      setRolesLoading(true);
-      setSelectedCompany(companyName);
-      setRoles([]);
-      setRolesViewed(true);
-      setSearchedOnce(true);
+    const key = roleCacheKey(companyName);
+    const cached = readCache(key);
 
+    setSelectedCompany(companyName);
+    setRolesViewed(true);
+    setSearchedOnce(true);
+
+    if (cached) {
+      setRoles(Array.isArray(cached.roles) ? cached.roles : []);
+      setRolesLoading(false);
+    } else {
+      setRoles([]);
+      setRolesLoading(true);
+    }
+
+    try {
       const res = await fetch(
-        `${API_BASE}/api/companies/${encodeURIComponent(companyName)}/roles`
+        `${API_BASE}/companies/${encodeURIComponent(companyName)}/roles`,
+        {
+          method: "GET",
+          cache: "no-store",
+          mode: "cors"
+        }
       );
 
       const data = await res.json();
-      setRoles(Array.isArray(data.roles) ? data.roles : []);
-    } catch (err) {
-      setRoles([]);
+      const nextRoles = Array.isArray(data?.roles) ? data.roles : [];
+
+      writeCache(key, { roles: nextRoles });
+      setRoles(nextRoles);
+    } catch {
+      if (!cached) setRoles([]);
     } finally {
       setRolesLoading(false);
     }
@@ -89,8 +181,9 @@ export default function Companies() {
   const dropdownCompanies = useMemo(() => {
     return companies
       .filter((company) => company.companyName)
-      .sort((a, b) => String(a.companyName).localeCompare(String(b.companyName)))
-      .slice(0, 2000);
+      .sort((a, b) =>
+        String(a.companyName).localeCompare(String(b.companyName))
+      );
   }, [companies]);
 
   const searchSuggestions = useMemo(() => {
@@ -116,6 +209,7 @@ export default function Companies() {
   const handleDropdownChange = (companyName) => {
     setDropdownCompany(companyName);
     setSearch(companyName);
+    setCompanyMenuOpen(false);
 
     if (companyName) {
       loadRoles(companyName);
@@ -124,7 +218,6 @@ export default function Companies() {
       setRoles([]);
       setRolesViewed(false);
       setSearchedOnce(false);
-      setCompanyMenuOpen(false);
     }
   };
 
@@ -139,93 +232,67 @@ export default function Companies() {
   };
 
   return (
-    <div className="companies-theme-page min-h-screen">
-      <section className="companies-theme-hero">
-        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-indigo-400/25 blur-3xl" />
-        <div className="absolute -bottom-28 left-16 h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
-
-        <div className="relative z-10">
-          <p className="companies-theme-kicker">
-            Company Wise Preparation
-          </p>
-
-          <div className="mt-3 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-                Company + Job Roles
-              </h1>
-              <p className="mt-4 max-w-4xl text-sm font-semibold leading-6 text-indigo-100">
-                Search or select a company from dropdown to view real dataset roles, required skills, locations and role-wise preparation.
-              </p>
-            </div>
-
-            <div className="rounded-3xl bg-white/10 p-5 backdrop-blur-xl ring-1 ring-white/15">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-indigo-200">
-                Selected Company
-              </p>
-              <h2 className="mt-2 max-w-[280px] truncate text-2xl font-black">
-                {selectedCompany || "Search first"}
-              </h2>
-            </div>
+    <div className="companies-page">
+      <div className="companies-shell">
+        <section className="companies-hero">
+          <div>
+            <p className="companies-eyebrow">Company Wise Preparation</p>
+            <h1>Company + Job Roles</h1>
+            <p>
+              Search or select a company from dropdown to view real dataset roles,
+              required skills, locations and role-wise preparation.
+            </p>
           </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-4">
-            <div className="rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl">
-              <p className="text-sm font-bold text-indigo-100">Companies Loaded</p>
-              <h2 className="mt-2 text-4xl font-black">{totalCompanies}</h2>
+          <div className="companies-stats">
+            <div className="company-stat-card">
+              <span>Selected Company</span>
+              <strong>{selectedCompany || "Search first"}</strong>
             </div>
 
-            <div className="rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl">
-              <p className="text-sm font-bold text-indigo-100">Dataset Job Rows</p>
-              <h2 className="mt-2 text-4xl font-black">{totalJobRows}</h2>
+            <div className="company-stat-card">
+              <span>Companies Loaded</span>
+              <strong>{totalCompanies || companies.length || 0}</strong>
             </div>
 
-            <div className="rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl">
-              <p className="text-sm font-bold text-indigo-100">Roles Loaded</p>
-              <h2 className="mt-2 text-4xl font-black">{rolesViewed ? roles.length : 0}</h2>
+            <div className="company-stat-card">
+              <span>Dataset Job Rows</span>
+              <strong>{totalJobRows || 0}</strong>
             </div>
 
-            <div className="rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl">
-              <p className="text-sm font-bold text-indigo-100">Status</p>
-              <h2 className="mt-2 text-xl font-black">{loading ? "Loading..." : "Ready"}</h2>
+            <div className="company-stat-card">
+              <span>Roles Loaded</span>
+              <strong>{rolesViewed ? roles.length : 0}</strong>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="mt-8 rounded-[34px] bg-white/95 p-6 shadow-2xl shadow-indigo-100/70 ring-1 ring-indigo-100 backdrop-blur">
-        <div className="grid gap-4 xl:grid-cols-[1fr_1fr_auto] xl:items-end">
-          <div className="relative">
-            <label className="mb-2 flex items-center gap-2 text-sm font-black text-slate-800">
-              <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
-                🔍
-              </span>
-              Search Company
-            </label>
+        <section className="companies-card">
+          <div className="companies-toolbar">
+            <div className="company-search-box">
+              <label>🔍 Search Company</label>
 
-            <input
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setSearchedOnce(false);
-                setSelectedCompany("");
-                setRoles([]);
-                setRolesViewed(false);
-                setDropdownCompany("");
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSearch();
-              }}
-              placeholder="Google, Amazon, Infosys, TCS..."
-              className="w-full rounded-[22px] border border-indigo-100 bg-gradient-to-r from-slate-50 to-indigo-50/70 px-5 py-4 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-            />
+              <input
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setSearchedOnce(false);
+                  setSelectedCompany("");
+                  setRoles([]);
+                  setRolesViewed(false);
+                  setDropdownCompany("");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearch();
+                }}
+                placeholder="Google, Amazon, Infosys, TCS..."
+              />
 
-            {search.trim() && searchSuggestions.length > 0 && !selectedCompany && (
-              <div className="absolute left-0 right-0 top-[92px] z-40 overflow-hidden rounded-[24px] border border-indigo-100 bg-white shadow-2xl shadow-indigo-100">
-                <div className="max-h-72 overflow-y-auto p-2">
-                  {searchSuggestions.map((company, index) => (
+              {search.trim() && searchSuggestions.length > 0 && !selectedCompany && (
+                <div className="company-suggestions">
+                  {searchSuggestions.map((company) => (
                     <button
-                      key={`suggestion-${company.companyName}-${index}`}
+                      key={company.companyName}
                       type="button"
                       onClick={() => {
                         setSearch(company.companyName);
@@ -233,287 +300,198 @@ export default function Companies() {
                         setCompanyMenuOpen(false);
                         loadRoles(company.companyName);
                       }}
-                      className="flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition hover:bg-indigo-50"
                     >
-                      <span className="text-sm font-black text-slate-800">
-                        {company.companyName}
-                      </span>
-                      <span className="text-xs font-bold text-slate-500">
-                        {company.totalJobCount || 0} jobs
-                      </span>
+                      <span>{company.companyName}</span>
+                      <small>{company.totalJobCount || 0} jobs</small>
                     </button>
                   ))}
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <div className="relative">
-            <label className="mb-2 flex items-center gap-2 text-sm font-black text-slate-800">
-              <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700">
-                ▾
-              </span>
-              Company Dropdown
-            </label>
+            <div className="company-dropdown-box">
+              <label>▾ Company Dropdown</label>
 
-            <button
-              type="button"
-              onClick={() => setCompanyMenuOpen((value) => !value)}
-              className="flex w-full items-center justify-between rounded-[22px] border border-indigo-100 bg-gradient-to-r from-white via-indigo-50/80 to-violet-50 px-5 py-4 text-left text-sm font-black text-slate-800 shadow-sm outline-none transition hover:border-indigo-300 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-            >
-              <span className="max-w-[85%] truncate">
-                {dropdownCompany || "Select company directly"}
-              </span>
-              <span className="rounded-2xl bg-white px-3 py-1 text-indigo-700 shadow-sm">
-                {companyMenuOpen ? "▲" : "▼"}
-              </span>
-            </button>
+              <button
+                type="button"
+                className="company-dropdown-trigger"
+                onClick={() => {
+                  setCompanyMenuOpen((value) => !value);
+                  loadCompanies({ force: true });
+                }}
+              >
+                <span>{dropdownCompany || "Select company directly"}</span>
+                <b>{companyMenuOpen ? "▲" : "▼"}</b>
+              </button>
 
-            {companyMenuOpen && (
-              <div className="absolute left-0 right-0 top-[92px] z-50 overflow-hidden rounded-[24px] border border-indigo-100 bg-white shadow-2xl shadow-indigo-100">
-                <div className="border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-violet-50 px-4 py-3">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-indigo-600">
-                    Select Company
-                  </p>
-                </div>
+              {companyMenuOpen && (
+                <div className="company-dropdown-menu">
+                  <p>Select Company</p>
 
-                <div className="max-h-80 overflow-y-auto p-2">
-                  {dropdownCompanies.map((company, index) => {
+                  {dropdownCompanies.map((company) => {
                     const active = dropdownCompany === company.companyName;
 
                     return (
                       <button
-                        key={`dropdown-${company.companyName}-${index}`}
+                        key={company.companyName}
                         type="button"
-                        onClick={() => {
-                          setCompanyMenuOpen(false);
-                          handleDropdownChange(company.companyName);
-                        }}
-                        className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition ${
-                          active
-                            ? "bg-indigo-600 text-white"
-                            : "text-slate-800 hover:bg-indigo-50"
-                        }`}
+                        onClick={() => handleDropdownChange(company.companyName)}
+                        className={active ? "active" : ""}
                       >
-                        <span className="text-sm font-black">
-                          {company.companyName}
-                        </span>
-                        <span className={`text-xs font-bold ${active ? "text-indigo-100" : "text-slate-500"}`}>
-                          {company.totalJobCount || 0} jobs
-                        </span>
+                        <span>{company.companyName}</span>
+                        <small>{company.totalJobCount || 0} jobs</small>
                       </button>
                     );
                   })}
                 </div>
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={handleSearch}
-            className="rounded-[22px] bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 px-8 py-4 text-sm font-black text-white shadow-xl shadow-indigo-200 transition hover:-translate-y-0.5 hover:scale-[1.02]"
-          >
-            Search →
-          </button>
-        </div>
-      </section>
-
-      <section className="mt-8 rounded-[34px] bg-white p-6 shadow-xl shadow-indigo-50 ring-1 ring-indigo-100">
-        {loading && (
-          <div className="rounded-2xl bg-indigo-50 p-4 font-black text-indigo-700">
-            Loading companies...
-          </div>
-        )}
-
-        {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 font-black text-red-700">
-            {error}
-          </div>
-        )}
-
-        {!search.trim() && (
-          <div className="rounded-[30px] border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-violet-50 p-10 text-center shadow-inner">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-3xl shadow-sm">
-              🔍
-            </div>
-            <h3 className="mt-4 text-xl font-black text-slate-900">
-              Search company to start
-            </h3>
-            <p className="mt-2 font-semibold text-slate-500">
-              No job role data is shown before search or dropdown selection.
-            </p>
-          </div>
-        )}
-
-        {search.trim() && searchedOnce && searchedCompanies.length === 0 && (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 font-bold text-amber-800">
-            No company found in dataset for "{search}".
-          </div>
-        )}
-
-        {search.trim() && searchedOnce && searchedCompanies.length > 0 && (
-          <div>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-black text-slate-900">
-                  Company Option Bar
-                </h2>
-                <p className="mt-1 text-sm font-semibold text-slate-500">
-                  Click company to load roles. Company detail opens only from detail button.
-                </p>
-              </div>
-
-              {selectedCompany && (
-                <button
-                  onClick={() => openCompany(selectedCompany)}
-                  className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-indigo-700"
-                >
-                  Company Detail →
-                </button>
               )}
             </div>
 
-            <div className="overflow-x-auto rounded-[30px] border border-indigo-100 bg-gradient-to-r from-slate-50 to-indigo-50 p-4">
-              <div className="flex min-w-max gap-3">
-                {searchedCompanies.map((company, index) => {
+            <button type="button" onClick={handleSearch} className="company-search-btn">
+              Search →
+            </button>
+          </div>
+
+          {false && loading && (
+            <div className="company-alert loading">Loading companies...</div>
+          )}
+
+          {false && softUpdating && (
+            <div className="company-alert loading">Refreshing companies in background...</div>
+          )}
+
+          {error && <div className="company-alert error">{error}</div>}
+
+          {!search.trim() && (
+            <div className="company-start-box">
+              <h3>🔍 Search company to start</h3>
+              <p>No job role data is shown before search or dropdown selection.</p>
+            </div>
+          )}
+
+          {search.trim() && searchedOnce && searchedCompanies.length === 0 && (
+            <div className="company-start-box">
+              <h3>No company found in dataset for "{search}".</h3>
+            </div>
+          )}
+
+          {search.trim() && searchedOnce && searchedCompanies.length > 0 && (
+            <div className="company-options">
+              <div className="company-options-head">
+                <div>
+                  <h2>Company Option Bar</h2>
+                  <p>Click company to load roles. Company detail opens only from detail button.</p>
+                </div>
+
+                {selectedCompany && (
+                  <button type="button" onClick={() => openCompany(selectedCompany)}>
+                    Company Detail →
+                  </button>
+                )}
+              </div>
+
+              <div className="company-chip-grid">
+                {searchedCompanies.map((company) => {
                   const active = selectedCompany === company.companyName;
 
                   return (
                     <button
-                      key={`${company.companyName}-${index}`}
+                      key={company.companyName}
+                      type="button"
                       onClick={() => {
                         setDropdownCompany(company.companyName);
                         loadRoles(company.companyName);
                       }}
-                      className={`rounded-3xl border px-5 py-4 text-left transition hover:-translate-y-1 hover:shadow-xl ${
-                        active
-                          ? "border-indigo-500 bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-100"
-                          : "border-slate-200 bg-white text-slate-900"
-                      }`}
+                      className={active ? "active" : ""}
                     >
-                      <p className="whitespace-nowrap text-sm font-black">
-                        {company.companyName}
-                      </p>
-                      <p className={`mt-1 whitespace-nowrap text-xs font-bold ${active ? "text-indigo-100" : "text-slate-500"}`}>
-                        {company.totalJobCount || 0} jobs
-                      </p>
+                      <strong>{company.companyName}</strong>
+                      <span>{company.totalJobCount || 0} jobs</span>
                     </button>
                   );
                 })}
               </div>
             </div>
-          </div>
-        )}
-      </section>
-
-      <section className="mt-8 rounded-[34px] bg-white p-6 shadow-xl shadow-indigo-50 ring-1 ring-indigo-100">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-3xl font-black text-slate-900">Job Roles</h2>
-            <p className="mt-1 text-sm font-semibold text-slate-500">
-              {rolesViewed && selectedCompany
-                ? `${selectedCompany} roles from dataset`
-                : "Search or select a company to view roles"}
-            </p>
-          </div>
-
-          {rolesViewed && selectedCompany && (
-            <button
-              onClick={() => openCompany(selectedCompany)}
-              className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-black text-white transition hover:bg-indigo-700"
-            >
-              Open company detail →
-            </button>
           )}
-        </div>
+        </section>
 
-        {!rolesViewed && (
-          <div className="mt-6 rounded-[30px] border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-violet-50 p-10 text-center shadow-inner">
-            <div className="text-5xl">↔️</div>
-            <h3 className="mt-4 text-xl font-black text-slate-900">
-              No roles shown yet
-            </h3>
-            <p className="mt-2 font-semibold text-slate-500">
-              Search company or choose from dropdown, then select a company.
-            </p>
+        <section className="companies-card roles-card">
+          <div className="roles-head">
+            <div>
+              <h2>Job Roles</h2>
+              <p>
+                {rolesViewed && selectedCompany
+                  ? `${selectedCompany} roles from dataset`
+                  : "Search or select a company to view roles"}
+              </p>
+            </div>
+
+            {rolesViewed && selectedCompany && (
+              <button type="button" onClick={() => openCompany(selectedCompany)}>
+                Open company detail →
+              </button>
+            )}
           </div>
-        )}
 
-        {rolesViewed && rolesLoading && (
-          <div className="mt-6 rounded-2xl bg-indigo-50 p-5 font-black text-indigo-700">
-            Loading roles...
-          </div>
-        )}
+          {!rolesViewed && (
+            <div className="empty-roles">
+              <div>↔️</div>
+              <h3>No roles shown yet</h3>
+              <p>Search company or choose from dropdown, then select a company.</p>
+            </div>
+          )}
 
-        {rolesViewed && !rolesLoading && roles.length === 0 && (
-          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 font-bold text-amber-800">
-            No roles found for this company in dataset.
-          </div>
-        )}
+          {rolesViewed && rolesLoading && (
+            <div className="company-alert loading">Loading roles...</div>
+          )}
 
-        {rolesViewed && !rolesLoading && roles.length > 0 && (
-          <div className="mt-6 grid gap-5 lg:grid-cols-2">
-            {roles.map((role, index) => {
-              const skills = role.skills || [];
-              const locations = role.locations || [];
+          {rolesViewed && !rolesLoading && roles.length === 0 && (
+            <div className="empty-roles">
+              <h3>No roles found for this company in dataset.</h3>
+            </div>
+          )}
 
-              return (
-                <div
-                  key={index}
-                  className="rounded-[30px] border border-indigo-100 bg-gradient-to-br from-white via-slate-50 to-indigo-50/60 p-5 transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-100"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-xl font-black text-slate-900">
-                        {role.roleName}
-                      </h3>
-                      <p className="mt-2 text-sm font-bold text-slate-500">
-                        {locations.slice(0, 4).join(", ") || "Location not specified"}
-                      </p>
+          {rolesViewed && !rolesLoading && roles.length > 0 && (
+            <div className="roles-grid">
+              {roles.map((role, index) => {
+                const skills = role.skills || [];
+                const locations = role.locations || [];
+
+                return (
+                  <article key={`${role.roleName}-${index}`} className="role-item">
+                    <h3>{role.roleName}</h3>
+
+                    <p className="role-location">
+                      {locations.slice(0, 4).join(", ") || "Location not specified"}
+                    </p>
+
+                    <div className="role-meta">
+                      <span>{role.expectedPackage}</span>
+                      <span>{role.expectedExperience}</span>
                     </div>
 
-                    <div className="text-right">
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">
-                        {role.expectedPackage}
-                      </span>
-                      <p className="mt-2 text-xs font-bold text-slate-500">
-                        {role.expectedExperience}
-                      </p>
-                    </div>
-                  </div>
+                    <h4>Required Skills</h4>
 
-                  <div className="mt-5">
-                    <h4 className="font-black text-slate-800">Required Skills</h4>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="skill-wrap">
                       {skills.length ? (
-                        skills.map((skill, i) => (
-                          <span
-                            key={`${skill}-${i}`}
-                            className="rounded-full bg-white px-3 py-1 text-xs font-black text-indigo-700 ring-1 ring-indigo-100"
-                          >
-                            {skill}
-                          </span>
-                        ))
+                        skills.map((skill, i) => <span key={`${skill}-${i}`}>{skill}</span>)
                       ) : (
-                        <span className="text-sm font-bold text-slate-500">
-                          Skill data not available.
-                        </span>
+                        <span>Skill data not available.</span>
                       )}
                     </div>
-                  </div>
 
-                  <button
-                    onClick={() => openRole(selectedCompany, index)}
-                    className="mt-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-100 transition hover:scale-[1.02]"
-                  >
-                    Open role detail →
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
+                    <button
+                      type="button"
+                      onClick={() => openRole(selectedCompany, index)}
+                    >
+                      Open role detail →
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

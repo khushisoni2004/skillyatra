@@ -61,7 +61,7 @@ export default function CompanyDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 p-8">
+      <div className="company-detail-page min-h-screen bg-slate-50 p-8">
         <div className="rounded-3xl bg-white p-8 font-black text-indigo-700 shadow-sm ring-1 ring-slate-200">
           Loading company detail...
         </div>
