@@ -85,6 +85,160 @@ function writeInterviewCompaniesCache(companies) {
   } catch {}
 }
 
+
+const INTERVIEW_EXTRA_COMPANIES = [
+  { companyName: "IBM", totalJobCount: 90, roles: [{ roleName: "Software Engineer", jobCount: 4, skills: ["Java", "Python", "SQL"] }] },
+  { companyName: "Flipkart", totalJobCount: 60, roles: [{ roleName: "Software Development Engineer", jobCount: 4, skills: ["DSA", "Java", "System Design"] }] },
+  { companyName: "Deloitte", totalJobCount: 85, roles: [{ roleName: "Analyst", jobCount: 5, skills: ["SQL", "Excel", "Data Analysis"] }] },
+  { companyName: "HCL", totalJobCount: 70, roles: [{ roleName: "Software Engineer", jobCount: 3, skills: ["Java", "SQL", "Support"] }] },
+  { companyName: "Tech Mahindra", totalJobCount: 75, roles: [{ roleName: "Associate Software Engineer", jobCount: 3, skills: ["Java", "Python", "DBMS"] }] },
+  { companyName: "LTIMindtree", totalJobCount: 65, roles: [{ roleName: "Graduate Engineer Trainee", jobCount: 3, skills: ["Aptitude", "Java", "SQL"] }] },
+  { companyName: "Mastercard", totalJobCount: 40, roles: [{ roleName: "Software Engineer", jobCount: 2, skills: ["Java", "Spring Boot", "SQL"] }] },
+  { companyName: "Oracle", totalJobCount: 55, roles: [{ roleName: "Application Developer", jobCount: 3, skills: ["Java", "Oracle", "SQL"] }] },
+  { companyName: "Adobe", totalJobCount: 45, roles: [{ roleName: "Software Engineer", jobCount: 2, skills: ["DSA", "JavaScript", "React"] }] },
+  { companyName: "Paytm", totalJobCount: 35, roles: [{ roleName: "Backend Engineer", jobCount: 2, skills: ["Node.js", "MongoDB", "API"] }] },
+  { companyName: "PhonePe", totalJobCount: 38, roles: [{ roleName: "Software Engineer", jobCount: 2, skills: ["Java", "DSA", "Microservices"] }] },
+  { companyName: "Zomato", totalJobCount: 34, roles: [{ roleName: "Software Engineer", jobCount: 2, skills: ["React", "Node.js", "SQL"] }] },
+  { companyName: "Swiggy", totalJobCount: 32, roles: [{ roleName: "Software Engineer", jobCount: 2, skills: ["Java", "DSA", "System Design"] }] }
+];
+
+const COMPANY_ALIAS_MAP = {
+  ibm: ["international business machines", "ibm india"],
+  flipkart: ["flip kart", "flipkart internet"],
+  deloitte: ["deloitte usi", "deloitte india", "deloitte consulting", "deloitree", "deloitee"],
+  tcs: ["tata consultancy services", "tata consultancy service"],
+  capgemini: ["cap gemini"],
+  cognizant: ["cts", "cognizant technology solutions"],
+  hcl: ["hcltech", "hcl technologies"],
+  techmahindra: ["tech mahindra"],
+  ltimindtree: ["lti", "mindtree", "lti mindtree"],
+  mastercard: ["master card"],
+  phonepe: ["phone pe"]
+};
+
+function normalizeCompany(value = "") {
+  return String(value).toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function getCompanyAliases(name = "") {
+  return COMPANY_ALIAS_MAP[normalizeCompany(name)] || [];
+}
+
+function uniqueCompanies(list = []) {
+  const map = new Map();
+
+  list.forEach((item) => {
+    if (!item?.companyName) return;
+    const key = normalizeCompany(item.companyName);
+    const existing = map.get(key);
+
+    if (!existing) {
+      map.set(key, item);
+    } else {
+      map.set(key, {
+        ...existing,
+        ...item,
+        roles: Array.isArray(item.roles) && item.roles.length ? item.roles : existing.roles,
+        totalJobCount:
+          Number(item.totalJobCount || 0) > Number(existing.totalJobCount || 0)
+            ? item.totalJobCount
+            : existing.totalJobCount
+      });
+    }
+  });
+
+  return Array.from(map.values()).sort((a, b) =>
+    String(a.companyName || "").localeCompare(String(b.companyName || ""))
+  );
+}
+
+function readCompaniesFromAnyCache() {
+  const keys = [
+    INTERVIEW_COMPANIES_CACHE_KEY,
+    "skillyatra_companies_cache_v7",
+    "skillyatra_companies_cache_v6",
+    "skillyatra_companies_cache_v5",
+    "skillyatra_companies_cache_v2"
+  ];
+
+  const all = [];
+
+  try {
+    keys.forEach((key) => {
+      const raw = sessionStorage.getItem(key);
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw);
+      const list =
+        parsed?.companies ||
+        parsed?.data?.companies ||
+        parsed?.data?.data?.companies ||
+        [];
+
+      if (Array.isArray(list)) all.push(...list);
+    });
+  } catch {}
+
+  return uniqueCompanies([
+    ...INTERVIEW_INSTANT_COMPANIES,
+    ...INTERVIEW_EXTRA_COMPANIES,
+    ...all
+  ]);
+}
+
+function writeAllInterviewCompanies(companies) {
+  const finalList = uniqueCompanies(companies);
+
+  try {
+    sessionStorage.setItem(
+      INTERVIEW_COMPANIES_CACHE_KEY,
+      JSON.stringify({ time: Date.now(), companies: finalList })
+    );
+  } catch {}
+
+  return finalList;
+}
+
+function companySearchScore(company, query) {
+  const q = normalizeCompany(query);
+  if (!q) return 0;
+
+  const name = normalizeCompany(company?.companyName || "");
+  const aliases = getCompanyAliases(company?.companyName || "").map(normalizeCompany);
+  const all = [name, ...aliases].filter(Boolean);
+
+  if (all.some((item) => item === q)) return 100;
+  if (all.some((item) => item.startsWith(q))) return 95;
+  if (all.some((item) => item.includes(q))) return 88;
+
+  // small typo support
+  let best = 0;
+  all.forEach((item) => {
+    if (!item) return;
+
+    let same = 0;
+    const min = Math.min(q.length, item.length);
+    for (let i = 0; i < min; i += 1) {
+      if (q[i] === item[i]) same += 1;
+    }
+
+    const similarity = same / Math.max(q.length, item.length);
+    if (similarity >= 0.55) best = Math.max(best, Math.round(similarity * 70));
+  });
+
+  return best;
+}
+
+function instantRolesForCompany(companyName) {
+  return [
+    { roleName: "Software Engineer", jobCount: 4, skills: ["DSA", "Java", "Python", "SQL"] },
+    { roleName: "Associate Software Engineer", jobCount: 3, skills: ["Programming", "OOPs", "DBMS", "Aptitude"] },
+    { roleName: "Data Analyst", jobCount: 3, skills: ["Excel", "SQL", "Python", "Data Analysis"] },
+    { roleName: `${companyName} Interview Preparation`, jobCount: 1, skills: ["HR Questions", "Projects", "Communication"] }
+  ];
+}
+
+
 function Badge({ children, type = "default" }) {
   const styles = {
     default: "bg-slate-100 text-slate-700 ring-slate-200",
@@ -311,7 +465,7 @@ export default function InterviewCoach() {
   const faceLandmarkerRef = useRef(null);
   const lastPostureVoiceRef = useRef(0);
 
-  const [companies, setCompanies] = useState(() => readInterviewCompaniesCache() || INTERVIEW_INSTANT_COMPANIES);
+  const [companies, setCompanies] = useState(() => readCompaniesFromAnyCache());
   const [companySearch, setCompanySearch] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
@@ -398,19 +552,40 @@ export default function InterviewCoach() {
   }
 
   const filteredCompanies = useMemo(() => {
-    const q = companySearch.trim().toLowerCase();
-    if (!q) return [];
+    const q = companySearch.trim();
 
-    return companies
-      .filter((company) => String(company.companyName || "").toLowerCase().includes(q))
-      ;
+    if (!q) {
+      return uniqueCompanies(companies).slice(0, 300);
+    }
+
+    return uniqueCompanies(companies)
+      .map((company) => ({
+        company,
+        score: companySearchScore(company, q)
+      }))
+      .filter((item) => item.score > 0)
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return String(a.company.companyName || "").localeCompare(
+          String(b.company.companyName || "")
+        );
+      })
+      .map((item) => item.company)
+      .slice(0, 300);
   }, [companies, companySearch]);
 
   const selectedCompanyData = useMemo(() => {
-    return companies.find((company) => company.companyName === selectedCompany);
+    return companies.find(
+      (company) => normalizeCompany(company.companyName) === normalizeCompany(selectedCompany)
+    );
   }, [companies, selectedCompany]);
 
-  const roles = selectedCompanyData?.roles || [];
+  const roles =
+    Array.isArray(selectedCompanyData?.roles) && selectedCompanyData.roles.length
+      ? selectedCompanyData.roles
+      : selectedCompany
+        ? instantRolesForCompany(selectedCompany)
+        : [];
 
   const selectedRoleData = useMemo(() => {
     return roles.find((role) => role.roleName === selectedRole) || null;
@@ -444,26 +619,34 @@ export default function InterviewCoach() {
     : 0;
 
   async function loadCompanies() {
-    try {
-      setLoading(true);
-      setError("");
+    const instantList = readCompaniesFromAnyCache();
+    setCompanies(instantList);
+    setLoading(false);
 
-      const res = await fetch(`${API_BASE}/api/interview/companies`);
-      const data = await res.json();
+    const urls = [
+      `${API_BASE}/api/interview/companies`,
+      `${API_BASE}/api/companies?limit=50000`,
+      `${API_BASE}/companies?limit=50000`
+    ];
 
-      if (!data.ok) {
-        setCompanies([]);
-        setError(data.message || "Failed to load companies.");
-        return;
-      }
+    urls.forEach((url) => {
+      fetch(url, {
+        method: "GET",
+        cache: "no-store",
+        mode: "cors"
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const list = Array.isArray(data?.companies) ? data.companies : [];
+          if (!list.length) return;
 
-      setCompanies(Array.isArray(data.companies) ? data.companies : []);
-    } catch {
-      setError("Backend not connected. Start backend on port 5001.");
-      setCompanies([]);
-    } finally {
-      setLoading(false);
-    }
+          setCompanies((prev) => {
+            const merged = writeAllInterviewCompanies([...prev, ...list]);
+            return merged;
+          });
+        })
+        .catch(() => {});
+    });
   }
 
   useEffect(() => {
@@ -1243,7 +1426,7 @@ function startInterview() {
                   Select company and role from dataset.
                 </p>
               </div>
-              {loading && <Badge type="primary">Loading...</Badge>}
+              {false && loading && <Badge type="primary">Loading...</Badge>}
             </div>
 
             <div className="mt-5">
@@ -1276,7 +1459,7 @@ function startInterview() {
                     No company found for "{companySearch}".
                   </div>
                 ) : (
-                  <div className="max-h-72 overflow-y-auto rounded-[28px] border border-indigo-100 bg-gradient-to-r from-slate-50 to-indigo-50 p-3">
+                  <div className="max-h-[520px] overflow-y-auto rounded-[28px] border border-indigo-100 bg-gradient-to-r from-slate-50 to-indigo-50 p-3">
                     <div className="grid gap-3 sm:grid-cols-2">
                       {filteredCompanies.map((company, index) => {
                         const active = selectedCompany === company.companyName;
@@ -1286,12 +1469,24 @@ function startInterview() {
                             key={`${company.companyName}-${index}`}
                             type="button"
                             onClick={() => {
+                              const safeRoles =
+                                Array.isArray(company.roles) && company.roles.length
+                                  ? company.roles
+                                  : instantRolesForCompany(company.companyName);
+
                               setSelectedCompany(company.companyName);
                               setSelectedRole("");
                               setRoleMenuOpen(false);
                               setQuestions([]);
                               setQuestionStats(null);
                               setError("");
+
+                              setCompanies((prev) =>
+                                writeAllInterviewCompanies([
+                                  ...prev,
+                                  { ...company, roles: safeRoles }
+                                ])
+                              );
                             }}
                             className={`rounded-[22px] border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-lg ${
                               active
