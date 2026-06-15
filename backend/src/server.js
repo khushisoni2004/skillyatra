@@ -34,6 +34,15 @@ const practiceGroupRoutes = require("./routes/practiceGroupRoutes");
 
 const app = express();
 
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+app.options("*", cors());
+
+
 // Practice MCQs real dataset route - must be before old practice route
 app.use("/api/practice", practiceDatasetRoutes);
 app.use("/practice", practiceDatasetRoutes);
