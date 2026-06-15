@@ -568,20 +568,20 @@ export default function Home() {
 
         .hero-visual {
           position: relative;
-          min-height: 440px;
+          min-height: 620px;
           display: flex;
           align-items: center;
           justify-content: center;
           isolation: isolate;
-          padding-bottom: 86px;
+          padding-bottom: 24px;
         }
 
         .premium-aura {
           position: absolute;
           left: 50%;
-          top: 45%;
-          width: 540px;
-          height: 540px;
+          top: 43%;
+          width: 735px;
+          height: 735px;
           border-radius: 50%;
           transform: translate(-50%, -50%);
           background:
@@ -597,7 +597,7 @@ export default function Home() {
         .premium-ring {
           position: absolute;
           left: 50%;
-          top: 45%;
+          top: 43%;
           border-radius: 50%;
           transform: translate(-50%, -50%);
           border: 1px solid rgba(125,211,252,0.42);
@@ -608,21 +608,21 @@ export default function Home() {
         }
 
         .premium-ring.ring-1 {
-          width: 455px;
-          height: 455px;
+          width: 625px;
+          height: 625px;
           animation: ringRotate 18s linear infinite;
         }
 
         .premium-ring.ring-2 {
-          width: 360px;
-          height: 360px;
+          width: 505px;
+          height: 505px;
           border-style: dashed;
           animation: ringRotate 13s linear infinite reverse;
         }
 
         .premium-ring.ring-3 {
-          width: 255px;
-          height: 255px;
+          width: 375px;
+          height: 375px;
           border-color: rgba(34,197,94,0.35);
           animation: ringRotate 10s linear infinite;
         }
@@ -671,29 +671,35 @@ export default function Home() {
           animation-delay: 2.6s;
         }
 
+        .image-clean-wrap {
+          position: relative;
+          z-index: 7;
+          width: 100%;
+          max-width: 590px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+
         .image-clean-wrap img {
-  width: 320px;
-  height: 320px;
-  max-width: 100%;
-  display: block;
-  object-fit: cover;
-  border-radius: 50%;
-  position: relative;
-  z-index: 5;
-  border: 6px solid rgba(255,255,255,0.92);
-  background: #ffffff;
-  box-shadow:
-    0 22px 50px rgba(14,165,233,0.20),
-    0 16px 36px rgba(34,197,94,0.14);
-  filter:
-    drop-shadow(0 20px 34px rgba(14,165,233,0.18))
-    drop-shadow(0 16px 28px rgba(34,197,94,0.12));
-  animation: imageFloatClean 6.2s ease-in-out infinite;
-}
+          width: 100%;
+          height: 100%;
+          max-width: 100%;
+          display: block;
+          object-fit: contain;
+          border-radius: 50%;
+          position: relative;
+          z-index: 5;
+          filter:
+            drop-shadow(0 24px 38px rgba(14,165,233,0.20))
+            drop-shadow(0 18px 30px rgba(34,197,94,0.14));
+          animation: imageFloatClean 6.2s ease-in-out infinite;
+        }
 
         .image-orb {
-          width: 285px;
-          height: 285px;
+          width: 460px;
+          height: 460px;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -703,30 +709,27 @@ export default function Home() {
           z-index: 5;
           background:
             radial-gradient(circle at 30% 25%, rgba(255,255,255,0.98), rgba(224,242,254,0.92) 55%, rgba(186,230,253,0.88) 100%);
-          border: 1.5px solid rgba(186,230,253,0.95);
+          border: 7px solid rgba(255,255,255,0.94);
           box-shadow:
-            0 24px 55px rgba(14,165,233,0.18),
-            0 18px 36px rgba(34,197,94,0.10),
-            inset 0 0 24px rgba(255,255,255,0.75);
+            0 30px 70px rgba(14,165,233,0.22),
+            0 22px 42px rgba(34,197,94,0.13),
+            inset 0 0 30px rgba(255,255,255,0.80);
           animation: imageFloatClean 6.2s ease-in-out infinite;
         }
 
         .image-orb img {
-          width: 88%;
-          height: 88%;
+          width: 94%;
+          height: 94%;
           object-fit: contain;
           display: block;
           border-radius: 50%;
-          filter:
-            drop-shadow(0 18px 28px rgba(14,165,233,0.14))
-            drop-shadow(0 10px 20px rgba(34,197,94,0.10));
         }
 
         .image-caption-box {
           position: relative;
           z-index: 9;
           margin-top: 18px;
-          width: min(420px, 92%);
+          width: min(440px, 92%);
           padding: 18px 20px;
           border-radius: 24px;
           background: rgba(255,255,255,0.92);
@@ -847,7 +850,8 @@ export default function Home() {
           .last-cta-box,
           .premium-aura,
           .premium-ring,
-          .premium-particle {
+          .premium-particle,
+          .image-orb {
             animation: none;
           }
         }
@@ -866,28 +870,33 @@ export default function Home() {
           }
 
           .hero-visual {
-            min-height: 480px;
+            min-height: 580px;
             margin-top: 10px;
           }
 
           .premium-aura {
-            width: 430px;
-            height: 430px;
+            width: 580px;
+            height: 580px;
           }
 
           .premium-ring.ring-1 {
-            width: 380px;
-            height: 380px;
+            width: 510px;
+            height: 510px;
           }
 
           .premium-ring.ring-2 {
-            width: 300px;
-            height: 300px;
+            width: 405px;
+            height: 405px;
           }
 
           .premium-ring.ring-3 {
-            width: 220px;
-            height: 220px;
+            width: 295px;
+            height: 295px;
+          }
+
+          .image-orb {
+            width: 385px;
+            height: 385px;
           }
         }
 
@@ -928,28 +937,28 @@ export default function Home() {
           }
 
           .hero-visual {
-            min-height: 500px;
-            padding-bottom: 50px;
+            min-height: 470px;
+            padding-bottom: 35px;
           }
 
           .premium-aura {
-            width: 330px;
-            height: 330px;
+            width: 410px;
+            height: 410px;
           }
 
           .premium-ring.ring-1 {
-            width: 300px;
-            height: 300px;
+            width: 365px;
+            height: 365px;
           }
 
           .premium-ring.ring-2 {
-            width: 235px;
-            height: 235px;
+            width: 290px;
+            height: 290px;
           }
 
           .premium-ring.ring-3 {
-            width: 175px;
-            height: 175px;
+            width: 215px;
+            height: 215px;
           }
 
           .premium-particle {
@@ -957,13 +966,13 @@ export default function Home() {
           }
 
           .image-orb {
-            width: 230px;
-            height: 230px;
+            width: 300px;
+            height: 300px;
           }
 
           .image-orb img {
-            width: 86%;
-            height: 86%;
+            width: 94%;
+            height: 94%;
           }
 
           .image-caption-box {
