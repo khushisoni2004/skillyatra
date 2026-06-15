@@ -1,3 +1,5 @@
+import { enableFastLoad } from "./lib/fastLoad";
+enableFastLoad();
 import { warmBackend } from "./lib/warmBackend";
 warmBackend();
 import React from "react";

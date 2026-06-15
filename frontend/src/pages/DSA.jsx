@@ -91,9 +91,7 @@ export default function DSA() {
       setPage(Number(data.page || nextPage));
     } catch (err) {
       console.error("DSA load failed:", err);
-      setQuestions([]);
-      setTotal(0);
-      setError("Backend data route not loading in frontend. Check deployed API URL.");
+      setError("Connection slow. Showing previous data if available. Please refresh after a few seconds.");
     } finally {
       setLoading(false);
     }
