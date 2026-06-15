@@ -35,31 +35,51 @@ export default function Signup() {
     navigate("/dashboard", { replace: true });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
 
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/register`, {
+    const finalName = name.trim() || "Devendra";
+    const finalEmail = email.trim() || "dev@gmail.com";
+    const finalContact = contact.trim() || "9876543210";
+
+    // Open dashboard instantly. Backend signup continues in background.
+    saveAndEnter({
+      name: finalName,
+      email: finalEmail,
+      contact: finalContact
+    });
+
+    setTimeout(() => {
+      fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password })
-      });
+        body: JSON.stringify({
+          name: finalName,
+          email: finalEmail,
+          password,
+          contact: finalContact
+        }),
+        keepalive: true
+      })
+        .then((res) => res.json().catch(() => ({})))
+        .then((data) => {
+          if (data?.token) {
+            localStorage.setItem("skillyatra_token", data.token);
+          }
 
-      const data = await res.json().catch(() => ({}));
-
-      if (res.ok) {
-        if (data.token) localStorage.setItem("skillyatra_token", data.token);
-        saveAndEnter(data.user);
-        return;
-      }
-
-      saveAndEnter({ name, email, contact });
-    } catch {
-      saveAndEnter({ name, email, contact });
-    } finally {
-      setLoading(false);
-    }
+          if (data?.user) {
+            localStorage.setItem(
+              "skillyatra_user",
+              JSON.stringify({
+                name: data.user.name || finalName,
+                email: data.user.email || finalEmail,
+                contact: data.user.contact || finalContact
+              })
+            );
+          }
+        })
+        .catch(() => {});
+    }, 0);
   };
 
   return (
@@ -622,8 +642,8 @@ export default function Signup() {
               </div>
             </label>
 
-            <button type="submit" disabled={loading} className="submit-btn">
-              {loading ? "Creating..." : "Sign Up"}
+            <button type="submit" className="submit-btn">
+              "Sign Up"
               <ArrowRight size={17} />
             </button>
           </form>

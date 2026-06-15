@@ -31,31 +31,45 @@ export default function Login() {
     navigate("/dashboard", { replace: true });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
 
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+    const finalEmail = email.trim() || "dev@gmail.com";
+
+    // Open dashboard instantly. Backend login continues in background.
+    saveAndEnter({
+      name: "Devendra",
+      email: finalEmail
+    });
+
+    setTimeout(() => {
+      fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
+        body: JSON.stringify({
+          email: finalEmail,
+          password
+        }),
+        keepalive: true
+      })
+        .then((res) => res.json().catch(() => ({})))
+        .then((data) => {
+          if (data?.token) {
+            localStorage.setItem("skillyatra_token", data.token);
+          }
 
-      const data = await res.json().catch(() => ({}));
-
-      if (res.ok) {
-        if (data.token) localStorage.setItem("skillyatra_token", data.token);
-        saveAndEnter(data.user);
-        return;
-      }
-
-      saveAndEnter({ name: "Devendra", email });
-    } catch {
-      saveAndEnter({ name: "Devendra", email });
-    } finally {
-      setLoading(false);
-    }
+          if (data?.user) {
+            localStorage.setItem(
+              "skillyatra_user",
+              JSON.stringify({
+                name: data.user.name || "Devendra",
+                email: data.user.email || finalEmail
+              })
+            );
+          }
+        })
+        .catch(() => {});
+    }, 0);
   };
 
   return (
@@ -635,8 +649,8 @@ export default function Login() {
               </div>
             </label>
 
-            <button type="submit" disabled={loading} className="submit-btn">
-              {loading ? "Logging in..." : "Login"}
+            <button type="submit" className="submit-btn">
+              "Login"
               <ArrowRight size={17} />
             </button>
           </form>
