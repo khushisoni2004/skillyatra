@@ -1,17 +1,13 @@
 import axios from "axios";
 
+const rawBase = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const cleanBase = rawBase.replace(/\/+$/, "");
+const API_BASE = cleanBase.endsWith("/api") ? cleanBase : `${cleanBase}/api`;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5001/api"
+  baseURL: API_BASE,
+  timeout: 20000,
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("skillyatra_token");
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
-
+export { API_BASE };
 export default api;
