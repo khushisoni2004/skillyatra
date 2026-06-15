@@ -671,19 +671,29 @@ export default function Home() {
           animation-delay: 2.6s;
         }
 
-        .image-clean-wrap {
-          position: relative;
-          z-index: 6;
-          transform-style: preserve-3d;
-          perspective: 1200px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
+        .image-clean-wrap img {
+  width: 320px;
+  height: 320px;
+  max-width: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 50%;
+  position: relative;
+  z-index: 5;
+  border: 6px solid rgba(255,255,255,0.92);
+  background: #ffffff;
+  box-shadow:
+    0 22px 50px rgba(14,165,233,0.20),
+    0 16px 36px rgba(34,197,94,0.14);
+  filter:
+    drop-shadow(0 20px 34px rgba(14,165,233,0.18))
+    drop-shadow(0 16px 28px rgba(34,197,94,0.12));
+  animation: imageFloatClean 6.2s ease-in-out infinite;
+}
 
         .image-orb {
-          width: 235px;
-          height: 235px;
+          width: 285px;
+          height: 285px;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -702,8 +712,8 @@ export default function Home() {
         }
 
         .image-orb img {
-          width: 82%;
-          height: 82%;
+          width: 88%;
+          height: 88%;
           object-fit: contain;
           display: block;
           border-radius: 50%;
@@ -947,13 +957,13 @@ export default function Home() {
           }
 
           .image-orb {
-            width: 190px;
-            height: 190px;
+            width: 230px;
+            height: 230px;
           }
 
           .image-orb img {
-            width: 80%;
-            height: 80%;
+            width: 86%;
+            height: 86%;
           }
 
           .image-caption-box {
