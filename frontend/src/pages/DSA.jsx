@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
-import { API_BASE } from "../lib/config";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import api from "../lib/api";
 import "./DSA.css";
 
 const STORAGE_KEY = "skillyatra_real_dsa_done_v1";
+const CACHE_PREFIX = "skillyatra_dsa_page_cache_v2";
+const PAGE_SIZE = 25;
 
 function readDone() {
   try {
@@ -18,91 +20,211 @@ function saveDone(data) {
   } catch {}
 }
 
+function makeCacheKey({ page, topic, platform, difficulty, search }) {
+  return `${CACHE_PREFIX}:${page}:${topic}:${platform}:${difficulty}:${search || ""}`;
+}
+
+function readCache(key) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed?.time || !parsed?.data) return null;
+
+    const age = Date.now() - parsed.time;
+    const maxAge = 1000 * 60 * 20;
+
+    if (age > maxAge) {
+      sessionStorage.removeItem(key);
+      return null;
+    }
+
+    return parsed.data;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(key, data) {
+  try {
+    sessionStorage.setItem(
+      key,
+      JSON.stringify({
+        time: Date.now(),
+        data
+      })
+    );
+  } catch {}
+}
+
 export default function DSA() {
   const [done, setDone] = useState(readDone);
   const [questions, setQuestions] = useState([]);
+
   const [topics, setTopics] = useState(["All"]);
   const [platforms, setPlatforms] = useState(["All"]);
-  const [difficulties, setDifficulties] = useState(["All", "Easy", "Medium", "Hard"]);
   const [topicCounts, setTopicCounts] = useState({});
+
   const [topic, setTopic] = useState("All");
   const [difficulty, setDifficulty] = useState("All");
   const [platform, setPlatform] = useState("All");
   const [search, setSearch] = useState("");
+
   const [page, setPage] = useState(1);
   const [totalAll, setTotalAll] = useState(0);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const pageSize = 20;
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
-  async function loadQuestions(nextPage = 1) {
-    try {
-      setLoading(true);
-      setError("");
+  const latestRequestRef = useRef(0);
 
+  const applyData = useCallback((data, fallbackPage) => {
+    if (!data?.ok) return;
+
+    setQuestions(data.questions || []);
+    setTopics(data.topics || ["All"]);
+    setPlatforms(data.platforms || ["All"]);
+    setTopicCounts(data.topicCounts || {});
+    setTotalAll(data.totalAll || 0);
+    setTotal(data.total || 0);
+    setTotalPages(data.totalPages || 1);
+    setPage(data.page || fallbackPage);
+  }, []);
+
+  const buildUrl = useCallback(
+    (targetPage) => {
       const params = new URLSearchParams({
-        page: String(nextPage),
-        limit: String(pageSize),
+        page: String(targetPage),
+        limit: String(PAGE_SIZE),
         topic,
         platform,
         difficulty,
-        search,
+        search
       });
 
-      let data = null;
-      let lastError = null;
+      return `/dsa/questions?${params.toString()}`;
+    },
+    [topic, platform, difficulty, search]
+  );
 
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          const res = await fetch(`${API_BASE}/dsa/questions?${params.toString()}`, {
-            method: "GET",
-            headers: { Accept: "application/json" },
-            cache: "no-store",
-          });
+  const prefetchPage = useCallback(
+    async (targetPage) => {
+      if (targetPage < 1 || targetPage > totalPages) return;
 
-          data = await res.json();
+      const cacheKey = makeCacheKey({
+        page: targetPage,
+        topic,
+        platform,
+        difficulty,
+        search
+      });
 
-          if (!res.ok || !data.ok) {
-            throw new Error(data.message || "DSA backend route failed");
+      if (readCache(cacheKey)) return;
+
+      try {
+        const res = await api.get(buildUrl(targetPage));
+        if (res.data?.ok) {
+          writeCache(cacheKey, res.data);
+        }
+      } catch {}
+    },
+    [buildUrl, difficulty, platform, search, topic, totalPages]
+  );
+
+  const loadQuestions = useCallback(
+    async (targetPage = page, options = {}) => {
+      const { force = false, silent = false } = options;
+
+      const requestId = Date.now();
+      latestRequestRef.current = requestId;
+
+      const cacheKey = makeCacheKey({
+        page: targetPage,
+        topic,
+        platform,
+        difficulty,
+        search
+      });
+
+      const cached = !force ? readCache(cacheKey) : null;
+
+      if (cached) {
+        applyData(cached, targetPage);
+        setLoading(false);
+        setUpdating(true);
+      } else if (!silent) {
+        setLoading(questions.length === 0);
+        setUpdating(questions.length > 0);
+      }
+
+      try {
+        const res = await api.get(buildUrl(targetPage));
+
+        if (latestRequestRef.current !== requestId && !silent) return;
+
+        if (res.data?.ok) {
+          writeCache(cacheKey, res.data);
+
+          if (!silent || !cached) {
+            applyData(res.data, targetPage);
           }
 
-          break;
-        } catch (err) {
-          lastError = err;
-          await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+          const freshTotalPages = res.data.totalPages || totalPages || 1;
+          const currentPage = res.data.page || targetPage;
+
+          if (currentPage < freshTotalPages) {
+            setTimeout(() => prefetchPage(currentPage + 1), 150);
+          }
+
+          if (currentPage > 1) {
+            setTimeout(() => prefetchPage(currentPage - 1), 220);
+          }
+        } else if (!cached && !silent) {
+          setQuestions([]);
+        }
+      } catch {
+        if (!cached && !silent) {
+          setQuestions([]);
+        }
+      } finally {
+        if (!silent) {
+          setLoading(false);
+          setUpdating(false);
         }
       }
-
-      if (!data || !data.ok) {
-        throw lastError || new Error("DSA backend route failed");
-      }
-
-      setQuestions(Array.isArray(data.questions) ? data.questions : []);
-      setTopics(Array.isArray(data.topics) ? data.topics : ["All"]);
-      setPlatforms(Array.isArray(data.platforms) ? data.platforms : ["All"]);
-      setDifficulties(Array.isArray(data.difficulties) ? data.difficulties : ["All", "Easy", "Medium", "Hard"]);
-      setTopicCounts(data.topicCounts || {});
-      setTotalAll(Number(data.totalAll || 0));
-      setTotal(Number(data.total || 0));
-      setTotalPages(Number(data.totalPages || 1));
-      setPage(Number(data.page || nextPage));
-    } catch (err) {
-      console.error("DSA load failed:", err);
-      setError("Connection slow. Showing previous data if available. Please refresh after a few seconds.");
-    } finally {
-      setLoading(false);
-    }
-  }
+    },
+    [
+      applyData,
+      buildUrl,
+      difficulty,
+      page,
+      platform,
+      prefetchPage,
+      questions.length,
+      search,
+      topic,
+      totalPages
+    ]
+  );
 
   useEffect(() => {
-    loadQuestions(1);
+    setPage(1);
+    loadQuestions(1, { force: false });
   }, [topic, platform, difficulty]);
 
+  useEffect(() => {
+    if (questions.length > 0) {
+      prefetchPage(page + 1);
+      prefetchPage(page - 1);
+    }
+  }, [page, questions.length, prefetchPage]);
+
   function searchNow() {
-    loadQuestions(1);
+    setPage(1);
+    loadQuestions(1, { force: true });
   }
 
   function refreshAll() {
@@ -110,154 +232,261 @@ export default function DSA() {
     setPlatform("All");
     setDifficulty("All");
     setSearch("");
-    setTimeout(() => loadQuestions(1), 0);
+    setPage(1);
+
+    setTimeout(() => {
+      loadQuestions(1, { force: true });
+    }, 0);
+  }
+
+  function changePage(targetPage) {
+    const safePage = Math.max(1, Math.min(totalPages, targetPage));
+    setPage(safePage);
+    loadQuestions(safePage, { force: false });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function toggleDone(id) {
     const next = { ...done, [id]: !done[id] };
     if (!next[id]) delete next[id];
+
     setDone(next);
     saveDone(next);
   }
 
-  const completed = useMemo(() => Object.values(done).filter(Boolean).length, [done]);
+  const completed = useMemo(
+    () => Object.values(done).filter(Boolean).length,
+    [done]
+  );
+
   const progress = totalAll ? Math.round((completed / totalAll) * 100) : 0;
 
   return (
-    <div className="dsa-page min-h-screen bg-gradient-to-br from-sky-50 via-white to-emerald-50 p-6 text-slate-900">
-      <div className="mx-auto max-w-7xl">
-        <section className="dsa-hero relative overflow-hidden rounded-[34px] bg-gradient-to-r from-slate-950 via-indigo-950 to-emerald-900 p-8 text-white shadow-2xl">
-          <div className="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-emerald-400/20 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
+    <div className="dsa-page min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="dsa-shell mx-auto max-w-7xl">
+        <div className="dsa-hero mb-6 rounded-[32px] bg-gradient-to-br from-indigo-600 via-sky-500 to-cyan-400 p-7 text-white shadow-xl">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-white/80">
+            DSA Tracker
+          </p>
 
-          <div className="relative z-10">
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-emerald-300">
-              DSA Tracker
-            </p>
-            <h1 className="mt-3 text-4xl font-black md:text-5xl">
-              Topic-Wise DSA Practice
-            </h1>
-            <p className="mt-3 max-w-3xl text-sm font-semibold text-slate-200">
-              Real dataset loaded from backend. Practice coding questions by topic, platform, and difficulty.
-            </p>
-          </div>
-        </section>
+          <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+            Topic-Wise DSA Practice
+          </h1>
 
-        <div className="dsa-stats mt-6 grid gap-4 md:grid-cols-4">
-          <StatCard label="Total Questions" value={loading && !totalAll ? "..." : totalAll} />
-          <StatCard label="Completed" value={completed} />
-          <StatCard label="Pending" value={Math.max(0, totalAll - completed)} />
-          <StatCard label="Progress" value={`${progress}%`} />
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-white/85 sm:text-base">
+            Real dataset loaded from backend. Practice coding questions by topic,
+            platform, and difficulty.
+          </p>
         </div>
 
-        <section className="dsa-filter-panel mt-6 rounded-[30px] border border-white/70 bg-white/90 p-5 shadow-xl backdrop-blur">
-          <div className="grid gap-3 lg:grid-cols-5">
+        <div className="dsa-stats mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p className="text-xs font-black uppercase tracking-widest text-slate-500">
+              Total Questions
+            </p>
+            <h2 className="mt-2 text-3xl font-black text-slate-900">
+              {totalAll || "..."}
+            </h2>
+          </div>
+
+          <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p className="text-xs font-black uppercase tracking-widest text-slate-500">
+              Completed
+            </p>
+            <h2 className="mt-2 text-3xl font-black text-emerald-600">
+              {completed}
+            </h2>
+          </div>
+
+          <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p className="text-xs font-black uppercase tracking-widest text-slate-500">
+              Pending
+            </p>
+            <h2 className="mt-2 text-3xl font-black text-orange-500">
+              {Math.max(0, totalAll - completed)}
+            </h2>
+          </div>
+
+          <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p className="text-xs font-black uppercase tracking-widest text-slate-500">
+              Progress
+            </p>
+            <h2 className="mt-2 text-3xl font-black text-indigo-600">
+              {progress}%
+            </h2>
+          </div>
+        </div>
+
+        <div className="dsa-filter-panel mb-6 rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div className="grid gap-3 lg:grid-cols-[1.4fr_1fr_1fr_1fr_auto_auto]">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && searchNow()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") searchNow();
+              }}
               placeholder="Search question..."
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 lg:col-span-2"
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             />
 
-            <select value={topic} onChange={(e) => setTopic(e.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold outline-none">
-              {topics.map((t) => <option key={t} value={t}>{t === "All" ? "All Topics" : t}</option>)}
+            <select
+              value={topic}
+              onChange={(e) => {
+                setTopic(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            >
+              {topics.map((item) => (
+                <option key={item} value={item}>
+                  {item === "All" ? "All Topics" : item}
+                </option>
+              ))}
             </select>
 
-            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold outline-none">
-              {difficulties.map((d) => <option key={d} value={d}>{d === "All" ? "All Difficulty" : d}</option>)}
+            <select
+              value={difficulty}
+              onChange={(e) => {
+                setDifficulty(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            >
+              <option value="All">All Difficulty</option>
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
             </select>
 
-            <select value={platform} onChange={(e) => setPlatform(e.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold outline-none">
-              {platforms.map((p) => <option key={p} value={p}>{p === "All" ? "All Platforms" : p}</option>)}
+            <select
+              value={platform}
+              onChange={(e) => {
+                setPlatform(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            >
+              {platforms.map((item) => (
+                <option key={item} value={item}>
+                  {item === "All" ? "All Platforms" : item}
+                </option>
+              ))}
             </select>
-          </div>
 
-          <div className="mt-4 flex flex-wrap gap-3">
-            <button onClick={searchNow} className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-7 py-3 text-sm font-black text-white shadow-lg shadow-blue-500/25 transition hover:-translate-y-0.5 hover:shadow-xl">
+            <button
+              type="button"
+              onClick={searchNow}
+              className="dsa-main-btn rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-black text-white shadow hover:bg-indigo-700"
+            >
               Search
             </button>
 
-            <button onClick={refreshAll} className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-7 py-3 text-sm font-black text-white shadow-lg shadow-emerald-500/25 transition hover:-translate-y-0.5 hover:shadow-xl">
+            <button
+              type="button"
+              onClick={refreshAll}
+              className="rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+            >
               Refresh
             </button>
           </div>
-        </section>
-
-        <div className="dsa-topic-list mt-5 flex flex-wrap gap-2">
-          {topics.filter((t) => t !== "All").map((t) => (
-            <button
-              key={t}
-              onClick={() => setTopic(t)}
-              className={`rounded-full px-4 py-2 text-xs font-black transition hover:-translate-y-0.5 ${
-                topic === t
-                  ? "bg-gradient-to-r from-blue-600 to-emerald-500 text-white shadow-lg"
-                  : "bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              {t} <span className="opacity-75">{topicCounts[t] || 0}</span>
-            </button>
-          ))}
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <p className="font-black text-slate-700">
-            {loading ? "Loading coding questions..." : `Showing ${questions.length} of ${total} questions`}
+        <div className="dsa-topic-list mb-6 flex flex-wrap gap-2">
+          {topics
+            .filter((item) => item !== "All")
+            .map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => {
+                  setTopic(item);
+                  setPage(1);
+                }}
+                className={`rounded-xl px-4 py-2 text-sm font-black ring-1 ${
+                  topic === item
+                    ? "bg-indigo-600 text-white ring-indigo-600"
+                    : "bg-white text-slate-700 ring-slate-200 hover:bg-indigo-50"
+                }`}
+              >
+                {item} {topicCounts[item] || 0}
+              </button>
+            ))}
+        </div>
+
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white px-5 py-4 shadow-sm ring-1 ring-slate-200">
+          <p className="text-sm font-black text-slate-600">
+            {loading
+              ? "Loading coding questions..."
+              : updating
+              ? "Updating questions in background..."
+              : `Showing ${questions.length} of ${total} questions`}
           </p>
 
-          {totalPages > 1 && (
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => loadQuestions(Math.max(1, page - 1))}
-                disabled={page === 1 || loading}
-                className="rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-700 shadow ring-1 ring-slate-200 transition hover:-translate-y-0.5 disabled:opacity-40"
-              >
-                Previous
-              </button>
-              <span className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white">
-                Page {page} / {totalPages}
-              </span>
-              <button
-                onClick={() => loadQuestions(Math.min(totalPages, page + 1))}
-                disabled={page === totalPages || loading}
-                className="rounded-2xl bg-gradient-to-r from-blue-600 to-emerald-500 px-5 py-3 text-sm font-black text-white shadow-lg transition hover:-translate-y-0.5 disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => changePage(page - 1)}
+              disabled={page === 1}
+              className="rounded-2xl bg-white px-4 py-2 text-sm font-black text-slate-700 ring-1 ring-slate-200 hover:bg-indigo-50 disabled:opacity-40"
+            >
+              Previous
+            </button>
+
+            <span className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-black text-slate-700">
+              Page {page} / {totalPages}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => changePage(page + 1)}
+              disabled={page === totalPages}
+              className="dsa-main-btn rounded-2xl bg-slate-900 px-4 py-2 text-sm font-black text-white hover:bg-slate-800 disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
         </div>
 
-        {error && (
-          <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 font-bold text-red-700">
-            {error}
+        {!loading && questions.length === 0 && (
+          <div className="rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+            <h3 className="text-xl font-black text-slate-900">
+              No coding questions found.
+            </h3>
+            <p className="mt-2 text-sm font-semibold text-slate-500">
+              Try another topic, platform, difficulty, or search keyword.
+            </p>
           </div>
         )}
 
-        {!loading && questions.length === 0 && !error && (
-          <div className="mt-8 rounded-[28px] bg-white p-8 text-center font-black text-slate-500 shadow">
-            No coding questions found. Check backend dataset route.
-          </div>
-        )}
-
-        <div className="dsa-question-grid mt-6 grid gap-5 lg:grid-cols-2">
+        <div className="dsa-question-grid grid gap-4 lg:grid-cols-2">
           {questions.map((q, index) => (
-            <article
-              key={q.id || index}
-              className="group rounded-[30px] border border-white/80 bg-white p-6 shadow-xl transition hover:-translate-y-1 hover:shadow-2xl"
+            <div
+              key={q.id || `${q.title}-${index}`}
+              className="dsa-question-card rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-lg"
             >
-              <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-wide">
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-blue-700">{q.topic}</span>
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">Question {(page - 1) * pageSize + index + 1}</span>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{q.platform}</span>
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-700">{q.difficulty}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-black text-indigo-700">
+                  {q.topic || "DSA"}
+                </span>
+
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
+                  Question {(page - 1) * PAGE_SIZE + index + 1}
+                </span>
+
+                <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-black text-sky-700">
+                  {q.platform || "Platform"}
+                </span>
+
+                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">
+                  {q.difficulty || "Easy"}
+                </span>
               </div>
 
-              <h3 className="mt-4 text-xl font-black leading-snug text-slate-950">
+              <h3 className="mt-4 text-xl font-black leading-snug text-slate-900">
                 {q.title}
               </h3>
 
-              <p className="mt-3 text-sm font-bold text-slate-500">
+              <p className="mt-2 text-sm font-bold text-slate-500">
                 Status: {done[q.id] ? "Completed" : "Not Attempted"}
               </p>
 
@@ -267,58 +496,54 @@ export default function DSA() {
                     href={q.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-blue-500/25 transition hover:-translate-y-0.5"
+                    className="dsa-main-btn rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-black text-white shadow hover:bg-indigo-700"
                   >
                     Open Question ↗
                   </a>
                 )}
 
                 <button
+                  type="button"
                   onClick={() => toggleDone(q.id)}
-                  className={`rounded-2xl px-5 py-3 text-sm font-black shadow-lg transition hover:-translate-y-0.5 ${
+                  className={`rounded-2xl px-5 py-3 text-sm font-black shadow ${
                     done[q.id]
-                      ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/25"
-                      : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-emerald-50"
+                      ? "bg-emerald-600 text-white"
+                      : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
                   }`}
                 >
                   {done[q.id] ? "Done" : "Mark Done"}
                 </button>
               </div>
-            </article>
+            </div>
           ))}
         </div>
 
         {totalPages > 1 && (
-          <div className="mt-10 flex items-center justify-center gap-3 pb-8">
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <button
-              onClick={() => loadQuestions(Math.max(1, page - 1))}
-              disabled={page === 1 || loading}
-              className="rounded-2xl bg-white px-6 py-3 text-sm font-black text-slate-700 shadow ring-1 ring-slate-200 transition hover:-translate-y-0.5 disabled:opacity-40"
+              type="button"
+              onClick={() => changePage(page - 1)}
+              disabled={page === 1}
+              className="rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-700 ring-1 ring-slate-200 hover:bg-indigo-50 disabled:opacity-40"
             >
               Previous Page
             </button>
-            <span className="rounded-2xl bg-slate-950 px-6 py-3 text-sm font-black text-white">
+
+            <span className="rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-700 ring-1 ring-slate-200">
               Page {page} of {totalPages}
             </span>
+
             <button
-              onClick={() => loadQuestions(Math.min(totalPages, page + 1))}
-              disabled={page === totalPages || loading}
-              className="rounded-2xl bg-gradient-to-r from-blue-600 to-emerald-500 px-6 py-3 text-sm font-black text-white shadow-lg transition hover:-translate-y-0.5 disabled:opacity-40"
+              type="button"
+              onClick={() => changePage(page + 1)}
+              disabled={page === totalPages}
+              className="dsa-main-btn rounded-2xl bg-slate-900 px-5 py-3 text-sm font-black text-white hover:bg-slate-800 disabled:opacity-40"
             >
               Next Page
             </button>
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-function StatCard({ label, value }) {
-  return (
-    <div className="rounded-[28px] border border-white/80 bg-white p-6 shadow-xl transition hover:-translate-y-1 hover:shadow-2xl">
-      <p className="text-sm font-black text-slate-500">{label}</p>
-      <h2 className="mt-3 text-4xl font-black text-slate-950">{value}</h2>
     </div>
   );
 }
