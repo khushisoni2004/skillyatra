@@ -38,11 +38,11 @@ export default function CompanyDetail() {
   const decodedCompanyName = decodeURIComponent(companyName || "");
 
   const [company, setCompany] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const loadCompany = async () => {
     try {
-      setLoading(true);
+      setLoading(false);
       const res = await fetch(
         `${API_BASE}/api/companies/${encodeURIComponent(decodedCompanyName)}`
       );
@@ -59,15 +59,7 @@ export default function CompanyDetail() {
     loadCompany();
   }, [decodedCompanyName]);
 
-  if (loading) {
-    return (
-      <div className="company-detail-page min-h-screen bg-slate-50 p-8">
-        <div className="rounded-3xl bg-white p-8 font-black text-indigo-700 shadow-sm ring-1 ring-slate-200">
-          Loading company detail...
-        </div>
-      </div>
-    );
-  }
+  
 
   if (!company) {
     return (

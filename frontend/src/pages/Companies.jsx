@@ -132,35 +132,39 @@ export default function Companies() {
     setSelectedCompany(companyName);
     setRolesViewed(true);
     setSearchedOnce(true);
+    setRolesLoading(false);
+
+    const companyFromList = companies.find(
+      (item) =>
+        String(item.companyName || "").toLowerCase() ===
+        String(companyName || "").toLowerCase()
+    );
 
     if (cached) {
       setRoles(Array.isArray(cached.roles) ? cached.roles : []);
-      setRolesLoading(false);
+    } else if (Array.isArray(companyFromList?.roles) && companyFromList.roles.length) {
+      setRoles(companyFromList.roles);
+      writeCache(key, { roles: companyFromList.roles });
     } else {
       setRoles([]);
-      setRolesLoading(true);
     }
 
-    try {
-      const res = await fetch(
-        `${API_BASE}/companies/${encodeURIComponent(companyName)}/roles`,
-        {
-          method: "GET",
-          cache: "no-store",
-          mode: "cors"
-        }
-      );
-
-      const data = await res.json();
-      const nextRoles = Array.isArray(data?.roles) ? data.roles : [];
-
-      writeCache(key, { roles: nextRoles });
-      setRoles(nextRoles);
-    } catch {
-      if (!cached) setRoles([]);
-    } finally {
-      setRolesLoading(false);
-    }
+    // Backend roles load in background. UI never blocks.
+    fetch(`${API_BASE}/companies/${encodeURIComponent(companyName)}/roles`, {
+      method: "GET",
+      cache: "no-store",
+      mode: "cors"
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const nextRoles = Array.isArray(data?.roles) ? data.roles : [];
+        writeCache(key, { roles: nextRoles });
+        setRoles(nextRoles);
+      })
+      .catch(() => {})
+      .finally(() => {
+        setRolesLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -440,13 +444,9 @@ export default function Companies() {
             </div>
           )}
 
-          {rolesViewed && rolesLoading && (
-            <div className="company-alert loading">Loading roles...</div>
-          )}
-
           {rolesViewed && !rolesLoading && roles.length === 0 && (
             <div className="empty-roles">
-              <h3>No roles found for this company in dataset.</h3>
+              <h3>Roles are syncing from dataset. Select another company or wait a moment.</h3>
             </div>
           )}
 

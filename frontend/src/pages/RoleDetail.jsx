@@ -48,12 +48,12 @@ export default function RoleDetail() {
 
   const [roles, setRoles] = useState([]);
   const [role, setRole] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const loadRole = async () => {
     try {
-      setLoading(true);
+      setLoading(false);
       setError("");
 
       const res = await fetch(
@@ -160,16 +160,7 @@ export default function RoleDetail() {
     ].slice(0, 8);
   }, [role, skills]);
 
-  if (loading) {
-    return (
-      <div className="company-role-theme-page">
-        <section className="company-role-panel p-8">
-          <h2>Loading role detail...</h2>
-          <p>Dataset role information is loading.</p>
-        </section>
-      </div>
-    );
-  }
+  
 
   if (!role) {
     return (

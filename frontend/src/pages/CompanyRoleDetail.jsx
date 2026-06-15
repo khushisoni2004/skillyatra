@@ -15,11 +15,11 @@ export default function CompanyRoleDetail() {
 
   const [roles, setRoles] = useState([]);
   const [role, setRole] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const loadRole = async () => {
     try {
-      setLoading(true);
+      setLoading(false);
 
       const res = await fetch(
         `${API_BASE}/api/companies/${encodeURIComponent(decodedCompanyName)}/roles`
@@ -105,16 +105,7 @@ export default function CompanyRoleDetail() {
     return [...base, ...skillBased];
   }, [role, skills]);
 
-  if (loading) {
-    return (
-      <div className="company-role-theme-page">
-        <section className="company-role-panel p-8">
-          <h2>Loading role detail...</h2>
-          <p>Role information is loading from your dataset.</p>
-        </section>
-      </div>
-    );
-  }
+  
 
   if (!role) {
     return (
