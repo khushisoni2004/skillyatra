@@ -1,6 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import { BACKEND_BASE } from "../lib/config";
+import {
+  fallbackRolesForCompany,
+  getAllCompanyPool,
+  mergeCompanyLists,
+  normalizeCompanyName,
+  rankCompanies
+} from "../lib/companySearch";
 const API_BASE = BACKEND_BASE;
 
 function Badge({ children, type = "default" }) {
@@ -165,7 +172,7 @@ function makeDatasetProofSuggestions(missingSkills, roleName) {
 }
 
 export default function ResumeCoach() {
-  const [companies, setCompanies] = useState([]);
+  const [companies, setCompanies] = useState(() => getAllCompanyPool());
   const [companySearch, setCompanySearch] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
@@ -179,26 +186,32 @@ export default function ResumeCoach() {
   const [error, setError] = useState("");
 
   const loadCompanies = async () => {
-    try {
-      setCompanyLoading(true);
-      setError("");
+    const instant = getAllCompanyPool();
+    setCompanies(instant);
+    setCompanyLoading(false);
 
-      const res = await fetch(`${API_BASE}/api/resume/companies`);
-      const data = await res.json();
+    const urls = [
+      `${API_BASE}/api/resume/companies`,
+      `${API_BASE}/api/interview/companies`,
+      `${API_BASE}/api/companies?limit=50000`,
+      `${API_BASE}/companies?limit=50000`
+    ];
 
-      if (!data.ok) {
-        setCompanies([]);
-        setError(data.message || "Failed to load companies.");
-        return;
-      }
+    urls.forEach((url) => {
+      fetch(url, {
+        method: "GET",
+        cache: "no-store",
+        mode: "cors"
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const list = Array.isArray(data?.companies) ? data.companies : [];
+          if (!list.length) return;
 
-      setCompanies(Array.isArray(data.companies) ? data.companies : []);
-    } catch (err) {
-      setCompanies([]);
-      setError("Backend not connected. Start backend on port 5001.");
-    } finally {
-      setCompanyLoading(false);
-    }
+          setCompanies((prev) => mergeCompanyLists(prev, list));
+        })
+        .catch(() => {});
+    });
   };
 
   useEffect(() => {
@@ -206,21 +219,22 @@ export default function ResumeCoach() {
   }, []);
 
   const filteredCompanies = useMemo(() => {
-    const q = companySearch.trim().toLowerCase();
-    if (!q) return [];
-
-    return companies
-      .filter((company) =>
-        String(company.companyName || "").toLowerCase().includes(q)
-      )
-      .slice(0, 12);
+    return rankCompanies(companies, companySearch, 300);
   }, [companies, companySearch]);
 
   const selectedCompanyData = useMemo(() => {
-    return companies.find((company) => company.companyName === selectedCompany);
+    return companies.find(
+      (company) =>
+        normalizeCompanyName(company.companyName) === normalizeCompanyName(selectedCompany)
+    );
   }, [companies, selectedCompany]);
 
-  const roles = selectedCompanyData?.roles || [];
+  const roles =
+    Array.isArray(selectedCompanyData?.roles) && selectedCompanyData.roles.length
+      ? selectedCompanyData.roles
+      : selectedCompany
+        ? fallbackRolesForCompany(selectedCompany)
+        : [];
 
   const selectedRoleData = useMemo(() => {
     return roles.find((role) => role.roleName === selectedRole) || null;
@@ -377,7 +391,7 @@ export default function ResumeCoach() {
                 </p>
               </div>
 
-              {companyLoading && <Badge type="primary">Loading...</Badge>}
+              {false && companyLoading && <Badge type="primary">Loading...</Badge>}
             </div>
 
             <div className="mt-5">
@@ -429,7 +443,7 @@ export default function ResumeCoach() {
                     No company found for "{companySearch}".
                   </div>
                 ) : (
-                  <div className="max-h-72 overflow-y-auto rounded-[28px] border border-indigo-100 bg-gradient-to-r from-slate-50 to-indigo-50 p-3">
+                  <div className="max-h-[520px] overflow-y-auto rounded-[28px] border border-indigo-100 bg-gradient-to-r from-slate-50 to-indigo-50 p-3">
                     <div className="grid gap-3 sm:grid-cols-2">
                       {filteredCompanies.map((company, index) => {
                         const active = selectedCompany === company.companyName;

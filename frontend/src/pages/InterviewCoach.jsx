@@ -2,6 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 
 import { BACKEND_BASE } from "../lib/config";
+import {
+  fallbackRolesForCompany,
+  getAllCompanyPool,
+  mergeCompanyLists,
+  normalizeCompanyName,
+  rankCompanies
+} from "../lib/companySearch";
 const API_BASE = BACKEND_BASE;
 
 const INTERVIEW_COMPANIES_CACHE_KEY = "skillyatra_interview_companies_cache_v3";
@@ -465,7 +472,7 @@ export default function InterviewCoach() {
   const faceLandmarkerRef = useRef(null);
   const lastPostureVoiceRef = useRef(0);
 
-  const [companies, setCompanies] = useState(() => readCompaniesFromAnyCache());
+  const [companies, setCompanies] = useState(() => getAllCompanyPool());
   const [companySearch, setCompanySearch] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
@@ -619,12 +626,13 @@ export default function InterviewCoach() {
     : 0;
 
   async function loadCompanies() {
-    const instantList = readCompaniesFromAnyCache();
-    setCompanies(instantList);
+    const instant = getAllCompanyPool();
+    setCompanies(instant);
     setLoading(false);
 
     const urls = [
       `${API_BASE}/api/interview/companies`,
+      `${API_BASE}/api/resume/companies`,
       `${API_BASE}/api/companies?limit=50000`,
       `${API_BASE}/companies?limit=50000`
     ];
@@ -640,10 +648,7 @@ export default function InterviewCoach() {
           const list = Array.isArray(data?.companies) ? data.companies : [];
           if (!list.length) return;
 
-          setCompanies((prev) => {
-            const merged = writeAllInterviewCompanies([...prev, ...list]);
-            return merged;
-          });
+          setCompanies((prev) => mergeCompanyLists(prev, list));
         })
         .catch(() => {});
     });
