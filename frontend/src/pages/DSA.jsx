@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { API_BASE } from "../lib/config";
+import "./DSA.css";
 
 const STORAGE_KEY = "skillyatra_real_dsa_done_v1";
 
@@ -125,9 +126,9 @@ export default function DSA() {
   const progress = totalAll ? Math.round((completed / totalAll) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-emerald-50 p-6 text-slate-900">
+    <div className="dsa-page min-h-screen bg-gradient-to-br from-sky-50 via-white to-emerald-50 p-6 text-slate-900">
       <div className="mx-auto max-w-7xl">
-        <section className="relative overflow-hidden rounded-[34px] bg-gradient-to-r from-slate-950 via-indigo-950 to-emerald-900 p-8 text-white shadow-2xl">
+        <section className="dsa-hero relative overflow-hidden rounded-[34px] bg-gradient-to-r from-slate-950 via-indigo-950 to-emerald-900 p-8 text-white shadow-2xl">
           <div className="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-emerald-400/20 blur-3xl" />
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
 
@@ -144,14 +145,14 @@ export default function DSA() {
           </div>
         </section>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-4">
+        <div className="dsa-stats mt-6 grid gap-4 md:grid-cols-4">
           <StatCard label="Total Questions" value={loading && !totalAll ? "..." : totalAll} />
           <StatCard label="Completed" value={completed} />
           <StatCard label="Pending" value={Math.max(0, totalAll - completed)} />
           <StatCard label="Progress" value={`${progress}%`} />
         </div>
 
-        <section className="mt-6 rounded-[30px] border border-white/70 bg-white/90 p-5 shadow-xl backdrop-blur">
+        <section className="dsa-filter-panel mt-6 rounded-[30px] border border-white/70 bg-white/90 p-5 shadow-xl backdrop-blur">
           <div className="grid gap-3 lg:grid-cols-5">
             <input
               value={search}
@@ -185,7 +186,7 @@ export default function DSA() {
           </div>
         </section>
 
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="dsa-topic-list mt-5 flex flex-wrap gap-2">
           {topics.filter((t) => t !== "All").map((t) => (
             <button
               key={t}
@@ -241,7 +242,7 @@ export default function DSA() {
           </div>
         )}
 
-        <div className="mt-6 grid gap-5 lg:grid-cols-2">
+        <div className="dsa-question-grid mt-6 grid gap-5 lg:grid-cols-2">
           {questions.map((q, index) => (
             <article
               key={q.id || index}
