@@ -3,8 +3,8 @@ import api from "../lib/api";
 import "./DSA.css";
 
 const STORAGE_KEY = "skillyatra_real_dsa_done_v1";
-const CACHE_PREFIX = "skillyatra_dsa_server_page_cache_v4";
-const FULL_CACHE_PREFIX = "skillyatra_dsa_filtered_full_cache_v4";
+const CACHE_PREFIX = "skillyatra_dsa_server_page_cache_v10";
+const FULL_CACHE_PREFIX = "skillyatra_dsa_filtered_full_cache_v10";
 const PAGE_SIZE = 25;
 
 function readDone() {
@@ -57,8 +57,28 @@ function normalizeText(value) {
   return String(value || "").trim();
 }
 
-function makePageCacheKey({ page, topic, platform, difficulty, search }) {
-  return `${CACHE_PREFIX}:${page}:${topic || "All"}:${platform || "All"}:${difficulty || "All"}:${search || ""}`;
+function makePageCacheKey({
+  page,
+  topic,
+  platform,
+  difficulty,
+  search
+}) {
+  const normalize = (value, fallback = "") =>
+    encodeURIComponent(
+      String(value ?? fallback)
+        .trim()
+        .toLowerCase()
+    );
+
+  return [
+    CACHE_PREFIX,
+    Number(page || 1),
+    normalize(topic, "All"),
+    normalize(platform, "All"),
+    normalize(difficulty, "All"),
+    normalize(search, "")
+  ].join(":");
 }
 
 function makeFullCacheKey({ topic, platform, difficulty, search }) {
@@ -114,6 +134,7 @@ export default function DSA() {
 
   const [loading, setLoading] = useState(false);
   const requestRef = useRef(0);
+  const abortControllerRef = useRef(null);
 
   const applyServerData = useCallback((data, fallbackPage = 1) => {
     if (!data?.ok) return;
@@ -148,28 +169,11 @@ export default function DSA() {
     setPage(safePage);
   }, []);
 
-  async function prefetchServerPage({
-    targetPage = 1,
-    nextTopic = "All",
-    nextPlatform = "All",
-    nextDifficulty = "All",
-    nextSearch = ""
-  }) {
-    const filters = {
-      page: targetPage,
-      topic: nextTopic,
-      platform: nextPlatform,
-      difficulty: nextDifficulty,
-      search: nextSearch
-    };
-
-    const key = makePageCacheKey(filters);
-    if (readCache(key)) return;
-
-    try {
-      const res = await api.get(buildQuestionsUrl(filters));
-      if (res.data?.ok) writeCache(key, res.data);
-    } catch {}
+  async function prefetchServerPage() {
+    // Disabled intentionally.
+    // Background prefetch previously allowed stale topic/page data
+    // to overwrite the user's latest selection.
+    return;
   }
 
   async function loadServerPage({
@@ -180,60 +184,111 @@ export default function DSA() {
     nextSearch = "",
     force = false
   }) {
+    const safePage = Math.max(1, Number(targetPage || 1));
+
     const filters = {
-      page: targetPage,
-      topic: nextTopic,
-      platform: nextPlatform,
-      difficulty: nextDifficulty,
-      search: nextSearch
+      page: safePage,
+      topic: nextTopic || "All",
+      platform: nextPlatform || "All",
+      difficulty: nextDifficulty || "All",
+      search: nextSearch || ""
     };
 
     const cacheKey = makePageCacheKey(filters);
-    const cached = !force ? readCache(cacheKey) : null;
+    const cached = force ? null : readCache(cacheKey);
 
-    const reqId = Date.now() + Math.random();
+    // Cancel previous topic/page request.
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    const reqId = requestRef.current + 1;
     requestRef.current = reqId;
 
-    if (cached) {
-      applyServerData(cached, targetPage);
-      setLoading(false);
-    } else {
+    // Never show previous topic/page cards.
+    setQuestions([]);
+    setPage(safePage);
+    setLoading(true);
+
+    if (cached?.ok) {
+      applyServerData(cached, safePage);
       setLoading(false);
     }
 
     try {
-      const res = await api.get(buildQuestionsUrl(filters));
-      if (requestRef.current !== reqId) return;
-
-      if (res.data?.ok) {
-        writeCache(cacheKey, res.data);
-        applyServerData(res.data, targetPage);
-
-        const freshPage = Number(res.data.page || targetPage);
-        const freshTotalPages = Number(res.data.totalPages || 1);
-
-        for (let i = 1; i <= 4; i += 1) {
-          if (freshPage + i <= freshTotalPages) {
-            setTimeout(() => {
-              prefetchServerPage({
-                targetPage: freshPage + i,
-                nextTopic,
-                nextPlatform,
-                nextDifficulty,
-                nextSearch
-              });
-            }, i * 120);
+      const res = await api.get(
+        buildQuestionsUrl({
+          page: safePage,
+          limit: PAGE_SIZE,
+          topic: filters.topic,
+          platform: filters.platform,
+          difficulty: filters.difficulty,
+          search: filters.search
+        }),
+        {
+          signal: controller.signal,
+          params: {
+            _t: Date.now()
+          },
+          headers: {
+            "Cache-Control": "no-cache"
           }
         }
+      );
+
+      if (
+        controller.signal.aborted ||
+        requestRef.current !== reqId
+      ) {
+        return;
       }
-    } catch {
-      if (!cached) {
+
+      const data = res.data;
+
+      if (!data?.ok) {
+        throw new Error("Invalid DSA response");
+      }
+
+      const receivedQuestions = Array.isArray(data.questions)
+        ? data.questions
+        : [];
+
+      const normalizedData = {
+        ...data,
+        page: Number(data.page || safePage),
+        limit: Number(data.limit || PAGE_SIZE),
+        total: Number(data.total || 0),
+        totalAll: Number(data.totalAll || 0),
+        totalPages: Math.max(
+          1,
+          Number(
+            data.totalPages ||
+            Math.ceil(Number(data.total || 0) / PAGE_SIZE)
+          )
+        ),
+        questions: receivedQuestions
+      };
+
+      writeCache(cacheKey, normalizedData);
+      applyServerData(normalizedData, safePage);
+    } catch (error) {
+      if (error?.name === "CanceledError" || error?.name === "AbortError") {
+        return;
+      }
+
+      if (!cached && requestRef.current === reqId) {
         setQuestions([]);
         setTotal(0);
         setTotalPages(1);
+        setPage(safePage);
       }
     } finally {
-      if (requestRef.current === reqId) setLoading(false);
+      if (requestRef.current === reqId) {
+        setLoading(false);
+      }
     }
   }
 
@@ -245,53 +300,14 @@ export default function DSA() {
     nextSearch = search,
     force = false
   }) {
-    const filters = {
-      topic: nextTopic || "All",
-      platform: nextPlatform || "All",
-      difficulty: nextDifficulty || "All",
-      search: nextSearch || ""
-    };
-
-    const fullKey = makeFullCacheKey(filters);
-    const cachedFull = !force ? readCache(fullKey) : null;
-
-    const reqId = Date.now() + Math.random();
-    requestRef.current = reqId;
-
-    if (cachedFull) {
-      applyFullFilteredData(cachedFull, targetPage);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(false);
-
-    try {
-      const res = await api.get(
-        buildQuestionsUrl({
-          page: 1,
-          limit: 20000,
-          topic: filters.topic,
-          platform: filters.platform,
-          difficulty: filters.difficulty,
-          search: filters.search
-        })
-      );
-
-      if (requestRef.current !== reqId) return;
-
-      if (res.data?.ok) {
-        writeCache(fullKey, res.data);
-        applyFullFilteredData(res.data, targetPage);
-      }
-    } catch {
-      setQuestions([]);
-      setTotal(0);
-      setTotalPages(1);
-      setPage(targetPage);
-    } finally {
-      if (requestRef.current === reqId) setLoading(false);
-    }
+    return loadServerPage({
+      targetPage,
+      nextTopic,
+      nextPlatform,
+      nextDifficulty,
+      nextSearch,
+      force
+    });
   }
 
   const loadQuestions = useCallback(
@@ -303,32 +319,14 @@ export default function DSA() {
       nextSearch = search,
       force = false
     } = {}) => {
-      const filters = {
-        topic: nextTopic || "All",
-        platform: nextPlatform || "All",
-        difficulty: nextDifficulty || "All",
-        search: nextSearch || ""
-      };
-
-      if (hasActiveFilter(filters)) {
-        loadFilteredFull({
-          targetPage,
-          nextTopic: filters.topic,
-          nextPlatform: filters.platform,
-          nextDifficulty: filters.difficulty,
-          nextSearch: filters.search,
-          force
-        });
-      } else {
-        loadServerPage({
-          targetPage,
-          nextTopic: filters.topic,
-          nextPlatform: filters.platform,
-          nextDifficulty: filters.difficulty,
-          nextSearch: filters.search,
-          force
-        });
-      }
+      loadServerPage({
+        targetPage,
+        nextTopic: nextTopic || "All",
+        nextPlatform: nextPlatform || "All",
+        nextDifficulty: nextDifficulty || "All",
+        nextSearch: nextSearch || "",
+        force
+      });
     },
     [topic, platform, difficulty, search]
   );
@@ -342,41 +340,15 @@ export default function DSA() {
       nextSearch: "",
       force: false
     });
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, []);
 
-  useEffect(() => {
-    topics
-      .filter((item) => item && item !== "All")
-      .slice(0, 30)
-      .forEach((topicName, index) => {
-        setTimeout(() => {
-          const fullKey = makeFullCacheKey({
-            topic: topicName,
-            platform,
-            difficulty,
-            search: ""
-          });
 
-          if (readCache(fullKey)) return;
-
-          api
-            .get(
-              buildQuestionsUrl({
-                page: 1,
-                limit: 20000,
-                topic: topicName,
-                platform,
-                difficulty,
-                search: ""
-              })
-            )
-            .then((res) => {
-              if (res.data?.ok) writeCache(fullKey, res.data);
-            })
-            .catch(() => {});
-        }, index * 90);
-      });
-  }, [topics, platform, difficulty]);
 
   function searchNow() {
     setPage(1);
@@ -391,11 +363,16 @@ export default function DSA() {
   }
 
   function refreshAll() {
+    Object.keys(sessionStorage)
+      .filter((key) => key.includes("skillyatra_dsa"))
+      .forEach((key) => sessionStorage.removeItem(key));
+
     setTopic("All");
     setPlatform("All");
     setDifficulty("All");
     setSearch("");
     setPage(1);
+    setQuestions([]);
 
     loadQuestions({
       targetPage: 1,
@@ -410,6 +387,7 @@ export default function DSA() {
   function selectTopic(nextTopic) {
     setTopic(nextTopic);
     setPage(1);
+    setQuestions([]);
 
     loadQuestions({
       targetPage: 1,
@@ -424,6 +402,7 @@ export default function DSA() {
   function selectDifficulty(nextDifficulty) {
     setDifficulty(nextDifficulty);
     setPage(1);
+    setQuestions([]);
 
     loadQuestions({
       targetPage: 1,
@@ -438,6 +417,7 @@ export default function DSA() {
   function selectPlatform(nextPlatform) {
     setPlatform(nextPlatform);
     setPage(1);
+    setQuestions([]);
 
     loadQuestions({
       targetPage: 1,
@@ -450,8 +430,15 @@ export default function DSA() {
   }
 
   function changePage(targetPage) {
-    const safePage = Math.max(1, Math.min(totalPages || 1, targetPage));
+    const safePage = Math.max(
+      1,
+      Math.min(Number(totalPages || 1), Number(targetPage || 1))
+    );
+
+    if (safePage === page && questions.length > 0) return;
+
     setPage(safePage);
+    setQuestions([]);
 
     loadQuestions({
       targetPage: safePage,
@@ -462,7 +449,10 @@ export default function DSA() {
       force: false
     });
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
   }
 
   function toggleDone(id) {
@@ -649,6 +639,14 @@ export default function DSA() {
             </button>
           </div>
         </div>
+
+        {loading && questions.length === 0 && (
+          <div className="rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+            <h3 className="text-xl font-black text-indigo-700">
+              Loading selected questions...
+            </h3>
+          </div>
+        )}
 
         {!loading && questions.length === 0 && (
           <div className="rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
