@@ -1,64 +1,77 @@
-const CACHE_NAME = "skillyatra-fast-api-cache-v3";
-const BACKEND_ORIGIN = "https://skillyatra-backend.onrender.com";
+const CACHE_NAME = "skillyatra-static-v20";
 
-function isBackendGet(request) {
-  try {
-    const url = new URL(request.url);
-    return (
-      request.method === "GET" &&
-      url.origin === BACKEND_ORIGIN &&
-      url.pathname.startsWith("/api/") &&
-      !url.pathname.includes("/auth/login") &&
-      !url.pathname.includes("/auth/register")
-    );
-  } catch {
-    return false;
-  }
-}
-
-self.addEventListener("install", (event) => {
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    (async () => {
+      const cacheNames = await caches.keys();
+
+      await Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+
+      await self.clients.claim();
+    })()
+  );
 });
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-  if (!isBackendGet(request)) return;
+
+  // Only GET requests may be cached.
+  if (request.method !== "GET") {
+    return;
+  }
+
+  const url = new URL(request.url);
+
+  // Never intercept:
+  // 1. Render backend requests
+  // 2. Any cross-origin request
+  // 3. API requests
+  if (
+    url.origin !== self.location.origin ||
+    url.hostname.includes("onrender.com") ||
+    url.pathname.startsWith("/api/")
+  ) {
+    return;
+  }
 
   event.respondWith(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      const cached = await cache.match(request);
+    (async () => {
+      try {
+        const networkResponse = await fetch(request);
 
-      const networkPromise = fetch(request)
-        .then((response) => {
-          if (response && response.ok) {
-            cache.put(request, response.clone());
+        // Cache only valid same-origin basic responses.
+        if (
+          networkResponse &&
+          networkResponse.ok &&
+          networkResponse.type === "basic"
+        ) {
+          try {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, networkResponse.clone());
+          } catch (cacheError) {
+            // Cache failure must never break the page.
+            console.warn("Static cache skipped:", cacheError);
           }
-          return response;
-        })
-        .catch(() => null);
-
-      if (cached) {
-        event.waitUntil(networkPromise);
-        return cached;
-      }
-
-      const fresh = await networkPromise;
-      if (fresh) return fresh;
-
-      return new Response(
-        JSON.stringify({
-          ok: false,
-          message: "Network unavailable and no cache found"
-        }),
-        {
-          status: 503,
-          headers: { "Content-Type": "application/json" }
         }
-      );
-    })
+
+        return networkResponse;
+      } catch (networkError) {
+        const cachedResponse = await caches.match(request);
+
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        throw networkError;
+      }
+    })()
   );
 });
