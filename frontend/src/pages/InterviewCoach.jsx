@@ -471,6 +471,13 @@ export default function InterviewCoach() {
   const postureTimerRef = useRef(null);
   const faceLandmarkerRef = useRef(null);
   const lastPostureVoiceRef = useRef(0);
+  const recognitionRetryRef = useRef(0);
+  const manualVoiceStopRef = useRef(false);
+  const voiceStartedAtRef = useRef(0);
+  const voiceSilenceTimerRef = useRef(null);
+  const currentCrossQuestionRef = useRef("");
+  const crossQuestionAskedRef = useRef(false);
+  const mainAnswerRef = useRef("");
 
   const [companies, setCompanies] = useState(() => getAllCompanyPool());
   const [companySearch, setCompanySearch] = useState("");
@@ -964,104 +971,364 @@ async function initFaceLandmarker() {
   }
 
 
-  function startListening() {
+  function clearVoiceSilenceTimer() {
+    if (voiceSilenceTimerRef.current) {
+      clearTimeout(voiceSilenceTimerRef.current);
+      voiceSilenceTimerRef.current = null;
+    }
+  }
+
+  function buildHumanCrossQuestion(answerText, questionText) {
+    const answerClean = cleanText(answerText);
+    const questionClean = cleanText(questionText);
+    const resumeClean = cleanText(resumeText);
+
+    if (/project|built|developed|implemented|created/.test(answerClean)) {
+      return "What was the most difficult technical problem in that project, and how did you solve it?";
+    }
+
+    if (/team|collaborat|group/.test(answerClean)) {
+      return "What exactly was your individual contribution, and how did you handle disagreement in the team?";
+    }
+
+    if (/java|python|javascript|react|node|sql|mongodb/.test(answerClean)) {
+      return "Why did you choose that technology, and what alternative did you consider?";
+    }
+
+    if (/machine learning|model|accuracy|dataset/.test(answerClean)) {
+      return "How did you evaluate the model, and what would you improve if you had more time?";
+    }
+
+    if (/internship|experience|worked/.test(answerClean)) {
+      return "What measurable result did your work produce, and what did you personally learn?";
+    }
+
+    if (/strength|weakness/.test(questionClean)) {
+      return "Can you give one real example that proves this answer?";
+    }
+
+    if (/why should we hire|why.*company|introduce yourself|tell me about yourself/.test(questionClean)) {
+      return `Which part of your resume makes you most suitable for the ${selectedRole} role?`;
+    }
+
+    if (/api|backend|database/.test(answerClean)) {
+      return "How did you handle errors, validation, security, and performance in that implementation?";
+    }
+
+    if (/resume|project/.test(resumeClean)) {
+      return "Can you explain your exact contribution with one technical action and one measurable result?";
+    }
+
+    return "Can you explain that with one specific example, your exact action, and the final result?";
+  }
+
+  async function ensureMicrophonePermission() {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error("Microphone is not supported in this browser.");
+    }
+
+    const permissionStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    });
+
+    permissionStream.getAudioTracks().forEach((track) => track.stop());
+    return true;
+  }
+
+  function scheduleVoiceAutoSubmit() {
+    clearVoiceSilenceTimer();
+
+    voiceSilenceTimerRef.current = setTimeout(() => {
+      const heardText = (
+        transcriptRef.current.trim() ||
+        answer.trim()
+      ).trim();
+
+      if (heardText.split(/\s+/).filter(Boolean).length >= 4) {
+        stopListening(true);
+      }
+    }, 3500);
+  }
+
+  async function startListening(options = {}) {
+    const {
+      preserveTranscript = false,
+      retryAttempt = 0
+    } = options;
+
     try {
       setError("");
-      setVoiceStatus("");
+      setVoiceStatus("Checking microphone...");
       setAnswerReport(null);
+      manualVoiceStopRef.current = false;
 
       const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
 
       if (!SpeechRecognition) {
-        setError("Voice answer works best in Chrome. Allow microphone.");
+        setError(
+          "Voice recognition is not supported here. Open the website in Google Chrome."
+        );
+        setVoiceStatus("");
         return;
       }
 
+      if (!window.isSecureContext) {
+        setError("Microphone requires the secure HTTPS website.");
+        setVoiceStatus("");
+        return;
+      }
+
+      await ensureMicrophonePermission();
+
       stopVoice();
+      clearVoiceSilenceTimer();
 
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.abort();
+        } catch {}
         recognitionRef.current = null;
       }
 
-      transcriptRef.current = "";
-      setAnswer("");
+      if (!preserveTranscript) {
+        transcriptRef.current = "";
+        setAnswer("");
+      }
 
       const recognition = new SpeechRecognition();
+
       recognition.lang = "en-IN";
-      recognition.continuous = true;
+      recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.maxAlternatives = 1;
+      recognition.maxAlternatives = 3;
 
       recognition.onstart = () => {
+        voiceStartedAtRef.current = Date.now();
+        recognitionRetryRef.current = retryAttempt;
         setListening(true);
-        setVoiceStatus("Listening... answer like a real interview.");
+        setError("");
+
+        setVoiceStatus(
+          currentCrossQuestionRef.current
+            ? "Listening to your cross-question answer..."
+            : "Listening... speak naturally like a real interview."
+        );
+
+        scheduleVoiceAutoSubmit();
+      };
+
+      recognition.onaudiostart = () => {
+        setVoiceStatus("Microphone connected. Listening to you...");
+      };
+
+      recognition.onspeechstart = () => {
+        setVoiceStatus("Voice detected. Continue speaking...");
+        scheduleVoiceAutoSubmit();
       };
 
       recognition.onresult = (event) => {
-        let interim = "";
+        let interimText = "";
         let finalText = transcriptRef.current;
 
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
+        for (let i = event.resultIndex; i < event.results.length; i += 1) {
+          const result = event.results[i];
+          const transcript = String(
+            result?.[0]?.transcript || ""
+          ).trim();
 
-          if (event.results[i].isFinal) finalText += transcript + " ";
-          else interim += transcript;
+          if (!transcript) continue;
+
+          if (result.isFinal) {
+            finalText = `${finalText} ${transcript}`.trim();
+          } else {
+            interimText = `${interimText} ${transcript}`.trim();
+          }
         }
 
         transcriptRef.current = finalText;
-        setAnswer((finalText + interim).trim());
+
+        const completeText = `${finalText} ${interimText}`
+          .replace(/\s+/g, " ")
+          .trim();
+
+        setAnswer(completeText);
+        setError("");
+        setVoiceStatus("Voice detected. Continue, then pause to submit.");
+        scheduleVoiceAutoSubmit();
       };
 
       recognition.onerror = (event) => {
+        const voiceError = String(event?.error || "unknown");
+
         setListening(false);
+        clearVoiceSilenceTimer();
+
+        if (
+          voiceError === "aborted" ||
+          manualVoiceStopRef.current
+        ) {
+          return;
+        }
+
+        if (voiceError === "not-allowed" || voiceError === "service-not-allowed") {
+          setVoiceStatus("");
+          setError(
+            "Microphone is blocked. Click the lock icon near the website address, set Microphone to Allow, then reload."
+          );
+          return;
+        }
+
+        if (voiceError === "audio-capture") {
+          setVoiceStatus("");
+          setError(
+            "No working microphone was found. Check Mac microphone input and Chrome permission."
+          );
+          return;
+        }
+
+        if (voiceError === "no-speech") {
+          const existingText = transcriptRef.current.trim();
+
+          if (existingText) {
+            setVoiceStatus("Voice captured. Analyzing your answer...");
+            setTimeout(() => stopListening(true), 200);
+          } else {
+            setVoiceStatus("No speech detected. Listening again...");
+            setTimeout(() => {
+              startListening({
+                preserveTranscript: true,
+                retryAttempt: 0
+              });
+            }, 700);
+          }
+
+          return;
+        }
+
+        if (voiceError === "network") {
+          const currentRetry = recognitionRetryRef.current;
+
+          if (currentRetry < 2) {
+            recognitionRetryRef.current = currentRetry + 1;
+            setError("");
+            setVoiceStatus(
+              `Speech service reconnecting... attempt ${currentRetry + 2}/3`
+            );
+
+            setTimeout(() => {
+              startListening({
+                preserveTranscript: true,
+                retryAttempt: currentRetry + 1
+              });
+            }, 900);
+
+            return;
+          }
+
+          const existingText =
+            transcriptRef.current.trim() || answer.trim();
+
+          if (existingText) {
+            setError("");
+            setVoiceStatus(
+              "Speech service disconnected, but your captured answer is being analyzed."
+            );
+            setTimeout(() => analyzeAnswer(existingText, true), 300);
+          } else {
+            setVoiceStatus("");
+            setError(
+              "Chrome speech service could not connect. Check internet once, reload the page, and start voice answer again."
+            );
+          }
+
+          return;
+        }
+
         setVoiceStatus("");
-
-        if (event.error === "aborted") {
-          return;
-        }
-
-        if (event.error === "no-speech") {
-          setError("No voice detected. Speak clearly and try again.");
-          return;
-        }
-
-        setError(`Voice recognition error: ${event.error}. Allow microphone and try again.`);
+        setError(
+          `Voice recognition stopped (${voiceError}). Please start voice answer again.`
+        );
       };
 
-      recognition.onend = () => setListening(false);
+      recognition.onend = () => {
+        setListening(false);
+        clearVoiceSilenceTimer();
+
+        if (manualVoiceStopRef.current) return;
+
+        const finalText =
+          transcriptRef.current.trim() || answer.trim();
+
+        const wordCount = finalText
+          .split(/\s+/)
+          .filter(Boolean).length;
+
+        if (wordCount >= 4) {
+          setVoiceStatus("Answer captured. Analyzing...");
+          setTimeout(() => analyzeAnswer(finalText, true), 250);
+        }
+      };
 
       recognitionRef.current = recognition;
       recognition.start();
-    } catch {
+    } catch (err) {
       setListening(false);
-      setError("Could not start voice answer. Use Chrome and allow microphone.");
+      clearVoiceSilenceTimer();
+      setVoiceStatus("");
+
+      const message = String(err?.message || "");
+
+      if (/permission|denied|not allowed/i.test(message)) {
+        setError(
+          "Microphone permission denied. Allow microphone from Chrome address bar and Mac System Settings."
+        );
+      } else {
+        setError(
+          "Could not connect microphone. Check Chrome microphone permission and try again."
+        );
+      }
     }
   }
 
   function stopListening(shouldAnalyze = true) {
+    manualVoiceStopRef.current = true;
+    clearVoiceSilenceTimer();
+
+    const finalAnswer = (
+      transcriptRef.current.trim() ||
+      answer.trim()
+    ).trim();
+
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch {}
+
       recognitionRef.current = null;
     }
 
     setListening(false);
     setVoiceStatus("");
 
-    if (shouldAnalyze) {
-      setTimeout(() => {
-        const finalAnswer = transcriptRef.current.trim() || answer.trim();
+    if (!shouldAnalyze) return;
 
-        if (!finalAnswer) {
-          setError("No voice answer detected. Speak again clearly.");
-          speakText("I could not hear your answer clearly. Please answer again.");
-          return;
-        }
-
-        analyzeAnswer(finalAnswer, true);
-      }, 500);
+    if (!finalAnswer) {
+      setError("No voice answer detected. Speak again clearly.");
+      speakText(
+        "I could not hear your answer clearly. Please answer again."
+      );
+      return;
     }
+
+    setVoiceStatus("Answer captured. Analyzing...");
+    setTimeout(() => {
+      analyzeAnswer(finalAnswer, true);
+    }, 150);
   }
 
   async function generateQuestions() {
@@ -1157,7 +1424,9 @@ async function initFaceLandmarker() {
           },
           body: JSON.stringify({
             answer: finalAnswer,
-            question: activeQuestion?.question,
+            question:
+              currentCrossQuestionRef.current ||
+              activeQuestion?.question,
             roleName: selectedRole,
             resumeText
           })
@@ -1173,10 +1442,52 @@ async function initFaceLandmarker() {
       setAnswerReport(data);
 
       if (fromVoice) {
+        const score = Number(data.score || 0);
+        const mistakes = (data.improve || []).slice(0, 2).join(" ");
+        const isCrossAnswer = Boolean(currentCrossQuestionRef.current);
+
+        if (!isCrossAnswer && !crossQuestionAskedRef.current) {
+          mainAnswerRef.current = finalAnswer;
+          crossQuestionAskedRef.current = true;
+
+          const crossQuestion = buildHumanCrossQuestion(
+            finalAnswer,
+            activeQuestion?.question || ""
+          );
+
+          currentCrossQuestionRef.current = crossQuestion;
+
+          setVoiceStatus(`Cross-question: ${crossQuestion}`);
+
+          speakText(
+            `${
+              score >= 70
+                ? "Good. I would like to understand this more deeply."
+                : "Thank you. Let me ask one follow-up question."
+            } ${crossQuestion}`,
+            () => {
+              if (autoMode) {
+                setTimeout(() => {
+                  transcriptRef.current = "";
+                  setAnswer("");
+                  startListening();
+                }, 600);
+              }
+            }
+          );
+
+          return;
+        }
+
+        const combinedAnswer = isCrossAnswer
+          ? `${mainAnswerRef.current} Follow-up answer: ${finalAnswer}`.trim()
+          : finalAnswer;
+
         const entry = {
           question: activeQuestion?.question || "",
-          answer: finalAnswer,
-          score: data.score || 0,
+          crossQuestion: currentCrossQuestionRef.current || "",
+          answer: combinedAnswer,
+          score,
           feedback: data.feedback || [],
           improve: data.improve || [],
           type: activeQuestion?.type || "Interview",
@@ -1186,15 +1497,28 @@ async function initFaceLandmarker() {
 
         setInterviewHistory((prev) => [...prev, entry]);
 
-        const mistakes = (data.improve || []).slice(0, 2).join(" ");
-        const scoreText = `Your score is ${data.score || 0} percent.`;
+        currentCrossQuestionRef.current = "";
+        crossQuestionAskedRef.current = false;
+        mainAnswerRef.current = "";
+        transcriptRef.current = "";
+        setVoiceStatus("");
 
-        if ((data.score || 0) >= 70) {
-          speakText(`Good answer. ${scoreText} Moving to the next question.`, () => {
-            setTimeout(() => goNext(true), 800);
-          });
+        const scoreText = `Your answer score is ${score} percent.`;
+
+        if (score >= 60) {
+          speakText(
+            `Thank you. ${scoreText} Moving to the next interview question.`,
+            () => {
+              setTimeout(() => goNext(true), 700);
+            }
+          );
         } else {
-          speakText(`This answer needs improvement. ${scoreText} Mistake: ${mistakes || "Add a clear example, role skill, and result."} Please answer again more clearly.`);
+          speakText(
+            `Thank you. ${scoreText} Improve this by adding a specific example, your exact action, and a measurable result. Moving to the next question.`,
+            () => {
+              setTimeout(() => goNext(true), 900);
+            }
+          );
         }
       }
     } catch {
@@ -1271,6 +1595,10 @@ async function analyzeCodeAnswer() {
 function goNext(autoSpeak = false) {
     stopVoice();
     stopListening(false);
+    currentCrossQuestionRef.current = "";
+    crossQuestionAskedRef.current = false;
+    mainAnswerRef.current = "";
+    transcriptRef.current = "";
     setAnswer("");
     setAnswerReport(null);
     setCodeAnswer("");
@@ -1315,6 +1643,10 @@ function goNext(autoSpeak = false) {
   function goPrev() {
     stopVoice();
     stopListening(false);
+    currentCrossQuestionRef.current = "";
+    crossQuestionAskedRef.current = false;
+    mainAnswerRef.current = "";
+    transcriptRef.current = "";
     setAnswer("");
     setAnswerReport(null);
 
