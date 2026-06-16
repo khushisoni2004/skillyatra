@@ -287,7 +287,7 @@ export default function DSA() {
 
       const timeoutId = window.setTimeout(() => {
         controller.abort();
-      }, 20000);
+      }, 90000);
 
       try {
         const response = await fetch(
