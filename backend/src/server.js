@@ -80,7 +80,6 @@ app.use("/api/interview", interviewRoutes);
 app.use("/api/readiness-score", readinessRoutes);
 app.use("/api/practice-group", practiceGroupRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/dsa", require("./routes/dsaFixedRoutes"));
 app.use("/api/dsa", dsaRoutes);
 
 
