@@ -83,30 +83,59 @@ export default function Progress() {
 
     requestRunningRef.current = true;
 
+    const endpoints = [
+      "/progress",
+      "/progress/activities",
+      "/progress/history"
+    ];
+
+    let freshItems = null;
+
     try {
-      const { data } = await api.get("/progress", {
-        params: {
-          _t: Date.now()
-        },
-        headers: {
-          "Cache-Control": "no-cache"
+      for (const endpoint of endpoints) {
+        try {
+          const { data } = await api.get(endpoint, {
+            params: { _t: Date.now() },
+            headers: {
+              "Cache-Control": "no-cache"
+            },
+            timeout: 5000
+          });
+
+          const possibleItems = Array.isArray(data)
+            ? data
+            : Array.isArray(data?.items)
+              ? data.items
+              : Array.isArray(data?.progress)
+                ? data.progress
+                : Array.isArray(data?.activities)
+                  ? data.activities
+                  : Array.isArray(data?.history)
+                    ? data.history
+                    : null;
+
+          if (possibleItems !== null) {
+            freshItems = possibleItems;
+            break;
+          }
+        } catch {}
+      }
+
+      if (Array.isArray(freshItems)) {
+        setItems(freshItems);
+        writeProgressCache(freshItems);
+        setError("");
+      } else {
+        const cachedItems = readProgressCache();
+
+        if (cachedItems.length) {
+          setItems(cachedItems);
+          setError("");
+        } else if (showError) {
+          setError(
+            "Detailed progress activity endpoint is not available yet. Your saved dashboard progress is safe."
+          );
         }
-      });
-
-      const freshItems = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.items)
-          ? data.items
-          : Array.isArray(data?.progress)
-            ? data.progress
-            : [];
-
-      setItems(freshItems);
-      writeProgressCache(freshItems);
-      setError("");
-    } catch {
-      if (showError && items.length === 0) {
-        setError("Progress data not loaded. Make sure backend is running.");
       }
     } finally {
       requestRunningRef.current = false;
