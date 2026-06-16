@@ -3,8 +3,8 @@ import api from "../lib/api";
 import "./DSA.css";
 
 const STORAGE_KEY = "skillyatra_real_dsa_done_v1";
-const CACHE_PREFIX = "skillyatra_dsa_server_page_cache_v10";
-const FULL_CACHE_PREFIX = "skillyatra_dsa_filtered_full_cache_v10";
+const CACHE_PREFIX = "skillyatra_dsa_server_page_cache_v11";
+const FULL_CACHE_PREFIX = "skillyatra_dsa_filtered_full_cache_v11";
 const PAGE_SIZE = 25;
 
 function readDone() {
@@ -134,7 +134,6 @@ export default function DSA() {
 
   const [loading, setLoading] = useState(false);
   const requestRef = useRef(0);
-  const abortControllerRef = useRef(null);
 
   const applyServerData = useCallback((data, fallbackPage = 1) => {
     if (!data?.ok) return;
@@ -197,56 +196,49 @@ export default function DSA() {
     const cacheKey = makePageCacheKey(filters);
     const cached = force ? null : readCache(cacheKey);
 
-    // Cancel previous topic/page request.
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
     const reqId = requestRef.current + 1;
     requestRef.current = reqId;
 
-    // Never show previous topic/page cards.
-    setQuestions([]);
     setPage(safePage);
-    setLoading(true);
 
-    if (cached?.ok) {
+    if (cached?.ok && Array.isArray(cached.questions)) {
       applyServerData(cached, safePage);
       setLoading(false);
+    } else {
+      setQuestions([]);
+      setTotal(0);
+      setTotalPages(1);
+      setLoading(true);
+    }
+
+    const requestUrl = buildQuestionsUrl({
+      page: safePage,
+      limit: PAGE_SIZE,
+      topic: filters.topic,
+      platform: filters.platform,
+      difficulty: filters.difficulty,
+      search: filters.search
+    });
+
+    async function fetchQuestions() {
+      return api.get(requestUrl, {
+        timeout: 12000,});
     }
 
     try {
-      const res = await api.get(
-        buildQuestionsUrl({
-          page: safePage,
-          limit: PAGE_SIZE,
-          topic: filters.topic,
-          platform: filters.platform,
-          difficulty: filters.difficulty,
-          search: filters.search
-        }),
-        {
-          signal: controller.signal,
-          params: {
-            _t: Date.now()
-          },
-          headers: {
-            "Cache-Control": "no-cache"
-          }
-        }
-      );
+      let response;
 
-      if (
-        controller.signal.aborted ||
-        requestRef.current !== reqId
-      ) {
-        return;
+      try {
+        response = await fetchQuestions();
+      } catch {
+        // One automatic retry for temporary browser/network failure.
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        response = await fetchQuestions();
       }
 
-      const data = res.data;
+      if (requestRef.current !== reqId) return;
+
+      const data = response?.data;
 
       if (!data?.ok) {
         throw new Error("Invalid DSA response");
@@ -266,7 +258,7 @@ export default function DSA() {
           1,
           Number(
             data.totalPages ||
-            Math.ceil(Number(data.total || 0) / PAGE_SIZE)
+              Math.ceil(Number(data.total || 0) / PAGE_SIZE)
           )
         ),
         questions: receivedQuestions
@@ -275,16 +267,18 @@ export default function DSA() {
       writeCache(cacheKey, normalizedData);
       applyServerData(normalizedData, safePage);
     } catch (error) {
-      if (error?.name === "CanceledError" || error?.name === "AbortError") {
-        return;
-      }
+      if (requestRef.current !== reqId) return;
 
-      if (!cached && requestRef.current === reqId) {
+      if (cached?.ok && Array.isArray(cached.questions)) {
+        applyServerData(cached, safePage);
+      } else {
         setQuestions([]);
         setTotal(0);
         setTotalPages(1);
         setPage(safePage);
       }
+
+      console.error("DSA questions loading failed:", error);
     } finally {
       if (requestRef.current === reqId) {
         setLoading(false);
@@ -341,11 +335,7 @@ export default function DSA() {
       force: false
     });
 
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
+    return undefined;
   }, []);
 
 
