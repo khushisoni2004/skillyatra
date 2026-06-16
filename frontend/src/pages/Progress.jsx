@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import api from "../lib/api";
 
 function isSameDay(dateValue, target = new Date()) {
@@ -45,29 +45,125 @@ function getDayInfo(offset) {
   };
 }
 
+
+const PROGRESS_CACHE_KEY = "skillyatra_progress_realtime_cache_v1";
+
+function readProgressCache() {
+  try {
+    const raw = localStorage.getItem(PROGRESS_CACHE_KEY);
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed?.items) ? parsed.items : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeProgressCache(items) {
+  try {
+    localStorage.setItem(
+      PROGRESS_CACHE_KEY,
+      JSON.stringify({
+        updatedAt: Date.now(),
+        items: Array.isArray(items) ? items : []
+      })
+    );
+  } catch {}
+}
+
 export default function Progress() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState(readProgressCache);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const requestRunningRef = useRef(false);
 
-  async function loadProgress() {
+  async function loadProgress({ showError = false } = {}) {
+    if (requestRunningRef.current) return;
+
+    requestRunningRef.current = true;
+
     try {
-      setError("");
+      const { data } = await api.get("/progress", {
+        params: {
+          _t: Date.now()
+        },
+        headers: {
+          "Cache-Control": "no-cache"
+        }
+      });
 
-      const { data } = await api.get("/progress");
-      setItems(Array.isArray(data) ? data : []);
+      const freshItems = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.items)
+          ? data.items
+          : Array.isArray(data?.progress)
+            ? data.progress
+            : [];
+
+      setItems(freshItems);
+      writeProgressCache(freshItems);
+      setError("");
     } catch {
-      setError("Progress data not loaded. Make sure backend is running.");
+      if (showError && items.length === 0) {
+        setError("Progress data not loaded. Make sure backend is running.");
+      }
     } finally {
+      requestRunningRef.current = false;
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    loadProgress();
+    // Cached real progress appears instantly.
+    // Latest backend data replaces it silently in background.
+    loadProgress({ showError: items.length === 0 });
 
-    const timer = setInterval(loadProgress, 5000);
-    return () => clearInterval(timer);
+    const timer = setInterval(() => {
+      loadProgress({ showError: false });
+    }, 2000);
+
+    const syncNow = () => {
+      loadProgress({ showError: false });
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        syncNow();
+      }
+    };
+
+    const handleStorage = (event) => {
+      if (event.key === PROGRESS_CACHE_KEY) {
+        setItems(readProgressCache());
+      }
+
+      // Any SkillYatra progress activity in another tab triggers refresh.
+      if (
+        event.key &&
+        (
+          event.key.includes("progress") ||
+          event.key.includes("dsa") ||
+          event.key.includes("practice") ||
+          event.key.includes("roadmap")
+        )
+      ) {
+        syncNow();
+      }
+    };
+
+    window.addEventListener("focus", syncNow);
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("skillyatra-progress-updated", syncNow);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("focus", syncNow);
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("skillyatra-progress-updated", syncNow);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   const last14DaysItems = useMemo(() => {
@@ -139,7 +235,7 @@ export default function Progress() {
               </p>
             </div>
 
-            {loading && (
+            {false && loading && (
               <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-black text-sky-700 ring-1 ring-sky-100">
                 Loading...
               </span>
@@ -230,7 +326,7 @@ export default function Progress() {
                 </div>
 
                 <p className="text-xs font-bold text-slate-500">
-                  Auto-refreshes every 5 seconds using real progress data.
+                  Updates automatically from real progress data.
                 </p>
               </div>
             </div>
