@@ -120,59 +120,52 @@ skillyatra/
 
 
 ⚙️ Run Locally
-Clone the repository
+**Clone the repository**
+
 git clone https://github.com/khushisoni2004/skillyatra.git
 cd skillyatra
-Start the backend
+
+**Start the backend**
 cd backend
 npm install
 npm run dev
 
-Backend runs at:
-
+**Backend runs at:
+**
 http://localhost:5001
 Start the frontend
 
-Open another terminal:
-
+**Open another terminal:
+**
 cd frontend
 npm install
 npm run dev
 
-Frontend runs at:
+**Frontend runs at:**
 
 http://localhost:5173
 🔐 Environment Variables
 
-Create backend/.env:
 
+**Create backend/.env:
+**
 PORT=5001
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_secure_jwt_secret
 FRONTEND_URL=http://localhost:5173
 
-Create frontend/.env:
+**Create frontend/.env:**
 
 VITE_API_URL=http://localhost:5001/api
 
-Never commit passwords, API keys, database credentials, or .env files.
 
-💻 DSA Practice Workflow
-Select a topic, difficulty, or coding platform.
-Open the problem on its original platform.
-Solve and submit the question there.
-Return to SkillYatra.
-Click Mark Done.
-Track completed, pending, and overall progress.
-🚀 Live Project
-Application: skillyatra.vercel.app
-Source Code: github.com/khushisoni2004/skillyatra
-👩‍💻 Author
+**👩‍💻 Author**
 
 Khushi Soni
 
 GitHub: khushisoni2004
 LinkedIn: Khushi Soni
-📄 License
+
+**📄 License**
 
 This project is created for educational, portfolio, and placement-preparation purposes.
