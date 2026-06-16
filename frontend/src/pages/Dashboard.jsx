@@ -1,5 +1,5 @@
 import TodayPlanFinal from "./TodayPlanFinal";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -64,10 +64,29 @@ function readUser() {
   }
 }
 
-async function getJSON(path) {
-  const res = await fetch(`${API_BASE}${path}`);
-  if (!res.ok) throw new Error(path);
-  return await res.json();
+async function getJSON(path, timeoutMs = 5500) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const separator = path.includes("?") ? "&" : "?";
+
+    const res = await fetch(
+      `${API_BASE}${path}${separator}_t=${Date.now()}`,
+      {
+        cache: "no-store",
+        signal: controller.signal,
+        headers: {
+          "Cache-Control": "no-cache"
+        }
+      }
+    );
+
+    if (!res.ok) throw new Error(path);
+    return await res.json();
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function pickNumber(...values) {
@@ -115,10 +134,46 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState(() => (readDashboardCache()?.summary ? "cached" : ""));
   const [summary, setSummary] = useState(getInitialDashboardSummary);
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshRunningRef = useRef(false);
+  const refreshTimerRef = useRef(null);
 
-  const loadDashboard = async () => {
+  const loadDashboard = async ({ manual = false } = {}) => {
+    // Show existing real data immediately.
     setLoading(false);
     setUser(readUser());
+
+    const cachedDashboard = readDashboardCache();
+
+    if (cachedDashboard?.summary) {
+      setSummary(cachedDashboard.summary);
+      setLastSync(manual ? "refreshing" : "cached");
+    }
+
+    if (refreshRunningRef.current) {
+      if (manual) {
+        setRefreshing(true);
+
+        clearTimeout(refreshTimerRef.current);
+        refreshTimerRef.current = setTimeout(() => {
+          setRefreshing(false);
+        }, 450);
+      }
+
+      return;
+    }
+
+    refreshRunningRef.current = true;
+
+    if (manual) {
+      setRefreshing(true);
+
+      // Instant visual confirmation; no loading screen.
+      clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = setTimeout(() => {
+        setRefreshing(false);
+      }, 450);
+    }
 
     const cachedDashboard = readDashboardCache();
     if (cachedDashboard?.summary) {
@@ -248,12 +303,31 @@ export default function Dashboard() {
 
     setSummary(next);
     writeDashboardCache(next);
-    setLastSync(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+    setLastSync(
+      new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      })
+    );
+
     setLoading(false);
+    setRefreshing(false);
+    refreshRunningRef.current = false;
   };
 
   useEffect(() => {
-    loadDashboard();
+    loadDashboard({ manual: false });
+
+    const syncOnFocus = () => {
+      loadDashboard({ manual: false });
+    };
+
+    window.addEventListener("focus", syncOnFocus);
+
+    return () => {
+      window.removeEventListener("focus", syncOnFocus);
+      clearTimeout(refreshTimerRef.current);
+    };
   }, []);
 
   const name = user.name || "Student";
@@ -803,9 +877,17 @@ export default function Dashboard() {
                   <ArrowRight size={16} />
                 </Link>
 
-                <button type="button" onClick={loadDashboard} className="finaldash-ghost">
-                  <RefreshCw size={16} />
-                  Refresh Live Data
+                <button
+                  type="button"
+                  onClick={() => loadDashboard({ manual: true })}
+                  className="finaldash-ghost"
+                  aria-label="Refresh dashboard data"
+                >
+                  <RefreshCw
+                    size={16}
+                    className={refreshing ? "animate-spin" : ""}
+                  />
+                  {refreshing ? "Refreshed" : "Refresh Live Data"}
                 </button>
               </div>
             </div>
@@ -827,7 +909,13 @@ export default function Dashboard() {
               </div>
 
               <p className="finaldash-sync">
-                {`Live synced${lastSync && lastSync !== "cached" ? ` at ${lastSync}` : ""}.`}
+                {lastSync === "refreshing"
+                  ? "Showing saved live data. Updating silently..."
+                  : `Live synced${
+                      lastSync && lastSync !== "cached"
+                        ? ` at ${lastSync}`
+                        : ""
+                    }.`}
               </p>
             </div>
           </div>
