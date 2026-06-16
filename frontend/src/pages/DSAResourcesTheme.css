@@ -1,0 +1,442 @@
+/* =========================================================
+   DSA TRACKER — RESOURCES PAGE THEME
+   Visual/layout only. No API, dataset or logic changes.
+========================================================= */
+
+#root .dsa-theme-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px 36px;
+  overflow-x: hidden;
+  color: #0f172a;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(14, 165, 233, 0.16), transparent 27%),
+    radial-gradient(circle at 94% 12%, rgba(125, 211, 252, 0.30), transparent 34%),
+    radial-gradient(circle at 50% 96%, rgba(186, 230, 253, 0.23), transparent 31%),
+    linear-gradient(180deg, #ffffff 0%, #f4fbff 52%, #ffffff 100%);
+}
+
+#root .dsa-theme-shell {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+/* Header exactly like Resources theme */
+#root .dsa-theme-hero {
+  position: relative;
+  min-height: 220px;
+  padding: 40px 44px;
+  overflow: hidden;
+  border-radius: 36px;
+  color: #ffffff;
+  border: 1px solid rgba(186, 230, 253, 0.9);
+  background:
+    radial-gradient(circle at 88% 14%, rgba(255, 255, 255, 0.35), transparent 30%),
+    linear-gradient(135deg, #0284c7 0%, #0ea5e9 52%, #7dd3fc 100%);
+  box-shadow: 0 30px 85px rgba(14, 165, 233, 0.23);
+}
+
+#root .dsa-theme-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translateX(-120%) skewX(-18deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.16),
+    transparent
+  );
+  animation: dsaResourcesHeroShine 4s ease-in-out infinite;
+}
+
+#root .dsa-theme-hero::after {
+  content: "";
+  position: absolute;
+  right: 8%;
+  bottom: -95px;
+  width: 225px;
+  height: 225px;
+  border-radius: 999px;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.18);
+  animation: dsaResourcesBubble 7s ease-in-out infinite;
+}
+
+#root .dsa-theme-hero h1,
+#root .dsa-theme-hero h2,
+#root .dsa-theme-hero p {
+  position: relative;
+  z-index: 2;
+  color: #ffffff !important;
+}
+
+#root .dsa-theme-hero h1 {
+  margin: 0;
+  font-size: clamp(40px, 5vw, 65px);
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: -0.055em;
+}
+
+#root .dsa-theme-hero h2 {
+  margin: 14px 0 0;
+  font-size: clamp(23px, 2.5vw, 34px);
+  line-height: 1.12;
+  font-weight: 950;
+}
+
+#root .dsa-theme-hero p {
+  max-width: 780px;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.91) !important;
+  font-size: 15px;
+  line-height: 1.65;
+  font-weight: 760;
+}
+
+@keyframes dsaResourcesHeroShine {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+
+  45%,
+  100% {
+    transform: translateX(135%) skewX(-18deg);
+  }
+}
+
+@keyframes dsaResourcesBubble {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-18px) scale(1.05);
+  }
+}
+
+/* Stats */
+#root .dsa-theme-stats {
+  gap: 20px !important;
+}
+
+#root .dsa-theme-stat-card {
+  min-width: 0;
+  min-height: 132px;
+  padding: 24px !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  background:
+    radial-gradient(circle at 90% 8%, rgba(14, 165, 233, 0.12), transparent 35%),
+    linear-gradient(135deg, #ffffff 0%, #f8fcff 100%) !important;
+  box-shadow: 0 22px 56px rgba(14, 165, 233, 0.11) !important;
+  transition: transform 0.24s ease, box-shadow 0.24s ease !important;
+}
+
+#root .dsa-theme-stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 32px 76px rgba(14, 165, 233, 0.17) !important;
+}
+
+/* Filters */
+#root .dsa-theme-filters {
+  padding: 18px !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  box-shadow: 0 22px 58px rgba(14, 165, 233, 0.11) !important;
+}
+
+#root .dsa-theme-filters input,
+#root .dsa-theme-filters select {
+  min-width: 0 !important;
+  min-height: 52px !important;
+  border-radius: 18px !important;
+  border: 1px solid #bae6fd !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  font-weight: 820 !important;
+  box-shadow: inset 0 2px 10px rgba(14, 165, 233, 0.05) !important;
+}
+
+#root .dsa-theme-filters input:focus,
+#root .dsa-theme-filters select:focus {
+  outline: none !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 5px rgba(56, 189, 248, 0.16) !important;
+}
+
+#root .dsa-theme-filters button {
+  min-height: 52px !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  color: #ffffff !important;
+  font-weight: 950 !important;
+  background:
+    linear-gradient(135deg, #0ea5e9 0%, #38bdf8 52%, #22c55e 100%) !important;
+  box-shadow: 0 17px 38px rgba(14, 165, 233, 0.22) !important;
+  transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+}
+
+#root .dsa-theme-filters button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 52px rgba(14, 165, 233, 0.29) !important;
+}
+
+/* Topic buttons */
+#root .dsa-theme-topics {
+  padding: 15px !important;
+  border-radius: 26px !important;
+  border: 1px solid rgba(186, 230, 253, 0.9) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: 0 18px 46px rgba(14, 165, 233, 0.09) !important;
+}
+
+#root .dsa-theme-topics button {
+  padding: 9px 13px !important;
+  border-radius: 999px !important;
+  border: 1px solid #bae6fd !important;
+  color: #0369a1 !important;
+  background: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+#root .dsa-theme-topics button:hover,
+#root .dsa-theme-topics button.bg-indigo-600 {
+  transform: translateY(-3px) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  background:
+    linear-gradient(135deg, #0ea5e9 0%, #38bdf8 55%, #22c55e 100%) !important;
+  box-shadow: 0 16px 34px rgba(14, 165, 233, 0.22) !important;
+}
+
+/* Pagination */
+#root .dsa-theme-pagination,
+#root .dsa-theme-bottom-pagination {
+  padding: 17px 20px !important;
+  border-radius: 27px !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  box-shadow: 0 20px 52px rgba(14, 165, 233, 0.1) !important;
+}
+
+#root .dsa-theme-pagination button,
+#root .dsa-theme-bottom-pagination button {
+  min-height: 43px !important;
+  padding: 10px 17px !important;
+  border-radius: 14px !important;
+  border: 1px solid #bae6fd !important;
+  color: #0369a1 !important;
+  background: #ffffff !important;
+  font-weight: 950 !important;
+}
+
+#root .dsa-theme-pagination button:not(:disabled):hover,
+#root .dsa-theme-bottom-pagination button:not(:disabled):hover {
+  color: #ffffff !important;
+  border-color: transparent !important;
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Strict desktop two-column layout */
+#root .dsa-theme-question-grid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 24px !important;
+}
+
+/* Question card */
+#root .dsa-theme-question-card {
+  position: relative !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  min-height: 310px !important;
+  height: 100% !important;
+  padding: 26px !important;
+  overflow: hidden !important;
+  border-radius: 32px !important;
+  border: 1px solid rgba(125, 211, 252, 0.95) !important;
+  background:
+    radial-gradient(circle at 90% 8%, rgba(14, 165, 233, 0.15), transparent 32%),
+    linear-gradient(135deg, #ffffff 0%, #f7fcff 100%) !important;
+  box-shadow: 0 24px 62px rgba(14, 165, 233, 0.12) !important;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease !important;
+}
+
+#root .dsa-theme-question-card:hover {
+  transform: translateY(-8px) scale(1.008) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 36px 88px rgba(14, 165, 233, 0.19) !important;
+}
+
+/* Convert existing inner flex into vertical card */
+#root .dsa-theme-question-card > div {
+  width: 100% !important;
+  min-height: 255px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+}
+
+#root .dsa-theme-question-card > div > div:first-child {
+  width: 100% !important;
+  flex: 1 1 auto !important;
+}
+
+#root .dsa-theme-question-card h3 {
+  margin-top: 8px !important;
+  color: #0f172a !important;
+  font-size: clamp(20px, 1.55vw, 25px) !important;
+  line-height: 1.25 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.035em !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Existing badges */
+#root .dsa-theme-question-card span {
+  border-radius: 999px !important;
+  white-space: normal !important;
+}
+
+/* Actions anchored at card bottom */
+#root .dsa-theme-question-card > div > div:last-child {
+  width: 100% !important;
+  margin-top: auto !important;
+  padding-top: 22px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+/* Platform link button */
+#root .dsa-theme-open-btn {
+  position: relative !important;
+  min-width: 0 !important;
+  min-height: 49px !important;
+  padding: 12px 16px !important;
+  overflow: hidden !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  background:
+    linear-gradient(135deg, #0284c7 0%, #0ea5e9 55%, #38bdf8 100%) !important;
+  box-shadow: 0 17px 36px rgba(14, 165, 233, 0.24) !important;
+  transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+}
+
+#root .dsa-theme-open-btn:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 24px 50px rgba(14, 165, 233, 0.31) !important;
+}
+
+#root .dsa-theme-open-btn.is-disabled {
+  cursor: not-allowed !important;
+  color: #64748b !important;
+  background: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
+/* Mark Done */
+#root .dsa-theme-done-btn {
+  min-height: 49px !important;
+  padding: 12px 17px !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  background:
+    linear-gradient(135deg, #22c55e 0%, #10b981 100%) !important;
+  box-shadow: 0 17px 36px rgba(34, 197, 94, 0.21) !important;
+  transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+}
+
+#root .dsa-theme-done-btn:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 24px 48px rgba(34, 197, 94, 0.29) !important;
+}
+
+#root .dsa-theme-done-btn.is-completed {
+  color: #047857 !important;
+  border: 1px solid #6ee7b7 !important;
+  background: #d1fae5 !important;
+  box-shadow: none !important;
+}
+
+/* Tablet */
+@media (max-width: 1050px) {
+  #root .dsa-theme-page {
+    padding: 18px !important;
+  }
+
+  #root .dsa-theme-question-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  #root .dsa-theme-page {
+    padding: 14px !important;
+  }
+
+  #root .dsa-theme-hero {
+    min-height: auto !important;
+    padding: 29px 23px !important;
+    border-radius: 27px !important;
+  }
+
+  #root .dsa-theme-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #root .dsa-theme-question-card {
+    min-height: auto !important;
+    padding: 21px !important;
+    border-radius: 26px !important;
+  }
+
+  #root .dsa-theme-question-card > div {
+    min-height: 0 !important;
+  }
+
+  #root .dsa-theme-question-card > div > div:last-child {
+    grid-template-columns: 1fr !important;
+  }
+
+  #root .dsa-theme-open-btn,
+  #root .dsa-theme-done-btn {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 450px) {
+  #root .dsa-theme-stats {
+    grid-template-columns: 1fr !important;
+  }
+}
