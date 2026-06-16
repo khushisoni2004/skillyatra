@@ -119,47 +119,154 @@ function actualTechnicalSkillList(list) {
   return uniqueList(list).filter(isActualTechnicalSkill);
 }
 
+function escapeRegex(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function containsExactSkill(text, phrase) {
+  const cleanPhrase = cleanText(phrase);
+  const cleanResume = cleanText(text);
+
+  if (!cleanPhrase || !cleanResume) return false;
+
+  const escaped = escapeRegex(cleanPhrase).replace(/\s+/g, "\\s+");
+  const regex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i");
+
+  return regex.test(cleanResume);
+}
+
 function skillInResume(skill, resumeText) {
   const skillClean = cleanText(skill);
-  const resumeClean = cleanText(resumeText);
-  if (!skillClean || !resumeClean) return false;
+  if (!skillClean || !cleanText(resumeText)) return false;
 
   const aliases = {
-    crm: ["crm", "customer relationship management"],
-    "crm software": ["crm", "crm software", "customer relationship management"],
-    sales: ["sales", "selling"],
-    "cold calling": ["cold calling", "calling", "outbound calling"],
-    "business development": ["business development", "bde", "client acquisition"],
-    "customer service": ["customer service", "customer support", "client support"],
-    javascript: ["javascript", "js"],
+    "c": ["c programming", "language c"],
+    "c++": ["c++", "cpp"],
+    "c#": ["c#", "c sharp"],
+    java: ["java", "core java"],
+    python: ["python"],
+    javascript: ["javascript", "java script", "js"],
+    typescript: ["typescript", "type script", "ts"],
     react: ["react", "reactjs", "react.js"],
-    node: ["node", "nodejs", "node.js"],
-    "node.js": ["node", "nodejs", "node.js"],
-    mongodb: ["mongodb", "mongo db", "mongo"],
-    sql: ["sql", "mysql", "postgresql"],
+    angular: ["angular", "angularjs"],
+    vue: ["vue", "vuejs", "vue.js"],
+    node: ["nodejs", "node.js"],
+    "node.js": ["nodejs", "node.js"],
+    express: ["expressjs", "express.js"],
+    mongodb: ["mongodb", "mongo db"],
+    mysql: ["mysql"],
+    postgresql: ["postgresql", "postgres"],
+    sql: ["sql", "mysql", "postgresql", "postgres", "sql server"],
+    html: ["html", "html5"],
+    css: ["css", "css3"],
+    tailwind: ["tailwind", "tailwind css"],
+    bootstrap: ["bootstrap"],
+    git: ["git", "github", "gitlab"],
+    github: ["github"],
+    docker: ["docker", "containerization"],
+    kubernetes: ["kubernetes", "k8s"],
+    aws: ["aws", "amazon web services"],
+    azure: ["azure", "microsoft azure"],
+    gcp: ["gcp", "google cloud platform"],
+    linux: ["linux", "ubuntu"],
+    rest: ["rest api", "restful api", "restful services"],
+    "rest api": ["rest api", "restful api", "restful services"],
+    api: ["api", "apis"],
+    dsa: ["dsa", "data structures and algorithms"],
+    "data structures": ["data structures", "dsa"],
+    algorithms: ["algorithms", "dsa"],
+    oop: ["oop", "object oriented programming", "object-oriented programming"],
+    dbms: ["dbms", "database management system"],
+    os: ["operating systems", "operating system"],
+    networking: ["computer networks", "networking"],
     "machine learning": ["machine learning", "ml"],
+    "deep learning": ["deep learning", "neural networks"],
     "computer vision": ["computer vision", "opencv"],
+    opencv: ["opencv", "computer vision"],
+    tensorflow: ["tensorflow"],
+    pytorch: ["pytorch"],
+    pandas: ["pandas"],
+    numpy: ["numpy"],
+    sklearn: ["scikit-learn", "sklearn"],
+    excel: ["microsoft excel", "ms excel", "excel"],
+    tableau: ["tableau"],
+    "power bi": ["power bi", "powerbi"],
+    crm: ["crm", "customer relationship management"],
+    sap: ["sap", "sap fico", "sap fi"],
     accounting: ["accounting", "accounts"],
-    sap: ["sap", "sap fi", "sap fico"]
+    salesforce: ["salesforce"],
+    jira: ["jira"],
+    selenium: ["selenium"],
+    testing: ["software testing", "manual testing", "automation testing"],
+    "business analysis": ["business analysis", "business analyst"],
+    "data analysis": ["data analysis", "data analytics"],
+    analytics: ["analytics", "data analytics"],
+    figma: ["figma"]
   };
 
   const checks = aliases[skillClean] || [skillClean];
-  return checks.some((word) => resumeClean.includes(cleanText(word)));
+
+  return checks.some((alias) => containsExactSkill(resumeText, alias));
 }
 
-function getRoleSkillsFromDataset(selectedRoleData, analysis) {
+function getRoleSkillsFromDataset(selectedRoleData) {
   const rawSkills = uniqueList([
     ...(selectedRoleData?.skills || []),
     ...(selectedRoleData?.requiredSkills || []),
     ...(selectedRoleData?.topSkills || []),
-    ...(analysis?.roleSkills || []),
-    ...(analysis?.requiredSkills || []),
-    ...(analysis?.targetSkills || []),
-    ...(analysis?.matchedSkills || []),
-    ...(analysis?.missingSkills || [])
+    ...(selectedRoleData?.technicalSkills || []),
+    ...(selectedRoleData?.tools || []),
+    ...(selectedRoleData?.technologies || [])
   ]);
 
   return actualTechnicalSkillList(rawSkills);
+}
+
+function buildInstantResumeAnalysis({
+  resumeText,
+  companyName,
+  roleName,
+  roleData
+}) {
+  const roleSkills = getRoleSkillsFromDataset(roleData);
+
+  const matchedSkills = roleSkills.filter((skill) =>
+    skillInResume(skill, resumeText)
+  );
+
+  const missingSkills = roleSkills.filter(
+    (skill) => !skillInResume(skill, resumeText)
+  );
+
+  const totalSkills = roleSkills.length;
+  const roleMatchScore = totalSkills
+    ? Math.round((matchedSkills.length / totalSkills) * 100)
+    : 0;
+
+  let readinessLabel = "Needs role-skill data";
+
+  if (totalSkills) {
+    if (roleMatchScore >= 80) readinessLabel = "Strong Role Fit";
+    else if (roleMatchScore >= 60) readinessLabel = "Good Role Fit";
+    else if (roleMatchScore >= 40) readinessLabel = "Moderate Role Fit";
+    else readinessLabel = "Needs Improvement";
+  }
+
+  return {
+    ok: true,
+    companyName,
+    roleName,
+    roleSkills,
+    requiredSkills: roleSkills,
+    targetSkills: roleSkills,
+    matchedSkills,
+    missingSkills,
+    roleMatchScore,
+    expectedPackage: roleData?.expectedPackage || "Not disclosed",
+    expectedExperience:
+      roleData?.expectedExperience || "Experience not specified",
+    readinessLabel
+  };
 }
 
 function makeDatasetProofSuggestions(missingSkills, roleName) {
@@ -241,8 +348,8 @@ export default function ResumeCoach() {
   }, [roles, selectedRole]);
 
   const datasetRequiredSkills = useMemo(() => {
-    return getRoleSkillsFromDataset(selectedRoleData, analysis);
-  }, [selectedRoleData, analysis]);
+    return getRoleSkillsFromDataset(selectedRoleData);
+  }, [selectedRoleData]);
 
   const strictMatchedSkills = useMemo(() => {
     const datasetMatched = datasetRequiredSkills.filter((skill) =>
@@ -310,53 +417,42 @@ export default function ResumeCoach() {
     }
   };
 
-  const analyzeResume = async () => {
-    try {
-      setError("");
-      setAnalysis(null);
+  const analyzeResume = () => {
+    setError("");
+    setAnalysis(null);
 
-      if (!selectedCompany) {
-        setError("Search and select company first.");
-        return;
-      }
-
-      if (!selectedRole) {
-        setError("Select target role first.");
-        return;
-      }
-
-      if (!resumeText.trim()) {
-        setError("Paste or upload complete resume first.");
-        return;
-      }
-
-      setAnalyzing(true);
-
-      const res = await fetch(`${API_BASE}/api/resume/analyze`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          resumeText,
-          companyName: selectedCompany,
-          roleName: selectedRole
-        })
-      });
-
-      const data = await res.json();
-
-      if (!data.ok) {
-        setError(data.message || "Resume analysis failed.");
-        return;
-      }
-
-      setAnalysis(data);
-    } catch (err) {
-      setError("Resume analysis failed. Check backend server.");
-    } finally {
-      setAnalyzing(false);
+    if (!selectedCompany) {
+      setError("Search and select company first.");
+      return;
     }
+
+    if (!selectedRole) {
+      setError("Select target role first.");
+      return;
+    }
+
+    if (!resumeText.trim()) {
+      setError("Paste or upload complete resume first.");
+      return;
+    }
+
+    const roleSkills = getRoleSkillsFromDataset(selectedRoleData);
+
+    if (!roleSkills.length) {
+      setError(
+        "Selected role does not contain actual technical skills in the dataset. Choose another dataset role."
+      );
+      return;
+    }
+
+    const instantResult = buildInstantResumeAnalysis({
+      resumeText,
+      companyName: selectedCompany,
+      roleName: selectedRole,
+      roleData: selectedRoleData
+    });
+
+    setAnalysis(instantResult);
   };
 
   return (
@@ -619,10 +715,10 @@ export default function ResumeCoach() {
 
             <button
               onClick={analyzeResume}
-              disabled={analyzing || uploading}
+              disabled={uploading}
               className="mt-5 w-full rounded-[22px] bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-indigo-200 transition hover:-translate-y-0.5 hover:scale-[1.01] disabled:cursor-not-allowed disabled:bg-slate-300"
             >
-              {analyzing ? "Analyzing..." : "Analyze Resume →"}
+              Analyze Resume →
             </button>
           </div>
         </section>
