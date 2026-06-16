@@ -175,7 +175,7 @@ export default function Dashboard() {
       }, 450);
     }
 
-    const cachedDashboard = readDashboardCache();
+
     if (cachedDashboard?.summary) {
       setSummary(cachedDashboard.summary);
       setLastSync("cached");
