@@ -56,67 +56,248 @@ function uniqueList(list) {
 }
 
 
-function isActualTechnicalSkill(skill) {
-  const s = cleanText(skill);
 
-  if (!s) return false;
+const ALWAYS_IGNORE_SKILLS = new Set([
+  "production",
+  "development",
+  "engineering",
+  "technical",
+  "technology",
+  "support",
+  "training",
+  "design",
+  "implementation",
+  "installation",
+  "windows installation",
+  "microsoft windows",
+  "windows",
+  "vector",
+  "functional",
+  "operations",
+  "business understanding",
+  "domain knowledge",
+  "software development",
+  "software engineering",
+  "software design",
+  "technical support",
+  "communication",
+  "communication skills",
+  "leadership",
+  "management",
+  "team management",
+  "project management",
+  "problem solving",
+  "analytical skills",
+  "teamwork",
+  "team work",
+  "collaboration",
+  "coordination",
+  "documentation",
+  "presentation skills",
+  "interpersonal skills",
+  "client handling",
+  "customer handling",
+  "stakeholder management"
+]);
 
-  const genericSkills = new Set([
-    "software development",
-    "software design",
-    "technical support",
-    "software engineering",
-    "project management",
-    "team management",
-    "software management",
-    "management",
-    "leadership",
-    "communication",
-    "good communication",
-    "problem solving",
-    "analytical skills",
-    "team work",
-    "teamwork",
-    "collaboration",
-    "coordination",
-    "documentation",
-    "client handling",
-    "customer handling",
-    "business understanding",
-    "domain knowledge",
-    "training",
-    "support",
-    "development",
-    "design",
-    "engineering"
-  ]);
+const SECURITY_SKILLS = new Set([
+  "siem",
+  "qradar",
+  "ibm qradar",
+  "arcsight",
+  "logrhythm",
+  "nessus",
+  "splunk",
+  "ids",
+  "ips",
+  "soc",
+  "vulnerability assessment",
+  "penetration testing",
+  "cyber security",
+  "cybersecurity",
+  "incident response",
+  "threat detection",
+  "network security"
+]);
 
-  if (genericSkills.has(s)) return false;
+const SYSTEM_ADMIN_SKILLS = new Set([
+  "linux system administration",
+  "linux administration",
+  "windows administration",
+  "windows server",
+  "active directory",
+  "system administration",
+  "server administration",
+  "desktop support",
+  "network administration"
+]);
 
-  const genericPhrases = [
-    "management",
-    "team management",
-    "project management",
-    "software management",
-    "software development",
-    "software design",
-    "software engineering",
-    "technical support",
-    "communication skill",
-    "leadership",
-    "collaboration",
-    "coordination"
-  ];
+const ROLE_LABEL_SKILLS = new Set([
+  "business analysis",
+  "business analyst",
+  "software developer",
+  "software engineer",
+  "data analyst",
+  "data scientist",
+  "web developer",
+  "full stack developer",
+  "backend developer",
+  "frontend developer",
+  "project manager",
+  "product manager"
+]);
 
-  if (genericPhrases.some((phrase) => s === cleanText(phrase))) {
-    return false;
+const HARD_TECH_PATTERNS = [
+  /\bjava\b/i,
+  /\bpython\b/i,
+  /\bc\+\+\b/i,
+  /\bc#\b/i,
+  /\bjavascript\b/i,
+  /\btypescript\b/i,
+  /\breact\b/i,
+  /\bangular\b/i,
+  /\bvue\b/i,
+  /\bnode(\.js|js)?\b/i,
+  /\bexpress(\.js|js)?\b/i,
+  /\bspring\b/i,
+  /\bspring boot\b/i,
+  /\bdjango\b/i,
+  /\bflask\b/i,
+  /\bfastapi\b/i,
+  /\bhtml5?\b/i,
+  /\bcss3?\b/i,
+  /\btailwind\b/i,
+  /\bbootstrap\b/i,
+  /\bsql\b/i,
+  /\bmysql\b/i,
+  /\bpostgres(ql)?\b/i,
+  /\bmongodb\b/i,
+  /\boracle\b/i,
+  /\bredis\b/i,
+  /\bgraphql\b/i,
+  /\brest api\b/i,
+  /\brestful api\b/i,
+  /\bmicroservices\b/i,
+  /\bgit\b/i,
+  /\bgithub\b/i,
+  /\bdocker\b/i,
+  /\bkubernetes\b/i,
+  /\baws\b/i,
+  /\bazure\b/i,
+  /\bgcp\b/i,
+  /\bjenkins\b/i,
+  /\bterraform\b/i,
+  /\bansible\b/i,
+  /\bpandas\b/i,
+  /\bnumpy\b/i,
+  /\btensorflow\b/i,
+  /\bpytorch\b/i,
+  /\bscikit.learn\b/i,
+  /\bopencv\b/i,
+  /\bmachine learning\b/i,
+  /\bdeep learning\b/i,
+  /\bcomputer vision\b/i,
+  /\bpower bi\b/i,
+  /\btableau\b/i,
+  /\bexcel\b/i,
+  /\bvba\b/i,
+  /\bsap\b/i,
+  /\bsalesforce\b/i,
+  /\bjira\b/i,
+  /\bscrum\b/i,
+  /\bagile\b/i,
+  /\bselenium\b/i,
+  /\bpostman\b/i,
+  /\bfigma\b/i,
+  /\boop\b/i,
+  /\bdbms\b/i,
+  /\bdsa\b/i,
+  /\bdata structures\b/i,
+  /\balgorithms\b/i
+];
+
+function roleFamily(roleName) {
+  const role = cleanText(roleName);
+
+  if (/(cyber|security|soc|siem|threat|vulnerability|penetration)/.test(role)) {
+    return "security";
   }
 
-  return true;
+  if (/(system admin|administrator|desktop support|infrastructure|network admin)/.test(role)) {
+    return "system";
+  }
+
+  if (/(devops|cloud|site reliability|sre|platform engineer)/.test(role)) {
+    return "devops";
+  }
+
+  if (/(data scientist|machine learning|artificial intelligence|ai engineer)/.test(role)) {
+    return "ai";
+  }
+
+  if (/(data analyst|business intelligence|bi analyst|analytics)/.test(role)) {
+    return "analytics";
+  }
+
+  if (/(business analyst|technical ba|business analysis|systems analyst)/.test(role)) {
+    return "business-analysis";
+  }
+
+  if (/(frontend|front end|react|angular|ui developer)/.test(role)) {
+    return "frontend";
+  }
+
+  if (/(backend|back end|api developer)/.test(role)) {
+    return "backend";
+  }
+
+  if (/(full stack|fullstack|software engineer|software developer|application developer)/.test(role)) {
+    return "software";
+  }
+
+  return "general";
 }
 
-function actualTechnicalSkillList(list) {
-  return uniqueList(list).filter(isActualTechnicalSkill);
+function isActualTechnicalSkill(skill, roleName = "") {
+  const value = cleanText(skill);
+  const family = roleFamily(roleName);
+
+  if (!value || value.length < 2) return false;
+  if (ALWAYS_IGNORE_SKILLS.has(value)) return false;
+  if (ROLE_LABEL_SKILLS.has(value)) return false;
+
+  if (SECURITY_SKILLS.has(value)) {
+    return family === "security";
+  }
+
+  if (SYSTEM_ADMIN_SKILLS.has(value)) {
+    return family === "system" || family === "devops";
+  }
+
+  if (
+    value.includes("windows installation") ||
+    value.includes("microsoft windows")
+  ) {
+    return family === "system";
+  }
+
+  if (
+    value.includes("siem") ||
+    value.includes("qradar") ||
+    value.includes("arcsight") ||
+    value.includes("logrhythm") ||
+    value.includes("nessus")
+  ) {
+    return family === "security";
+  }
+
+  return HARD_TECH_PATTERNS.some((pattern) => pattern.test(value));
+}
+
+function actualTechnicalSkillList(list, roleName = "") {
+  return uniqueList(list)
+    .filter((skill) => isActualTechnicalSkill(skill, roleName))
+    .slice(0, 15);
 }
 
 function escapeRegex(value) {
@@ -124,92 +305,51 @@ function escapeRegex(value) {
 }
 
 function containsExactSkill(text, phrase) {
-  const cleanPhrase = cleanText(phrase);
-  const cleanResume = cleanText(text);
+  const resume = cleanText(text);
+  const value = cleanText(phrase);
 
-  if (!cleanPhrase || !cleanResume) return false;
+  if (!resume || !value) return false;
 
-  const escaped = escapeRegex(cleanPhrase).replace(/\s+/g, "\\s+");
-  const regex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i");
-
-  return regex.test(cleanResume);
+  const pattern = escapeRegex(value).replace(/\s+/g, "\\s+");
+  return new RegExp(`(^|[^a-z0-9])${pattern}([^a-z0-9]|$)`, "i").test(resume);
 }
 
 function skillInResume(skill, resumeText) {
-  const skillClean = cleanText(skill);
-  if (!skillClean || !cleanText(resumeText)) return false;
+  const value = cleanText(skill);
 
   const aliases = {
-    "c": ["c programming", "language c"],
-    "c++": ["c++", "cpp"],
-    "c#": ["c#", "c sharp"],
-    java: ["java", "core java"],
-    python: ["python"],
     javascript: ["javascript", "java script", "js"],
     typescript: ["typescript", "type script", "ts"],
     react: ["react", "reactjs", "react.js"],
     angular: ["angular", "angularjs"],
-    vue: ["vue", "vuejs", "vue.js"],
     node: ["nodejs", "node.js"],
     "node.js": ["nodejs", "node.js"],
     express: ["expressjs", "express.js"],
     mongodb: ["mongodb", "mongo db"],
+    sql: ["sql", "mysql", "postgresql", "postgres", "sql server"],
     mysql: ["mysql"],
     postgresql: ["postgresql", "postgres"],
-    sql: ["sql", "mysql", "postgresql", "postgres", "sql server"],
-    html: ["html", "html5"],
-    css: ["css", "css3"],
-    tailwind: ["tailwind", "tailwind css"],
-    bootstrap: ["bootstrap"],
+    "rest api": ["rest api", "restful api", "restful services"],
+    api: ["api", "apis", "rest api"],
     git: ["git", "github", "gitlab"],
-    github: ["github"],
-    docker: ["docker", "containerization"],
-    kubernetes: ["kubernetes", "k8s"],
     aws: ["aws", "amazon web services"],
     azure: ["azure", "microsoft azure"],
     gcp: ["gcp", "google cloud platform"],
-    linux: ["linux", "ubuntu"],
-    rest: ["rest api", "restful api", "restful services"],
-    "rest api": ["rest api", "restful api", "restful services"],
-    api: ["api", "apis"],
+    "machine learning": ["machine learning", "ml"],
+    "deep learning": ["deep learning", "neural network", "neural networks"],
+    "computer vision": ["computer vision", "opencv"],
+    "power bi": ["power bi", "powerbi"],
     dsa: ["dsa", "data structures and algorithms"],
-    "data structures": ["data structures", "dsa"],
-    algorithms: ["algorithms", "dsa"],
     oop: ["oop", "object oriented programming", "object-oriented programming"],
     dbms: ["dbms", "database management system"],
-    os: ["operating systems", "operating system"],
-    networking: ["computer networks", "networking"],
-    "machine learning": ["machine learning", "ml"],
-    "deep learning": ["deep learning", "neural networks"],
-    "computer vision": ["computer vision", "opencv"],
-    opencv: ["opencv", "computer vision"],
-    tensorflow: ["tensorflow"],
-    pytorch: ["pytorch"],
-    pandas: ["pandas"],
-    numpy: ["numpy"],
-    sklearn: ["scikit-learn", "sklearn"],
-    excel: ["microsoft excel", "ms excel", "excel"],
-    tableau: ["tableau"],
-    "power bi": ["power bi", "powerbi"],
-    crm: ["crm", "customer relationship management"],
-    sap: ["sap", "sap fico", "sap fi"],
-    accounting: ["accounting", "accounts"],
-    salesforce: ["salesforce"],
-    jira: ["jira"],
-    selenium: ["selenium"],
-    testing: ["software testing", "manual testing", "automation testing"],
-    "business analysis": ["business analysis", "business analyst"],
-    "data analysis": ["data analysis", "data analytics"],
-    analytics: ["analytics", "data analytics"],
-    figma: ["figma"]
+    excel: ["excel", "microsoft excel", "ms excel"]
   };
 
-  const checks = aliases[skillClean] || [skillClean];
-
-  return checks.some((alias) => containsExactSkill(resumeText, alias));
+  const checks = aliases[value] || [value];
+  return checks.some((item) => containsExactSkill(resumeText, item));
 }
 
-function getRoleSkillsFromDataset(selectedRoleData) {
+function getRoleSkillsFromDataset(selectedRoleData, roleName = "") {
   const rawSkills = uniqueList([
     ...(selectedRoleData?.skills || []),
     ...(selectedRoleData?.requiredSkills || []),
@@ -219,58 +359,11 @@ function getRoleSkillsFromDataset(selectedRoleData) {
     ...(selectedRoleData?.technologies || [])
   ]);
 
-  return actualTechnicalSkillList(rawSkills);
-}
-
-function buildInstantResumeAnalysis({
-  resumeText,
-  companyName,
-  roleName,
-  roleData
-}) {
-  const roleSkills = getRoleSkillsFromDataset(roleData);
-
-  const matchedSkills = roleSkills.filter((skill) =>
-    skillInResume(skill, resumeText)
-  );
-
-  const missingSkills = roleSkills.filter(
-    (skill) => !skillInResume(skill, resumeText)
-  );
-
-  const totalSkills = roleSkills.length;
-  const roleMatchScore = totalSkills
-    ? Math.round((matchedSkills.length / totalSkills) * 100)
-    : 0;
-
-  let readinessLabel = "Needs role-skill data";
-
-  if (totalSkills) {
-    if (roleMatchScore >= 80) readinessLabel = "Strong Role Fit";
-    else if (roleMatchScore >= 60) readinessLabel = "Good Role Fit";
-    else if (roleMatchScore >= 40) readinessLabel = "Moderate Role Fit";
-    else readinessLabel = "Needs Improvement";
-  }
-
-  return {
-    ok: true,
-    companyName,
-    roleName,
-    roleSkills,
-    requiredSkills: roleSkills,
-    targetSkills: roleSkills,
-    matchedSkills,
-    missingSkills,
-    roleMatchScore,
-    expectedPackage: roleData?.expectedPackage || "Not disclosed",
-    expectedExperience:
-      roleData?.expectedExperience || "Experience not specified",
-    readinessLabel
-  };
+  return actualTechnicalSkillList(rawSkills, roleName);
 }
 
 function makeDatasetProofSuggestions(missingSkills, roleName) {
-  return actualTechnicalSkillList(missingSkills).slice(0, 10).map((skill) => ({
+  return uniqueList(missingSkills).slice(0, 6).map((skill) => ({
     skill,
     whatToAdd: `Add real proof of ${skill} for ${roleName}.`,
     proof: `Mention internship, project, training, work task, certification, tool usage, or measurable result where you used ${skill}.`,
@@ -348,26 +441,26 @@ export default function ResumeCoach() {
   }, [roles, selectedRole]);
 
   const datasetRequiredSkills = useMemo(() => {
-    return getRoleSkillsFromDataset(selectedRoleData);
+    return getRoleSkillsFromDataset(selectedRoleData, selectedRole);
   }, [selectedRoleData]);
 
   const strictMatchedSkills = useMemo(() => {
-    const datasetMatched = datasetRequiredSkills.filter((skill) =>
+    return datasetRequiredSkills.filter((skill) =>
       skillInResume(skill, resumeText)
     );
-
-    return uniqueList([...(analysis?.matchedSkills || []), ...datasetMatched]);
-  }, [analysis, datasetRequiredSkills, resumeText]);
+  }, [datasetRequiredSkills, resumeText]);
 
   const strictMissingSkills = useMemo(() => {
-    const datasetMissing = datasetRequiredSkills.filter((skill) =>
-      !skillInResume(skill, resumeText)
-    );
-
-    return uniqueList([...(analysis?.missingSkills || []), ...datasetMissing]).filter(
-      (skill) => !strictMatchedSkills.some((matched) => cleanText(matched) === cleanText(skill))
-    );
-  }, [analysis, datasetRequiredSkills, resumeText, strictMatchedSkills]);
+    return datasetRequiredSkills
+      .filter((skill) => !skillInResume(skill, resumeText))
+      .filter(
+        (skill) =>
+          !strictMatchedSkills.some(
+            (matched) => cleanText(matched) === cleanText(skill)
+          )
+      )
+      .slice(0, 6);
+  }, [datasetRequiredSkills, resumeText, strictMatchedSkills]);
 
   const strictRoleMatchScore = useMemo(() => {
     if (!analysis) return "--";
@@ -436,7 +529,7 @@ export default function ResumeCoach() {
       return;
     }
 
-    const roleSkills = getRoleSkillsFromDataset(selectedRoleData);
+    const roleSkills = getRoleSkillsFromDataset(selectedRoleData, selectedRole);
 
     if (!roleSkills.length) {
       setError(
